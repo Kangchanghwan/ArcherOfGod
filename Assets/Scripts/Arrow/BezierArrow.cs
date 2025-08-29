@@ -78,18 +78,19 @@ public class BezierArrow : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    // private void OnCollisionEnter2D(Collision2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (hasHit) return;
 
-        var entity = other.collider.GetComponent<Entity>();
+        var entity = other.GetComponent<Entity>();
 
         if (entity != null && owner != null && entity.gameObject.name != owner.name)
         {
             HitTarget(entity);
         }
 
-        var ground =  other.collider.GetComponent<Ground>();
+        var ground =  other.GetComponent<Ground>();
 
         if (ground != null)
         {
