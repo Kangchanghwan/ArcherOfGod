@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 
 public class Player : Entity
 {
-    
+    public static event Action OnPlayerDeath;
+
     [Header("Movement")]
     [SerializeField] public float moveSpeed = 5f;
 
@@ -14,6 +16,8 @@ public class Player : Entity
     public PlayerMoveState moveState { get; private set; }
     public PlayerCastingState castingState { get; private set; }
     public PlayerJumpShootState jumpShootState { get; private set; }
+    public PlayerDeadState deadState { get; private set; }
+    public PlayerIdleState idleState { get; private set; }
 
     public PlayerInputManager input { get; private set; }
     public PlayerSkillManager skillManager { get; private set; }
@@ -34,6 +38,8 @@ public class Player : Entity
         moveState = new PlayerMoveState(stateMachine, "Move", this);
         castingState = new PlayerCastingState(stateMachine, "Casting", this);
         jumpShootState = new PlayerJumpShootState(stateMachine, "JumpShoot", this);
+        deadState = new PlayerDeadState(stateMachine, "Dead", this);
+        idleState = new PlayerIdleState(stateMachine, "Idle", this);
     }
 
     private void OnEnable()
@@ -42,6 +48,8 @@ public class Player : Entity
 
         input.Player.Move.performed += ctx => xInput = ctx.ReadValue<float>();
         input.Player.Move.canceled += ctx => xInput = 0f;
+        
+        Enemy.OnEnemyDeath += HandlePlayerDeath;
     }
 
     private void Start()
@@ -52,9 +60,18 @@ public class Player : Entity
     private void OnDisable()
     {
         input.Disable();
+        Enemy.OnEnemyDeath -= HandlePlayerDeath;  
         CancelInvoke();
     }
 
+    public override void EntityDeath()
+    {
+        base.EntityDeath();
+
+        OnPlayerDeath?.Invoke();
+        stateMachine.ChangeState(deadState);
+    }
+    
     public void BezierShoot()
     {
         if (stateMachine.currentState == attackState ||
@@ -76,4 +93,10 @@ public class Player : Entity
     public void ActivateManualRotation(bool manualRotation) => _manualRotation = manualRotation;
 
     public bool ManualRotationActive() => _manualRotation;
+    
+    private void HandlePlayerDeath()
+    {
+        stateMachine.ChangeState(idleState);
+    }
+ 
 }
