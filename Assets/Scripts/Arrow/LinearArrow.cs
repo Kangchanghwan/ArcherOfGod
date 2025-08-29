@@ -52,19 +52,18 @@ public class LinearArrow : MonoBehaviour
         }
     }
 
-    // private void OnCollisionEnter2D(Collision2D other)
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnCollisionEnter2D(Collision2D other)
     {
         if (hasHit) return;
 
-        var entity = other.GetComponent<Entity>();
+        var entity = other.collider.GetComponent<Entity>();
 
         if (entity != null && owner != null && entity.gameObject.name != owner.name)
         {
             HitTarget(entity);
         }
 
-        var ground = other.GetComponent<Ground>();
+        var ground = other.collider.GetComponent<Ground>();
 
         if (ground != null)
         {
