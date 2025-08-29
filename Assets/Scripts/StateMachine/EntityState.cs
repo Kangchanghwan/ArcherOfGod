@@ -25,7 +25,7 @@ public abstract class EntityState
 
     public virtual void Update()
     {
-        stateTimer += Time.deltaTime;
+        stateTimer -= Time.deltaTime;
     }
     public virtual void Exit()
     {

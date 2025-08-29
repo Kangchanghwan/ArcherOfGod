@@ -6,12 +6,15 @@ public class SkillBase : MonoBehaviour
 
     [Header("General detail")] [SerializeField]
     private float cooldown;
-    private float lastTimeUsed;
+    [SerializeField]
+    private float firstCooldown;
+    [SerializeField]
+    private float lastTimeUsed = 0f;
     public Entity entity { get ; private set; }
-
+    
     protected void Awake()
     {
-        lastTimeUsed -= cooldown;
+        lastTimeUsed = firstCooldown;
 
         entity = GetComponentInParent<Entity>();
     }

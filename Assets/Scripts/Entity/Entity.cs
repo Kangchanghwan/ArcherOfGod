@@ -34,7 +34,6 @@ public class Entity : MonoBehaviour
     }
     public virtual void EntityDeath()
     {
-        print("DIE~");
     }
 
     protected virtual void FlipController(float x)
@@ -61,4 +60,5 @@ public class Entity : MonoBehaviour
     {
         stateMachine.currentState.AnimationTrigger();
     }
+    
 }
