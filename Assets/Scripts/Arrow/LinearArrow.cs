@@ -52,18 +52,18 @@ public class LinearArrow : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (hasHit) return;
 
-        var entity = other.collider.GetComponent<Entity>();
+        var entity = other.GetComponent<Entity>();
 
         if (entity != null && owner != null && entity.gameObject.name != owner.name)
         {
             HitTarget(entity);
         }
 
-        var ground = other.collider.GetComponent<Ground>();
+        var ground = other.GetComponent<Ground>();
 
         if (ground != null)
         {
@@ -81,7 +81,7 @@ public class LinearArrow : MonoBehaviour
         entity.health.TakeDamage(damage);
 
         // 잠깐 후 삭제
-        ObjectPool.instance.ReturnObject(gameObject, 1f);
+        Destroy(gameObject, 1f);
     }
 
     private void HitGround()
@@ -91,10 +91,8 @@ public class LinearArrow : MonoBehaviour
         
         GetComponent<Collider2D>().enabled = false;
         
-        Debug.Log("Linear Arrow hit ground!");
-        
         // 땅에 박힌 후 삭제
-        ObjectPool.instance.ReturnObject(gameObject, 1f);
+        Destroy(gameObject, 1f);
     }
     
 

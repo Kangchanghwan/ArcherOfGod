@@ -78,18 +78,18 @@ public class BezierArrow : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (hasHit) return;
 
-        var entity = other.collider.GetComponent<Entity>();
+        var entity = other.GetComponent<Entity>();
 
         if (entity != null && owner != null && entity.gameObject.name != owner.name)
         {
             HitTarget(entity);
         }
 
-        var ground =  other.collider.GetComponent<Ground>();
+        var ground =  other.GetComponent<Ground>();
 
         if (ground != null)
         {
@@ -108,7 +108,6 @@ public class BezierArrow : MonoBehaviour
         // 충돌 효과
         GetComponent<Collider2D>().enabled = false;
         // 잠깐 후 삭제
-        ObjectPool.instance.ReturnObject(gameObject, 1f);
         Destroy(gameObject, 1f);
     }
 
@@ -122,7 +121,7 @@ public class BezierArrow : MonoBehaviour
         Debug.Log("Bezier Arrow hit ground!");
         
         // 땅에 박힌 후 삭제
-        ObjectPool.instance.ReturnObject(gameObject, 1f);
+        Destroy(gameObject, 1f);
     }
     
     // 현재 비행 상태 확인
