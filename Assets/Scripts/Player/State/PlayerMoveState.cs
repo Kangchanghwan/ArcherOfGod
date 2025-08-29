@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerState
 {
+
+    
     public PlayerMoveState(StateMachine stateMachine, string animBoolName, Player player) 
         : base(stateMachine, animBoolName, player)
     {

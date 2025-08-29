@@ -27,9 +27,8 @@ public class EnemyJumpShootState : EnemyState
 
         if (triggerCalled)
         {
-            stateMachine.ChangeState(enemy.moveState);
+            stateMachine.ChangeState(enemy.castingState);
         }
-        
     }
     
     public override void Exit()

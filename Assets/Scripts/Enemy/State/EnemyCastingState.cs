@@ -15,14 +15,19 @@ public class EnemyCastingState: EnemyState
     public override void Update()
     {
         base.Update();
+        
+
+        if (enemy.skillManager.jumpShoot.CanUseSkill())
+        {
+            stateMachine.ChangeState(enemy.jumpShootState);
+            enemy.skillManager.jumpShoot.SetSillOnCooldown();
+        }
 
         if (triggerCalled)
         {
             stateMachine.ChangeState(enemy.attackState);
         }
     }
-    
-
 
     public override void Exit()
     {

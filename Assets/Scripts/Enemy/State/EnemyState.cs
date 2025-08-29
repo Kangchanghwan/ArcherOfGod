@@ -7,6 +7,7 @@ public class EnemyState : EntityState
     protected EnemySkillManager skillManager;
 
     
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     public EnemyState(StateMachine stateMachine, string animBoolName, Enemy enemy) : 
         base(stateMachine, animBoolName)
     {
@@ -19,14 +20,6 @@ public class EnemyState : EntityState
     public override void Update()
     {
         base.Update();
-        
-
-        if (CanJumpShot())
-        {
-            skillManager.jumpShoot.SetSillOnCooldown();
-            stateMachine.ChangeState(enemy.jumpShootState);
-        }
-        
     }
     
     private bool CanJumpShot()
@@ -36,14 +29,6 @@ public class EnemyState : EntityState
             return false;
         }
         if (enemy.stateMachine.currentState == enemy.jumpShootState)
-        {
-            return false;
-        }
-        if (enemy.stateMachine.currentState == enemy.idleState)
-        {
-            return false;
-        }
-        if (enemy.stateMachine.currentState == enemy.deadState)
         {
             return false;
         }
