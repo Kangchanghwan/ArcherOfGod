@@ -108,6 +108,7 @@ public class BezierArrow : MonoBehaviour
         // 충돌 효과
         GetComponent<Collider2D>().enabled = false;
         // 잠깐 후 삭제
+        ObjectPool.instance.ReturnObject(gameObject, 1f);
         Destroy(gameObject, 1f);
     }
 
@@ -121,7 +122,7 @@ public class BezierArrow : MonoBehaviour
         Debug.Log("Bezier Arrow hit ground!");
         
         // 땅에 박힌 후 삭제
-        Destroy(gameObject, 2f);
+        ObjectPool.instance.ReturnObject(gameObject, 1f);
     }
     
     // 현재 비행 상태 확인

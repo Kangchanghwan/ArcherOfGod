@@ -81,7 +81,7 @@ public class LinearArrow : MonoBehaviour
         entity.health.TakeDamage(damage);
 
         // 잠깐 후 삭제
-        Destroy(gameObject, 1f);
+        ObjectPool.instance.ReturnObject(gameObject, 1f);
     }
 
     private void HitGround()
@@ -94,7 +94,7 @@ public class LinearArrow : MonoBehaviour
         Debug.Log("Linear Arrow hit ground!");
         
         // 땅에 박힌 후 삭제
-        Destroy(gameObject, 2f);
+        ObjectPool.instance.ReturnObject(gameObject, 1f);
     }
     
 

@@ -24,7 +24,9 @@ public class ArrowManager : MonoBehaviour
     public void LinearShoot()
     {
         ShootEffectFX(firePoint.position);
-        GameObject arrow = Instantiate(arrowPrefab, linearFirePoint.position, Quaternion.identity);
+       
+        GameObject arrow = ObjectPool.instance.GetObject(arrowPrefab);
+        arrow.transform.position = linearFirePoint.position;
         LinearArrow arrowScript = arrow.GetComponent<LinearArrow>();
         
         Vector2 direction = (targetPoint.position - linearFirePoint.position).normalized;
@@ -71,8 +73,9 @@ public class ArrowManager : MonoBehaviour
         Vector2 initialDirection = (controlPoint - startPos).normalized;
         Quaternion initialRotation = Quaternion.FromToRotation(Vector2.up, initialDirection);
         
-        GameObject arrow = Instantiate(arrowPrefab, firePoint.position, initialRotation);
-        
+        GameObject arrow = ObjectPool.instance.GetObject(arrowPrefab);
+        arrow.transform.position =  firePoint.position;
+        arrow.transform.rotation = initialRotation;
         
         BezierArrow arrowScript = arrow.GetComponent<BezierArrow>();
         
