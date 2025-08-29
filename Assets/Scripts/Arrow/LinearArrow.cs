@@ -6,16 +6,18 @@ public class LinearArrow : MonoBehaviour
     [SerializeField] private float damage = 10f;
     [SerializeField] private float speed = 20f;            // 화살 속도
     [SerializeField] private float lifeTime = 5f;
-
+    
     private Vector2 direction;
     private float currentSpeed;
     private bool hasHit = false;
     private bool isFlying = false;
-
-    public void Launch(Vector2 launchDirection, float launchSpeed = -1f)
+    private GameObject owner;
+    
+    public void Launch(Vector2 launchDirection, GameObject owner, float launchSpeed = -1f)
     {
         direction = launchDirection.normalized;
         currentSpeed = launchSpeed > 0 ? launchSpeed : speed;
+        this.owner = owner;
         
         isFlying = true;
         
@@ -56,9 +58,9 @@ public class LinearArrow : MonoBehaviour
 
         var entity = other.collider.GetComponent<Entity>();
 
-        if (entity != null)
+        if (entity != null && owner != null && entity.gameObject.name != owner.name)
         {
-            HitTarget();
+            HitTarget(entity);
         }
 
         var ground = other.collider.GetComponent<Ground>();
@@ -69,14 +71,15 @@ public class LinearArrow : MonoBehaviour
         }
     }
 
-    private void HitTarget()
+    private void HitTarget(Entity entity)
     {
         hasHit = true;
         isFlying = false;
         
         // 충돌 효과
         GetComponent<Collider2D>().enabled = false;
-        
+        entity.health.TakeDamage(damage);
+
         // 잠깐 후 삭제
         Destroy(gameObject, 1f);
     }

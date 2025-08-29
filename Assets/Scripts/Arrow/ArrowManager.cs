@@ -10,11 +10,6 @@ public class ArrowManager : MonoBehaviour
     [SerializeField] private float arcHeightMin = 2f; // 최소 호 높이
     [SerializeField] private float arcHeightMax = 5f; // 최대 호 높이
     
-    [Header("Pre-Launch Effect")]
-    [SerializeField] private float pullbackDistance = 0.5f; // 뒤로 당기는 거리
-    [SerializeField] private float pullbackTime = 0.3f; // 뒤로 이동하는 시간
-
-    
     [Header("References")]
     [SerializeField] private GameObject arrowPrefab;
     [SerializeField] private GameObject shootEffect;
@@ -34,7 +29,7 @@ public class ArrowManager : MonoBehaviour
         
         Vector2 direction = (targetPoint.position - linearFirePoint.position).normalized;
         
-        arrowScript.Launch(direction);
+        arrowScript.Launch(direction, gameObject);
     }
     
     
@@ -86,46 +81,16 @@ public class ArrowManager : MonoBehaviour
             arrowScript = arrow.AddComponent<BezierArrow>();
         }
         
-        StartCoroutine(SimplePullbackAndLaunch(arrow, arrowScript, startPos, controlPoint, endPos, flightTime, initialDirection));
+        arrowScript.Launch(startPos, controlPoint, endPos, flightTime, gameObject);
     }
 
     public void ShootEffectFX(Vector3 position)
     {
-        var effect = Instantiate(shootEffect,  position, Quaternion.identity);
-        Destroy(effect, 0.5f);
-        
+        // var effect = Instantiate(shootEffect,  position, Quaternion.identity);
+        // Destroy(effect, 0.5f);
     }
 
-    private IEnumerator SimplePullbackAndLaunch(GameObject arrow, BezierArrow arrowScript, Vector2 startPos, Vector2 controlPoint, Vector2 endPos, float flightTime, Vector2 launchDirection)
-    {
-        Transform arrowTransform = arrow.transform;
-        Vector2 pullbackDirection = -launchDirection.normalized;
-        Vector2 pullbackPos = startPos + pullbackDirection * pullbackDistance;
-        
-        float elapsedTime = 0f;
-        
-        // 뒤로 이동
-        while (elapsedTime < pullbackTime)
-        {
-            float t = elapsedTime / pullbackTime;
-            Vector2 currentPos = Vector2.Lerp(startPos, pullbackPos, t);
-            arrowTransform.position = currentPos;
-            
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        
-        // 최종 위치 설정
-        arrowTransform.position = pullbackPos;
-        
-        // 발사 이펙트 및 발사 (뒤로 간 위치에서)
-        ShootEffectFX(pullbackPos);
-        
-        // 뒤로 간 위치에서 새로운 제어점 계산
-        Vector2 newControlPoint = CalculateControlPoint(pullbackPos, endPos, Mathf.Lerp(arcHeightMin, arcHeightMax, Vector2.Distance(pullbackPos, endPos) / maxRange));
-        
-        arrowScript.Launch(pullbackPos, newControlPoint, endPos, flightTime, gameObject);
-    }
+    
     private Vector2 CalculateControlPoint(Vector2 start, Vector2 end, float arcHeight)
     {
         // 시작점과 끝점의 중간점

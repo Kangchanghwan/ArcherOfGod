@@ -5,6 +5,8 @@ public class Entity : MonoBehaviour
   
     public Rigidbody2D rb { get; protected set; }
     public Animator animator { get; protected set; }
+
+    public EntityHealth health;
     
     public bool facingRight = false;
     public bool canMove = true;
@@ -14,6 +16,7 @@ public class Entity : MonoBehaviour
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        health = GetComponent<EntityHealth>();
         animator = GetComponentInChildren<Animator>();
         
         stateMachine = new StateMachine();
@@ -29,7 +32,11 @@ public class Entity : MonoBehaviour
         rb.linearVelocity = new Vector2(xVelocity, yVelocity);
         FlipController(xVelocity);
     }
-    
+    public virtual void EntityDeath()
+    {
+        print("DIE~");
+    }
+
     protected virtual void FlipController(float x)
     {
         if (x > 0 && !facingRight)

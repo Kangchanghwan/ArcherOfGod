@@ -9,7 +9,7 @@ public class BezierArrow : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float damage = 10f;
     [SerializeField] private float lifeTime = 5f;
-    [SerializeField] private GameObject owner;
+    private GameObject owner;
     private Vector2 startPos;
     private Vector2 controlPoint;
     private Vector2 endPos;
@@ -84,9 +84,9 @@ public class BezierArrow : MonoBehaviour
 
         var entity = other.collider.GetComponent<Entity>();
 
-        if (entity != null && entity.gameObject.name != owner.name)
+        if (entity != null && owner != null && entity.gameObject.name != owner.name)
         {
-            HitTarget();
+            HitTarget(entity);
         }
 
         var ground =  other.collider.GetComponent<Ground>();
@@ -98,10 +98,12 @@ public class BezierArrow : MonoBehaviour
     }
 
 
-    private void HitTarget()
+    private void HitTarget(Entity entity)
     {
         hasHit = true;
         isFlying = false;
+
+        entity.health.TakeDamage(damage);
         
         // 충돌 효과
         GetComponent<Collider2D>().enabled = false;
