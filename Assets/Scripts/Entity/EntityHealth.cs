@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EntityHealth : MonoBehaviour, IDamageable
+public class EntityHealth : MonoBehaviour
 {
     public event Action OnHealthUpdate;
     
@@ -12,15 +12,7 @@ public class EntityHealth : MonoBehaviour, IDamageable
     
     public bool isDead { get; private set; }
     private bool canTakeDamage = true;
-
-    // 필요한 컴포넌트 참조
-    private Entity entity;
-
-    private void Awake()
-    {
-        entity = GetComponent<Entity>();
-    }
-
+    
     private void Start()
     {
         SetupHealth();
@@ -46,20 +38,17 @@ public class EntityHealth : MonoBehaviour, IDamageable
     }
 
 
-    private void ReduceHealth(float damage)
+    public void ReduceHealth(float damage)
     {
         currentHealth = Mathf.Max(0, currentHealth - damage);
         OnHealthUpdate?.Invoke();
-
-        if (currentHealth <= 0)
-            Die();
     }
 
-    protected virtual void Die()
-    {
-        isDead = true;
-        entity?.EntityDeath();
-    }
+    // protected virtual void Die()
+    // {
+    //     isDead = true;
+    //     entity?.EntityDeath();
+    // }
 
     private void UpdateHealthBar()
     {

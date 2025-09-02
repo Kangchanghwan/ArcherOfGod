@@ -8,7 +8,7 @@ public class SkillJumpShoot : SkillBase
     [SerializeField] private float jumpHeight = 0f;
     [SerializeField] private float upSpeed = 50f;          // 올라가는 속도
     [SerializeField] private float downSpeed = 30f;        // 내려가는 속도
-    
+    [SerializeField] private Rigidbody2D rb;
     private bool isJumped = false;
     private Vector3 originalPosition;  // 원래 위치 저장
     
@@ -20,7 +20,7 @@ public class SkillJumpShoot : SkillBase
             originalPosition = transform.position;
             
             // 올라가기
-            entity.SetVelocity(0, upSpeed);
+            rb.linearVelocity = new Vector2(0, upSpeed);
             
             float timeToReachPeak = jumpHeight / upSpeed;
             Invoke(nameof(FixYPosition), timeToReachPeak);
@@ -28,16 +28,20 @@ public class SkillJumpShoot : SkillBase
             isJumped = true;
         }
     }
+    public void SetVelocity(float xVelocity, float yVelocity)
+    {
+        rb.linearVelocity = new Vector2(xVelocity, yVelocity);
+        // FlipController(xVelocity);
+    }
 
     public void DownManualPosition()
     {
         if (isJumped)
         {
             // Y축 제약 해제
-            entity.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-            
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             // 하강
-            entity.SetVelocity(0, -downSpeed);
+            rb.linearVelocity = new Vector2(0, -downSpeed);
             
             float timeToFallDown = jumpHeight / downSpeed;
             Invoke(nameof(StopAtGround), timeToFallDown);
@@ -46,8 +50,8 @@ public class SkillJumpShoot : SkillBase
     
     private void FixYPosition()
     {
-        entity.rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-        entity.rb.linearVelocity = Vector2.zero;
+        rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+        rb.linearVelocity = Vector2.zero;
     }
     
     private void StopAtGround()
@@ -56,8 +60,8 @@ public class SkillJumpShoot : SkillBase
         transform.position = originalPosition;
         
         // 모든 제약 해제
-        entity.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        entity.rb.linearVelocity = Vector2.zero;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        rb.linearVelocity = Vector2.zero;
         
         isJumped = false;
     }

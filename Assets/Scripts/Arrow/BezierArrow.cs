@@ -82,12 +82,12 @@ public class BezierArrow : MonoBehaviour
     {
         if (hasHit) return;
 
-        var entity = other.GetComponent<Entity>();
-
-        if (entity != null && owner != null && entity.gameObject.name != owner.name)
-        {
-            HitTarget(entity);
-        }
+        // var entity = other.GetComponent<Entity>();
+        //
+        // if (entity != null && owner != null && entity.gameObject.name != owner.name)
+        // {
+        //     HitTarget(entity);
+        // }
 
         var ground =  other.GetComponent<Ground>();
 
@@ -98,18 +98,18 @@ public class BezierArrow : MonoBehaviour
     }
 
 
-    private void HitTarget(Entity entity)
-    {
-        hasHit = true;
-        isFlying = false;
-
-        entity.health.TakeDamage(damage);
-        
-        // 충돌 효과
-        GetComponent<Collider2D>().enabled = false;
-        // 잠깐 후 삭제
-        Destroy(gameObject, 1f);
-    }
+    // private void HitTarget(Entity entity)
+    // {
+    //     hasHit = true;
+    //     isFlying = false;
+    //
+    //     entity.health.TakeDamage(damage);
+    //     
+    //     // 충돌 효과
+    //     GetComponent<Collider2D>().enabled = false;
+    //     // 잠깐 후 삭제
+    //     Destroy(gameObject, 1f);
+    // }
 
     private void HitGround()
     {

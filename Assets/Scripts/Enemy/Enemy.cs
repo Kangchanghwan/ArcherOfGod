@@ -1,8 +1,18 @@
 using System;
 using UnityEngine;
 
-public class Enemy : Entity
+public class Enemy: MonoBehaviour, IDamageable
 {
+    
+    public Rigidbody2D rb { get; protected set; }
+    public Animator animator { get; protected set; }
+
+    public EntityHealth health;
+    
+    public bool facingRight = false;
+    public bool canMove = true;
+    
+    public StateMachine stateMachine { get; protected set; }
     public static event Action OnEnemyDeath;
 
     [Header("Enemy Settings")]
@@ -23,10 +33,14 @@ public class Enemy : Entity
     public EnemyDeadState deadState { get; private set; }
 
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake(); // Entity의 Awake 호출
-
+        rb = GetComponent<Rigidbody2D>();
+        health = GetComponent<EntityHealth>();
+        animator = GetComponentInChildren<Animator>();
+        
+        stateMachine = new StateMachine();
+        
         player = GameObject.Find("Player").GetComponent<Transform>();
 
         arrowManager = GetComponent<ArrowManager>();
@@ -45,7 +59,13 @@ public class Enemy : Entity
         stateMachine.Initialize(castingState);
     }
 
-    protected override void FlipController(float x)
+    private void Update()
+    {
+        stateMachine.currentState.Update();
+    }
+    
+
+    private void FlipController(float x)
     {
         if (x > 0 && !facingRight)
         {
@@ -56,7 +76,15 @@ public class Enemy : Entity
             Flip();
         }
     }
-
+    
+    public virtual void Flip()
+    {
+        facingRight = !facingRight;
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+    }
+    
     public void BezierShoot()
     {
         if (stateMachine.currentState == attackState ||
@@ -74,15 +102,23 @@ public class Enemy : Entity
             arrowManager.LinearShoot();
         }
     }
-
-    public override void EntityDeath()
+    public void SetVelocity(float xVelocity, float yVelocity)
     {
-        base.EntityDeath();
+        rb.linearVelocity = new Vector2(xVelocity, yVelocity);
+        FlipController(xVelocity);
+    }
+
+    public void Die()
+    {
         OnEnemyDeath.Invoke();
         stateMachine.ChangeState(deadState);
     }
 
-
+    public virtual void AnimationTrigger()
+    {
+        stateMachine.currentState.AnimationTrigger();
+    }
+    
     public void ActivateManualRotation(bool manualRotation) => _manualRotation = manualRotation;
 
     public bool ManualRotationActive() => _manualRotation;
@@ -100,5 +136,17 @@ public class Enemy : Entity
     private void OnDisable()
     {
         Player.OnPlayerDeath -= HandlePlayerDeath;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        // 체력 감소
+        health.ReduceHealth(damage);
+
+        if (health.GetCurrentHealth() <= 0)
+        {
+            Die();
+        }
+        
     }
 }

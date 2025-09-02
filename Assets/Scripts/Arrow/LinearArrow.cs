@@ -56,12 +56,12 @@ public class LinearArrow : MonoBehaviour
     {
         if (hasHit) return;
 
-        var entity = other.GetComponent<Entity>();
-
-        if (entity != null && owner != null && entity.gameObject.name != owner.name)
-        {
-            HitTarget(entity);
-        }
+        // var entity = other.GetComponent<Entity>();
+        //
+        // if (entity != null && owner != null && entity.gameObject.name != owner.name)
+        // {
+        //     HitTarget(entity);
+        // }
 
         var ground = other.GetComponent<Ground>();
 
@@ -71,18 +71,18 @@ public class LinearArrow : MonoBehaviour
         }
     }
 
-    private void HitTarget(Entity entity)
-    {
-        hasHit = true;
-        isFlying = false;
-        
-        // 충돌 효과
-        GetComponent<Collider2D>().enabled = false;
-        entity.health.TakeDamage(damage);
-
-        // 잠깐 후 삭제
-        Destroy(gameObject, 1f);
-    }
+    // private void HitTarget(Entity entity)
+    // {
+    //     hasHit = true;
+    //     isFlying = false;
+    //     
+    //     // 충돌 효과
+    //     GetComponent<Collider2D>().enabled = false;
+    //     entity.health.TakeDamage(damage);
+    //
+    //     // 잠깐 후 삭제
+    //     Destroy(gameObject, 1f);
+    // }
 
     private void HitGround()
     {

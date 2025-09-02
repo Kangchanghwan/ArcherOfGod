@@ -1,12 +1,20 @@
 using System;
 using UnityEngine;
 
-public class Player : Entity
+public class Player : MonoBehaviour, IDamageable
 {
+    public Rigidbody2D rb { get; protected set; }
+    public Animator animator { get; protected set; }
+
+    public EntityHealth health;
+
+    public bool facingRight = false;
+    public bool canMove = true;
+
+    public StateMachine stateMachine { get; protected set; }
     public static event Action OnPlayerDeath;
 
-    [Header("Movement")]
-    [SerializeField] public float moveSpeed = 5f;
+    [Header("Movement")] [SerializeField] public float moveSpeed = 5f;
 
     public Transform enemy;
     public ArrowManager arrowManager { get; private set; }
@@ -24,10 +32,14 @@ public class Player : Entity
 
     public float xInput { get; private set; }
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake(); // Entity의 Awake 호출
-        
+        rb = GetComponent<Rigidbody2D>();
+        health = GetComponent<EntityHealth>();
+        animator = GetComponentInChildren<Animator>();
+
+        stateMachine = new StateMachine();
+
         input = new PlayerInputManager();
         skillManager = GetComponent<PlayerSkillManager>();
         arrowManager = GetComponent<ArrowManager>();
@@ -42,13 +54,18 @@ public class Player : Entity
         idleState = new PlayerIdleState(stateMachine, "Idle", this);
     }
 
+    private void Update()
+    {
+        stateMachine.currentState.Update();
+    }
+
     private void OnEnable()
     {
         input.Enable();
 
         input.Player.Move.performed += ctx => xInput = ctx.ReadValue<float>();
         input.Player.Move.canceled += ctx => xInput = 0f;
-        
+
         Enemy.OnEnemyDeath += HandlePlayerDeath;
     }
 
@@ -60,18 +77,16 @@ public class Player : Entity
     private void OnDisable()
     {
         input.Disable();
-        Enemy.OnEnemyDeath -= HandlePlayerDeath;  
+        Enemy.OnEnemyDeath -= HandlePlayerDeath;
         CancelInvoke();
     }
 
-    public override void EntityDeath()
+    private void Die()
     {
-        base.EntityDeath();
-
         OnPlayerDeath?.Invoke();
         stateMachine.ChangeState(deadState);
     }
-    
+
     public void BezierShoot()
     {
         if (stateMachine.currentState == attackState ||
@@ -79,8 +94,8 @@ public class Player : Entity
         {
             arrowManager.BezierShoot(facingRight);
         }
-    } 
-    
+    }
+
     public void LinearShoot()
     {
         if (stateMachine.currentState == attackState ||
@@ -93,10 +108,53 @@ public class Player : Entity
     public void ActivateManualRotation(bool manualRotation) => _manualRotation = manualRotation;
 
     public bool ManualRotationActive() => _manualRotation;
-    
+
     private void HandlePlayerDeath()
     {
         stateMachine.ChangeState(idleState);
     }
- 
+
+    public virtual void SetVelocity(float xVelocity, float yVelocity)
+    {
+        rb.linearVelocity = new Vector2(xVelocity, yVelocity);
+        FlipController(xVelocity);
+    }
+
+    protected virtual void FlipController(float x)
+    {
+        if (x > 0 && !facingRight)
+        {
+            Flip();
+        }
+        else if (x < 0 && facingRight)
+        {
+            Flip();
+        }
+    }
+
+    public virtual void Flip()
+    {
+        facingRight = !facingRight;
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+    }
+
+    public virtual void AnimationTrigger()
+    {
+        stateMachine.currentState.AnimationTrigger();
+    }
+
+    public void TakeDamage(float damage)
+    {
+        // 체력 감소
+        health.ReduceHealth(damage);
+
+        if (health.GetCurrentHealth() <= 0)
+        {
+            Die();
+        }
+        
+    }
+    
 }
