@@ -10,8 +10,6 @@ public class EntityHealth : MonoBehaviour
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
     
-    public bool isDead { get; private set; }
-    private bool canTakeDamage = true;
     
     private void Start()
     {
@@ -26,17 +24,6 @@ public class EntityHealth : MonoBehaviour
         UpdateHealthBar();
     }
 
-    public virtual bool TakeDamage(float damage)
-    {
-        if (isDead || canTakeDamage == false)
-            return false;
-        
-        // 체력 감소
-        ReduceHealth(damage);
-        
-        return true;
-    }
-
 
     public void ReduceHealth(float damage)
     {
@@ -44,11 +31,6 @@ public class EntityHealth : MonoBehaviour
         OnHealthUpdate?.Invoke();
     }
 
-    // protected virtual void Die()
-    // {
-    //     isDead = true;
-    //     entity?.EntityDeath();
-    // }
 
     private void UpdateHealthBar()
     {
@@ -59,9 +41,6 @@ public class EntityHealth : MonoBehaviour
     }
 
     
-    public void SetCanTakeDamage(bool canTakeDamage) => this.canTakeDamage = canTakeDamage;
     public float GetCurrentHealth() => currentHealth;
     public float GetMaxHealth() =>  maxHealth;
-    public float GetHealthPercent() => currentHealth / GetMaxHealth();
-    public bool IsDead() => isDead;
 }

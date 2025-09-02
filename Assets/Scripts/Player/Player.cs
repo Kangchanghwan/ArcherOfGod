@@ -27,7 +27,7 @@ public class Player : MonoBehaviour, IDamageable
     public PlayerDeadState deadState { get; private set; }
     public PlayerIdleState idleState { get; private set; }
 
-    public PlayerInputManager input { get; private set; }
+    public InputManager input { get; private set; }
     public PlayerSkillManager skillManager { get; private set; }
 
     public float xInput { get; private set; }
@@ -40,7 +40,7 @@ public class Player : MonoBehaviour, IDamageable
 
         stateMachine = new StateMachine();
 
-        input = new PlayerInputManager();
+        input = InputManagerSingleton.Instance.InputManager;
         skillManager = GetComponent<PlayerSkillManager>();
         arrowManager = GetComponent<ArrowManager>();
 

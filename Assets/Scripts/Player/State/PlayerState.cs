@@ -4,7 +4,7 @@ public class PlayerState : EntityState
 {
 
     protected Player player;
-    protected PlayerInputManager input;
+    protected InputManager input;
     protected PlayerSkillManager skillManager;
 
     

@@ -1,5 +1,5 @@
 {
-    "name": "PlayerInputManager",
+    "name": "InputManager",
     "maps": [
         {
             "name": "Player",

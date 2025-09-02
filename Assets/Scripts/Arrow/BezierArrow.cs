@@ -77,10 +77,10 @@ public class BezierArrow : MonoBehaviour
             transform.up = direction.normalized;
         }
     }
-
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (hasHit) return;
+        //TODO: Entity에 대한 의존제거 및 중복 기능 합하기
 
         // var entity = other.GetComponent<Entity>();
         //
