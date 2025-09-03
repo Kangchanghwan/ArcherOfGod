@@ -2,15 +2,17 @@ using UnityEngine;
 
 public class PlayerAttackState: PlayerState
 {
-    
-    public PlayerAttackState(StateMachine stateMachine, string animBoolName, Player player) : base(stateMachine, animBoolName, player)
+    private ArrowManager _arrowManager;
+
+    public PlayerAttackState(PlayerContext context, string animBoolName, ArrowManager arrowManager) : base(context, animBoolName)
     {
+        _arrowManager = arrowManager;
     }
-    
+
     public override void Enter()
     {
         base.Enter();
-        if(player.facingRight == false) player.Flip();
+        if(playerController.facingRight == false) playerController.Flip();
         
     }
     
@@ -21,19 +23,33 @@ public class PlayerAttackState: PlayerState
         
         if (Mathf.Abs(player.xInput) > 0.1f)
         {
-            stateMachine.ChangeState(player.moveState);
+            playerController.ChangeState(playerController.MoveState);
         }
 
         if (triggerCalled)
         {
-            stateMachine.ChangeState(player.castingState);
+            playerController.ChangeState(playerController.CastingState);
         }
         
     }
 
-    public override void Exit()
+
+    public void BezierShoot()
     {
-        base.Exit();
+        if (playerController.CurrentState == playerController.AttackState ||
+            playerController.CurrentState == playerController.JumpShootState)
+        {
+            _arrowManager.BezierShoot(playerController.facingRight);
+        }
+    }
+    
+    public void LinearShoot()
+    {
+        if (playerController.CurrentState == playerController.AttackState ||
+            playerController.CurrentState == playerController.JumpShootState)
+        {
+            _arrowManager.LinearShoot();
+        }
     }
     
 }

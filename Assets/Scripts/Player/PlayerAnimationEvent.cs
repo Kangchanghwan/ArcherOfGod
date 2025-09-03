@@ -2,19 +2,19 @@ using UnityEngine;
 
 public class PlayerAnimationEvent : MonoBehaviour
 {
-    private Player player;
+    private PlayerController _playerController;
 
     private void Awake()
     {
-        player = GetComponentInParent<Player>();
+        _playerController = GetComponentInParent<PlayerController>();
     }
 
-    public void AnimationTrigger() => player.AnimationTrigger();
-    public void ArrowTrigger() => player.BezierShoot();
-    public void LinearArrowTrigger() => player.LinearShoot();
-    public void UpManualPosition() => player.skillManager.jumpShoot.UpManualPosition();
-    public void DownManualPosition() => player.skillManager.jumpShoot.DownManualPosition();
-    public void StartManualRotation() => player.ActivateManualRotation(true);
-    public void StopManualRotation() => player.ActivateManualRotation(false);
+    public void AnimationTrigger() => _playerController.AnimationTrigger();
+    public void ArrowTrigger() => _playerController.AttackState.BezierShoot();
+    public void LinearArrowTrigger() => _playerController.AttackState.LinearShoot();
+    // public void UpManualPosition() => player.skillManager.jumpShoot.UpManualPosition();
+    // public void DownManualPosition() => player.skillManager.jumpShoot.DownManualPosition();
+    // public void StartManualRotation() => player.ActivateManualRotation(true);
+    // public void StopManualRotation() => player.ActivateManualRotation(false);
     
 }

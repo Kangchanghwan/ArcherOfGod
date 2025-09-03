@@ -4,17 +4,17 @@ public class PlayerJumpShootState : PlayerState
 {
     [Header("Jump Settings")]
     public float jumpForce = 10f;
-    
-    public PlayerJumpShootState(StateMachine stateMachine, string animBoolName, Player player) 
-        : base(stateMachine, animBoolName, player)
+
+
+    public PlayerJumpShootState(PlayerContext context, string animBoolName, float jumpForce) : base(context, animBoolName)
     {
+        this.jumpForce = jumpForce;
     }
-    
+
     public override void Enter()
     {
         base.Enter();
-        player.canMove = false;
-        player.SetVelocity(0,0);
+        playerController.canMove = false;
     }
     
     public override void Update()
@@ -27,14 +27,14 @@ public class PlayerJumpShootState : PlayerState
 
         if (triggerCalled)
         {
-            stateMachine.ChangeState(player.castingState);
+            playerController.ChangeState(playerController.CastingState);
         }
     }
     
     public override void Exit()
     {
         base.Exit();
-        player.canMove = true;
+        playerController.canMove = true;
 
     }
 }

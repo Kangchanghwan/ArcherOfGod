@@ -5,74 +5,39 @@ using UnityEngine;
 public class Player : MonoBehaviour, IDamageable, ITargetable
 {
     public static event Action OnPlayerDeath;
-    
-    public Rigidbody2D rb { get; protected set; }
-    public Animator animator { get; protected set; }
 
+    private PlayerController _playerController;
     public EntityHealth health;
-
-    public bool facingRight = false;
-    public bool canMove = true;
-
-    public StateMachine stateMachine { get; protected set; }
+    
 
     [Header("Movement")] [SerializeField] public float moveSpeed = 5f;
-    public ArrowManager arrowManager { get; private set; }
     private bool _manualRotation;
 
     public ITargetable target;
-    
-    public PlayerAttackState attackState { get; private set; }
-    public PlayerMoveState moveState { get; private set; }
-    public PlayerCastingState castingState { get; private set; }
-    public PlayerJumpShootState jumpShootState { get; private set; }
-    public PlayerDeadState deadState { get; private set; }
-    public PlayerIdleState idleState { get; private set; }
-
-    public InputManager input { get; private set; }
-    public PlayerSkillManager skillManager { get; private set; }
 
     public float xInput { get; private set; }
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
         health = GetComponent<EntityHealth>();
-        animator = GetComponentInChildren<Animator>();
-
-        stateMachine = new StateMachine();
-
-        input = InputManagerSingleton.Instance.InputManager;
-        skillManager = GetComponent<PlayerSkillManager>();
-        arrowManager = GetComponent<ArrowManager>();
         
-    
-        attackState = new PlayerAttackState(stateMachine, "Attack", this);
-        moveState = new PlayerMoveState(stateMachine, "Move", this);
-        castingState = new PlayerCastingState(stateMachine, "Casting", this);
-        jumpShootState = new PlayerJumpShootState(stateMachine, "JumpShoot", this);
-        deadState = new PlayerDeadState(stateMachine, "Dead", this);
-        idleState = new PlayerIdleState(stateMachine, "Idle", this);
+        _playerController = GetComponent<PlayerController>();
     }
 
     private void Start()
     {
-        stateMachine.Initialize(castingState);
-
+        _playerController.Initialize(_playerController.CastingState);
         target = GameManager.instance.PlayerOfTarget;
     }
-    
-    private void Update()
-    {
-        stateMachine.currentState.Update();
-    }
+
 
     private void OnEnable()
     {
+        InputManager input = InputManagerSingleton.Instance.InputManager;
         input.Enable();
 
         input.Player.Move.performed += ctx => xInput = ctx.ReadValue<float>();
-        input.Player.Move.canceled += ctx => xInput = 0f;
+        input.Player.Move.canceled += _ => xInput = 0f;
 
         Enemy.OnEnemyDeath += HandlePlayerDeath;
     }
@@ -80,7 +45,8 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
 
     private void OnDisable()
     {
-        input.Disable();
+        
+        InputManagerSingleton.Instance.InputManager.Disable();
         Enemy.OnEnemyDeath -= HandlePlayerDeath;
         CancelInvoke();
     }
@@ -88,25 +54,7 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
     private void Die()
     {
         OnPlayerDeath?.Invoke();
-        stateMachine.ChangeState(deadState);
-    }
-
-    public void BezierShoot()
-    {
-        if (stateMachine.currentState == attackState ||
-            stateMachine.currentState == jumpShootState)
-        {
-            arrowManager.BezierShoot(facingRight);
-        }
-    }
-
-    public void LinearShoot()
-    {
-        if (stateMachine.currentState == attackState ||
-            stateMachine.currentState == jumpShootState)
-        {
-            arrowManager.LinearShoot();
-        }
+        _playerController.ChangeState(_playerController.DeadState);
     }
 
     public void ActivateManualRotation(bool manualRotation) => _manualRotation = manualRotation;
@@ -115,38 +63,7 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
 
     private void HandlePlayerDeath()
     {
-        stateMachine.ChangeState(idleState);
-    }
-
-    public virtual void SetVelocity(float xVelocity, float yVelocity)
-    {
-        rb.linearVelocity = new Vector2(xVelocity, yVelocity);
-        FlipController(xVelocity);
-    }
-
-    protected virtual void FlipController(float x)
-    {
-        if (x > 0 && !facingRight)
-        {
-            Flip();
-        }
-        else if (x < 0 && facingRight)
-        {
-            Flip();
-        }
-    }
-
-    public virtual void Flip()
-    {
-        facingRight = !facingRight;
-        Vector3 scale = transform.localScale;
-        scale.x *= -1;
-        transform.localScale = scale;
-    }
-
-    public virtual void AnimationTrigger()
-    {
-        stateMachine.currentState.AnimationTrigger();
+        _playerController.ChangeState(_playerController.IdleState);
     }
 
     public void TakeDamage(float damage)
@@ -158,7 +75,6 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
         {
             Die();
         }
-        
     }
 
     public Transform GetTransform() => transform;

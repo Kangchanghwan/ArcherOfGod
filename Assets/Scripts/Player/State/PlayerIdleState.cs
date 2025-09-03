@@ -2,8 +2,7 @@ using UnityEngine;
 
 public class PlayerIdleState : PlayerState
 {
-    public PlayerIdleState(StateMachine stateMachine, string animBoolName, Player player) 
-        : base(stateMachine, animBoolName, player)
+    public PlayerIdleState(PlayerContext context, string animBoolName) : base(context, animBoolName)
     {
     }
 
@@ -11,6 +10,6 @@ public class PlayerIdleState : PlayerState
     {
         base.Enter();
 
-        player.rb.simulated = false;
+        rigidbody2D.simulated = false;
     }
 }

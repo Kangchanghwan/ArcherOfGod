@@ -61,7 +61,6 @@ public class Enemy: MonoBehaviour, IDamageable, ITargetable
     private void Update()
     {
         stateMachine.currentState.Update();
-        print(target.GetTransform().name);
     }
     
 

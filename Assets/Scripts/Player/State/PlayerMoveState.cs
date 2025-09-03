@@ -2,32 +2,46 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerState
 {
-    public PlayerMoveState(StateMachine stateMachine, string animBoolName, Player player) 
-        : base(stateMachine, animBoolName, player)
+    
+    public bool facingRight = false;
+    public bool canMove = true; 
+    public PlayerMoveState(PlayerContext context, string animBoolName) : base(context, animBoolName)
     {
     }
 
-    public override void Enter()
-    {
-        base.Enter();
-    }
-    
     public override void Update()
     {
         base.Update();
 
-        if (player.canMove == false) return; 
+        if (canMove == false) return; 
 
-        player.SetVelocity(player.xInput *  player.moveSpeed * Time.deltaTime, rigidbody2D.linearVelocity.y);
-
+        rigidbody2D.linearVelocity = new Vector2(player.xInput *  player.moveSpeed * Time.deltaTime, rigidbody2D.linearVelocity.y);
+        FlipController(player.xInput);        
         if (Mathf.Abs(player.xInput) < 0.1f)
         {
-            stateMachine.ChangeState(player.castingState);
+            playerController.ChangeState(playerController.CastingState);
         }
     }
 
-    public override void Exit()
+    protected void FlipController(float x)
     {
-        base.Exit();
+        if (x > 0 && !facingRight)
+        {
+            Flip();
+        }
+        else if (x < 0 && facingRight)
+        {
+            Flip();
+        }
     }
+
+    public void Flip()
+    {
+        facingRight = !facingRight;
+        Vector3 scale = player.transform.localScale;
+        scale.x *= -1;
+        player.transform.localScale = scale;
+    }
+
+    
 }
