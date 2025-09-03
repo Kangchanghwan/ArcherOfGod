@@ -44,9 +44,9 @@ public class PlayerState : EntityState
     
     protected void FaceTarget()
     {
-        if (player.enemy != null)
+        if (player.target != null)
         {
-            Vector3 directionToEnemy = player.enemy.position - player.transform.position;
+            Vector3 directionToEnemy = player.target.GetTransform().position - player.transform.position;
             if (directionToEnemy.x > 0 && !player.facingRight)
                 player.Flip();
             else if (directionToEnemy.x < 0 && player.facingRight)

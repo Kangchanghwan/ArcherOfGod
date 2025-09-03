@@ -1,7 +1,8 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
-public class Enemy: MonoBehaviour, IDamageable
+public class Enemy: MonoBehaviour, IDamageable, ITargetable
 {
     
     public Rigidbody2D rb { get; protected set; }
@@ -16,7 +17,7 @@ public class Enemy: MonoBehaviour, IDamageable
     public static event Action OnEnemyDeath;
 
     [Header("Enemy Settings")]
-    public Transform player;
+    public ITargetable target;
     public float moveSpeed;
     public float moveStateTime;
     
@@ -40,12 +41,9 @@ public class Enemy: MonoBehaviour, IDamageable
         animator = GetComponentInChildren<Animator>();
         
         stateMachine = new StateMachine();
-        
-        player = GameObject.Find("Player").GetComponent<Transform>();
-
         arrowManager = GetComponent<ArrowManager>();
         skillManager = GetComponent<EnemySkillManager>();
-
+        
         castingState = new EnemyCastingState(stateMachine, "Casting", this);
         attackState = new EnemyAttackState(stateMachine, "Attack", this);
         moveState = new EnemyMoveState(stateMachine, "Move", this);
@@ -57,11 +55,13 @@ public class Enemy: MonoBehaviour, IDamageable
     private void Start()
     {
         stateMachine.Initialize(castingState);
-    }
 
+        target = GameManager.instance.EnemyOfTarget;
+    }
     private void Update()
     {
         stateMachine.currentState.Update();
+        print(target.GetTransform().name);
     }
     
 
@@ -149,4 +149,6 @@ public class Enemy: MonoBehaviour, IDamageable
         }
         
     }
+
+    public Transform GetTransform() => transform;
 }

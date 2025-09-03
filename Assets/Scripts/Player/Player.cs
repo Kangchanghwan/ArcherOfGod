@@ -1,8 +1,11 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
-public class Player : MonoBehaviour, IDamageable
+public class Player : MonoBehaviour, IDamageable, ITargetable
 {
+    public static event Action OnPlayerDeath;
+    
     public Rigidbody2D rb { get; protected set; }
     public Animator animator { get; protected set; }
 
@@ -12,14 +15,13 @@ public class Player : MonoBehaviour, IDamageable
     public bool canMove = true;
 
     public StateMachine stateMachine { get; protected set; }
-    public static event Action OnPlayerDeath;
 
     [Header("Movement")] [SerializeField] public float moveSpeed = 5f;
-
-    public Transform enemy;
     public ArrowManager arrowManager { get; private set; }
     private bool _manualRotation;
 
+    public ITargetable target;
+    
     public PlayerAttackState attackState { get; private set; }
     public PlayerMoveState moveState { get; private set; }
     public PlayerCastingState castingState { get; private set; }
@@ -43,9 +45,8 @@ public class Player : MonoBehaviour, IDamageable
         input = InputManagerSingleton.Instance.InputManager;
         skillManager = GetComponent<PlayerSkillManager>();
         arrowManager = GetComponent<ArrowManager>();
-
-        enemy = GameObject.Find("Enemy").GetComponent<Transform>();
-
+        
+    
         attackState = new PlayerAttackState(stateMachine, "Attack", this);
         moveState = new PlayerMoveState(stateMachine, "Move", this);
         castingState = new PlayerCastingState(stateMachine, "Casting", this);
@@ -54,6 +55,13 @@ public class Player : MonoBehaviour, IDamageable
         idleState = new PlayerIdleState(stateMachine, "Idle", this);
     }
 
+    private void Start()
+    {
+        stateMachine.Initialize(castingState);
+
+        target = GameManager.instance.PlayerOfTarget;
+    }
+    
     private void Update()
     {
         stateMachine.currentState.Update();
@@ -69,10 +77,6 @@ public class Player : MonoBehaviour, IDamageable
         Enemy.OnEnemyDeath += HandlePlayerDeath;
     }
 
-    private void Start()
-    {
-        stateMachine.Initialize(castingState);
-    }
 
     private void OnDisable()
     {
@@ -156,5 +160,6 @@ public class Player : MonoBehaviour, IDamageable
         }
         
     }
-    
+
+    public Transform GetTransform() => transform;
 }
