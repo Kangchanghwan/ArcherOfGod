@@ -32,7 +32,7 @@ public class EnemyMoveState : EnemyState
             FlipDirection();
         }
 
-        enemy.SetVelocity(dir * enemy.moveSpeed * Time.deltaTime, rigidbody2D.linearVelocity.y);
+        // enemy.SetVelocity(dir * enemy.moveSpeed * Time.deltaTime, rigidbody2D.linearVelocity.y);
         
         if (stateTimer < 0)
             stateMachine.ChangeState(enemy.castingState);

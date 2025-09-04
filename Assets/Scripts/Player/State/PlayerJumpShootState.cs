@@ -14,27 +14,37 @@ public class PlayerJumpShootState : PlayerState
     public override void Enter()
     {
         base.Enter();
-        playerController.canMove = false;
+        Controller.CanMove = false;
     }
     
     public override void Update()
     {
         base.Update();
-        if (player.ManualRotationActive())
-        {
-            FaceTarget();
-        }
+        // if (player.ManualRotationActive())
+        // {
+        //     FaceTarget();
+        // }
 
-        if (triggerCalled)
+        if (TriggerCalled)
         {
-            playerController.ChangeState(playerController.CastingState);
+            Controller.ChangeState(Controller.CastingState);
         }
     }
+    
+    // protected void FaceTarget()
+    // {
+    //     if (player.target != null)
+    //     {
+    //         Vector3 directionToEnemy = player.target.GetTransform().position - player.transform.position;
+    //         if (directionToEnemy.x > 0 && !playerController.facingRight)
+    //             playerController.Flip();
+    //     }
+    // }
     
     public override void Exit()
     {
         base.Exit();
-        playerController.canMove = true;
+        Controller.CanMove = true;
 
     }
 }

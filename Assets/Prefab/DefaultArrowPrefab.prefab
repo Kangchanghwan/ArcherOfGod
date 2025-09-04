@@ -11,8 +11,7 @@ GameObject:
   - component: {fileID: 7635741043274180271}
   - component: {fileID: 4872845278135343563}
   - component: {fileID: 5965193666039302043}
-  - component: {fileID: 4506002791026089880}
-  - component: {fileID: 494908614550903189}
+  - component: {fileID: -4814635564167008761}
   m_Layer: 6
   m_Name: DefaultArrowPrefab
   m_TagString: Untagged
@@ -136,7 +135,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.16, y: 1.08}
   m_EdgeRadius: 0
---- !u!114 &4506002791026089880
+--- !u!114 &-4814635564167008761
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -145,23 +144,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 7726250417319787819}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1ea60afd82dc45db8c90496266e8466, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e4f7e1f4aa3bcc4a97fc6a19d07e131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 10
-  speed: 10
-  lifeTime: 5
---- !u!114 &494908614550903189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7726250417319787819}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e864f6f9d0d7344669a6d52bb2d230dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 10
-  lifeTime: 5
+  <TargetPlayerOrBot>k__BackingField: 1
+  damage: 0
+  <Duration>k__BackingField: 2
+  particlePrefab: {fileID: 0}
+  groundVfx: 1
+  hasHitGround: 0

@@ -11,6 +11,6 @@ public class PlayerDeadState : PlayerState
         base.Enter();
 
         InputManagerSingleton.Instance.InputManager.Disable();
-        rigidbody2D.simulated = false;
+        Rigidbody2D.simulated = false;
     }
 }

@@ -10,6 +10,6 @@ public class PlayerIdleState : PlayerState
     {
         base.Enter();
 
-        rigidbody2D.simulated = false;
+        Rigidbody2D.simulated = false;
     }
 }

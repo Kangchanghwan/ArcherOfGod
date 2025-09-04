@@ -2,54 +2,45 @@ using UnityEngine;
 
 public class PlayerAttackState: PlayerState
 {
-    private ArrowManager _arrowManager;
-
-    public PlayerAttackState(PlayerContext context, string animBoolName, ArrowManager arrowManager) : base(context, animBoolName)
+    private readonly AttackBase _attackBase;
+    
+    private float _attackSpeed = 2f;
+    
+    public PlayerAttackState(PlayerContext context, string animBoolName, AttackBase attackBase) : base(context, animBoolName)
     {
-        _arrowManager = arrowManager;
+        _attackBase = attackBase;
+        _attackBase.Initialize(context);
     }
 
     public override void Enter()
     {
         base.Enter();
-        if(playerController.facingRight == false) playerController.Flip();
-        
+        Animator.SetFloat("AttackSpeed", _attackSpeed);
+        Controller.FlipController();
+        _attackBase.TargetRigidBody2D = 
+            GameManager.Instance.PlayerOfTarget
+                .GetTransform().GetComponent<Rigidbody2D>();
     }
-    
+
+    public void Attack()
+    {
+        _attackBase.Attack();
+    }
+
     public override void Update()
     {
         base.Update();
         
+        if (Controller.OnMove)
+        {
+            Controller.ChangeState(Controller.MoveState);
+        }
+
+        if (TriggerCalled)
+        {
+            Controller.ChangeState(Controller.CastingState);
+        }
         
-        if (Mathf.Abs(player.xInput) > 0.1f)
-        {
-            playerController.ChangeState(playerController.MoveState);
-        }
-
-        if (triggerCalled)
-        {
-            playerController.ChangeState(playerController.CastingState);
-        }
-        
     }
 
-
-    public void BezierShoot()
-    {
-        if (playerController.CurrentState == playerController.AttackState ||
-            playerController.CurrentState == playerController.JumpShootState)
-        {
-            _arrowManager.BezierShoot(playerController.facingRight);
-        }
-    }
-    
-    public void LinearShoot()
-    {
-        if (playerController.CurrentState == playerController.AttackState ||
-            playerController.CurrentState == playerController.JumpShootState)
-        {
-            _arrowManager.LinearShoot();
-        }
-    }
-    
 }

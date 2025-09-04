@@ -56,7 +56,7 @@ public class Enemy: MonoBehaviour, IDamageable, ITargetable
     {
         stateMachine.Initialize(castingState);
 
-        target = GameManager.instance.EnemyOfTarget;
+        target = GameManager.Instance.EnemyOfTarget;
     }
     private void Update()
     {

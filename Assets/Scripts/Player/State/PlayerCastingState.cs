@@ -8,18 +8,24 @@ public class PlayerCastingState : PlayerState
     {
     }
 
+    public override void Enter()
+    {
+        base.Enter();
+        Rigidbody2D.linearVelocity = Vector2.zero;
+    }
+
     public override void Update()
     {
         base.Update();
         
-        if (Mathf.Abs(player.xInput) > 0.1f)
+        if (Controller.OnMove)
         {
-            playerController.ChangeState(playerController.MoveState);
+            Controller.ChangeState(Controller.MoveState);
         }
 
-        if (triggerCalled)
+        if (TriggerCalled)
         {
-            playerController.ChangeState(playerController.AttackState);
+            Controller.ChangeState(Controller.AttackState);
         }
     }
 

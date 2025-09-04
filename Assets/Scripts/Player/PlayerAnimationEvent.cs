@@ -10,8 +10,8 @@ public class PlayerAnimationEvent : MonoBehaviour
     }
 
     public void AnimationTrigger() => _playerController.AnimationTrigger();
-    public void ArrowTrigger() => _playerController.AttackState.BezierShoot();
-    public void LinearArrowTrigger() => _playerController.AttackState.LinearShoot();
+    public void ArrowTrigger() => _playerController.AttackState.Attack();
+    // public void LinearArrowTrigger() => _playerController.AttackState.LinearShoot();
     // public void UpManualPosition() => player.skillManager.jumpShoot.UpManualPosition();
     // public void DownManualPosition() => player.skillManager.jumpShoot.DownManualPosition();
     // public void StartManualRotation() => player.ActivateManualRotation(true);
