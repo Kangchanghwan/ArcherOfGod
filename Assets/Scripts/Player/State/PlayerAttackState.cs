@@ -3,7 +3,6 @@ using UnityEngine;
 public class PlayerAttackState: PlayerState
 {
     private readonly AttackBase _attackBase;
-    
     private float _attackSpeed = 2f;
     
     public PlayerAttackState(PlayerContext context, string animBoolName, AttackBase attackBase) : base(context, animBoolName)
@@ -30,17 +29,6 @@ public class PlayerAttackState: PlayerState
     public override void Update()
     {
         base.Update();
-        
-        if (Controller.OnMove)
-        {
-            Controller.ChangeState(Controller.MoveState);
-        }
-
-        if (TriggerCalled)
-        {
-            Controller.ChangeState(Controller.CastingState);
-        }
-        
     }
 
 }

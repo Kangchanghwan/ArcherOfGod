@@ -15,7 +15,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "JumpShot",
+                    "name": "Skill_1",
                     "type": "Button",
                     "id": "d29533b9-8aed-4117-bb76-a3f52f599ad3",
                     "expectedControlType": "",
@@ -83,7 +83,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "JumpShot",
+                    "action": "Skill_1",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

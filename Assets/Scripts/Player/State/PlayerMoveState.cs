@@ -12,24 +12,14 @@ public class PlayerMoveState : PlayerState
     public override void Update()
     {
         base.Update();
-        if (Controller.CanMove == false) return;
-
-        
-        if (Controller.OnMove)
-        {
-            OnMove();
-        }
-        else
-        {
-            Controller.ChangeState(Controller.CastingState);
-        }
+        OnMove();
     }
 
     private void OnMove()
     {
         Rigidbody2D.linearVelocity =
-            new Vector2(Controller.Input * _moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
-        Controller.FlipController(Controller.Input);
+            new Vector2(Controller.InputX * _moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
+        Controller.FlipController(Controller.InputX);
     }
     
 }

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerContext : IContextBase
@@ -12,25 +15,38 @@ public class PlayerContext : IContextBase
 
 public class PlayerController : MonoBehaviour
 {
-    public PlayerState CurrentState { get; private set; }
+    [SerializeField] private ShotArrow shotArrow;
+
     public PlayerAttackState AttackState { get; private set; }
     public PlayerMoveState MoveState { get; private set; }
     public PlayerCastingState CastingState { get; private set; }
-    public PlayerJumpShootState JumpShootState { get; private set; }
     public PlayerDeadState DeadState { get; private set; }
     public PlayerIdleState IdleState { get; private set; }
 
-    [SerializeField]
-    private ShotArrow shotArrow;
-    
-    private bool _manualRotation;
-    
+    private PlayerState _currentState;
+
     private bool _facingRight;
+    private bool _onMove;
     public bool CanMove { get; set; } = true;
-    public bool OnMove { get; private set; }
-    public float Input { get; private set; }
-    
+    public float InputX { get; private set; }
+
+    [SerializeField] private SkillBase[] SkillBases;
+    public bool CanSkill { get; set; } = true;
+
     private void Awake()
+    {
+        var context = CreateContext();
+
+        AttackState = new PlayerAttackState(context, "Attack", shotArrow);
+        MoveState = new PlayerMoveState(context, "Move");
+        CastingState = new PlayerCastingState(context, "Casting");
+        DeadState = new PlayerDeadState(context, "Dead");
+        IdleState = new PlayerIdleState(context, "Idle");
+
+        SkillBases = GetComponentsInChildren<SkillBase>(true);
+    }
+
+    private PlayerContext CreateContext()
     {
         var context = new PlayerContext
         {
@@ -39,13 +55,7 @@ public class PlayerController : MonoBehaviour
             Animator = GetComponentInChildren<Animator>(),
             RigidBody2D = GetComponent<Rigidbody2D>(),
         };
-
-        AttackState = new PlayerAttackState(context, "Attack", shotArrow);
-        MoveState = new PlayerMoveState(context, "Move");
-        CastingState = new PlayerCastingState(context, "Casting");
-        JumpShootState = new PlayerJumpShootState(context, "JumpShoot", 10f);
-        DeadState = new PlayerDeadState(context, "Dead");
-        IdleState = new PlayerIdleState(context, "Idle");
+        return context;
     }
 
     private void OnEnable()
@@ -53,8 +63,12 @@ public class PlayerController : MonoBehaviour
         InputManager input = InputManagerSingleton.Instance.InputManager;
         input.Enable();
 
-        input.Player.Move.performed += ctx => Input = ctx.ReadValue<float>();
-        input.Player.Move.canceled += _ => Input = 0f;
+        input.Player.Move.performed += ctx => InputX = ctx.ReadValue<float>();
+        input.Player.Move.canceled += _ => InputX = 0f;
+
+        input.Player.Skill_1.performed += _ => TryUseSkill(0);
+        input.Player.Skill_2.performed += _ => TryUseSkill(1);
+        input.Player.Skill_3.performed += _ => TryUseSkill(2);
     }
 
     private void OnDisable()
@@ -64,24 +78,68 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        OnMove = Math.Abs(Input) > 0.1f;
-        CurrentState.Update();
+        StateChangeAction()?.Invoke();
+        _currentState.Update();
     }
+
+    private Action StateChangeAction()
+    {
+        _onMove = Math.Abs(InputX) > 0.1f;
+        
+        return _currentState switch
+        {
+            PlayerCastingState => () =>
+            {
+                if (_onMove)
+                    ChangeState(MoveState);
+                else if (_currentState.TriggerCalled)
+                    ChangeState(AttackState);
+            },
+
+            PlayerAttackState => () =>
+            {
+                if (_onMove)
+                    ChangeState(MoveState);
+                else if (_currentState.TriggerCalled)
+                    ChangeState(CastingState);
+            },
+
+            PlayerMoveState => () =>
+            {
+                if (CanMove && _onMove)
+                    ChangeState(MoveState);
+                else
+                    ChangeState(CastingState);
+            },
+
+            PlayerSkillState => () =>
+            {
+                if (_currentState.TriggerCalled)
+                    ChangeState(CastingState);
+            },
+
+            PlayerDeadState => () => { }, // 상태 변경 없음
+            PlayerIdleState => () => { }, // 상태 변경 없음
+
+            _ => () => { } // 기본값
+        };
+    }
+
 
     public void Initialize(PlayerState startState)
     {
-        CurrentState = startState;
+        _currentState = startState;
         startState.Enter();
     }
 
     public void ChangeState(PlayerState newState)
     {
-        CurrentState.Exit();
-        CurrentState = newState;
-        CurrentState.Enter();
+        _currentState.Exit();
+        _currentState = newState;
+        _currentState.Enter();
     }
 
-    
+
     public void FlipController(float x = 1f)
     {
         if (x > 0 && !_facingRight)
@@ -93,6 +151,7 @@ public class PlayerController : MonoBehaviour
             Flip();
         }
     }
+
     private void Flip()
     {
         _facingRight = !_facingRight;
@@ -100,15 +159,22 @@ public class PlayerController : MonoBehaviour
         scale.x *= -1;
         transform.localScale = scale;
     }
-    
-    
-    public void ActivateManualRotation(bool manualRotation) => _manualRotation = manualRotation;
-
-    public bool ManualRotationActive() => _manualRotation;
-
 
     public void AnimationTrigger()
     {
-        CurrentState.AnimationTrigger();
+        _currentState.AnimationTrigger();
+    }
+
+    private void TryUseSkill(int skillNumber)
+    {
+        var skill = SkillBases[skillNumber];
+
+        if (skill == null) return;
+        if (skill.CanUseSkill() == false) return;
+        if (CanSkill == false) return;
+
+        var skillState = new PlayerSkillState(CreateContext(), skill);
+
+        ChangeState(skillState);
     }
 }

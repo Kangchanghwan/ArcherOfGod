@@ -39,7 +39,6 @@ public class ShotArrow : AttackBase
         arrow = Instantiate(arrowPrefab, transform.position, Quaternion.Euler(0, 0, -180f), GameManager.Instance.transform);
         Arrow(arrow);
         arrows.Enqueue(arrow);
-        
     }
 
     private void Arrow(Arrow arrow)

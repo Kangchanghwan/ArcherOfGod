@@ -1,30 +1,30 @@
 using UnityEngine;
 
-public class PlayerJumpShootState : PlayerState
+public class PlayerSkillState : PlayerState
 {
-    [Header("Jump Settings")]
-    public float jumpForce = 10f;
+
+    private readonly SkillBase _skill;
 
 
-    public PlayerJumpShootState(PlayerContext context, string animBoolName, float jumpForce) : base(context, animBoolName)
+    public PlayerSkillState(PlayerContext context, SkillBase skill) : base(context,  skill.AnimationName)
     {
-        this.jumpForce = jumpForce;
+        _skill = skill;
+        _skill.Initialize(context);
     }
 
     public override void Enter()
     {
         base.Enter();
         Controller.CanMove = false;
+        Controller.CanSkill = false;
     }
     
     public override void Update()
     {
         base.Update();
-        // if (player.ManualRotationActive())
-        // {
-        //     FaceTarget();
-        // }
-
+        
+        _skill.ExecuteSkill();
+    
         if (TriggerCalled)
         {
             Controller.ChangeState(Controller.CastingState);
@@ -45,6 +45,6 @@ public class PlayerJumpShootState : PlayerState
     {
         base.Exit();
         Controller.CanMove = true;
-
+        Controller.CanSkill = true;
     }
 }

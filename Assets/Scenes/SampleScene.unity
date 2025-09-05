@@ -616,7 +616,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 404151006}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -635,13 +635,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a12781d38748440bbbffee0540134cd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cooldown: 3
+  cooldown: 1
   firstCooldown: 0
   lastTimeUsed: 0
-  jumpHeight: 4
-  upSpeed: 50
-  downSpeed: 30
-  rb: {fileID: 0}
+  animationName: JumpShoot
+  jumpHeight: 5
+  jumpDuration: 1
+  jumpCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &469660200
 GameObject:
   m_ObjectHideFlags: 0
@@ -2186,10 +2209,33 @@ MonoBehaviour:
   cooldown: 3
   firstCooldown: 4
   lastTimeUsed: 0
+  animationName: 
   jumpHeight: 4
-  upSpeed: 50
-  downSpeed: 30
-  rb: {fileID: 0}
+  jumpDuration: 1
+  jumpCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1575680501
 GameObject:
   m_ObjectHideFlags: 0
@@ -2436,8 +2482,6 @@ GameObject:
   - component: {fileID: 1728043856}
   - component: {fileID: 1728043862}
   - component: {fileID: 1728043861}
-  - component: {fileID: 1728043855}
-  - component: {fileID: 1728043860}
   - component: {fileID: 1728043863}
   m_Layer: 7
   m_Name: Player
@@ -2446,32 +2490,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1728043855
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1728043854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b793446125fb44f5cadbde676496fd32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  minFlightTime: 0.5
-  maxFlightTime: 2
-  maxRange: 15
-  arcHeightMin: 4
-  arcHeightMax: 8
-  arrowPrefab: {fileID: 7726250417319787819, guid: 07cdae57c622043adb25ad52ac83ecfb, type: 3}
-  shootEffect: {fileID: 1429954232896169633, guid: aee7e0808bb794c76922d97ba7eddecc, type: 3}
-  firePoint: {fileID: 583393633}
-  linearFirePoint: {fileID: 1654339620}
-  targetPoint: {fileID: 894258601}
-  groundLayerMask:
-    serializedVersion: 2
-    m_Bits: 8
-  maxGroundCheckDistance: 50
 --- !u!114 &1728043856
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2561,24 +2579,12 @@ Transform:
   m_LocalScale: {x: 1.7, y: 1.7, z: 1.7}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 404151007}
   - {fileID: 3165173148436692851}
   - {fileID: 583393633}
-  - {fileID: 404151007}
   - {fileID: 1654339620}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1728043860
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1728043854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b92d3ec0fef0468cb038768d3ccc7b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1728043861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2607,6 +2613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shotArrow: {fileID: 1728043863}
+  SkillBases: []
 --- !u!114 &1728043863
 MonoBehaviour:
   m_ObjectHideFlags: 0

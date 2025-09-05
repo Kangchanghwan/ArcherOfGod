@@ -6,7 +6,9 @@ using UnityEngine;
 public class Arrow : MonoBehaviour
 {
     [field: Header("Arrow")]
-    [field: SerializeField] public bool TargetPlayerOrBot { get; set; }
+    [field: SerializeField]
+    public bool TargetPlayerOrBot { get; set; }
+
     [SerializeField] private float damage;
     [field: SerializeField] public float Duration { get; set; }
     [SerializeField] private ParticleSystem particlePrefab;
@@ -18,7 +20,7 @@ public class Arrow : MonoBehaviour
     private Coroutine arrowCoroutine;
 
     private Collider2D collider2D;
-    
+
     private ParticleSystem particle;
 
     private void Awake()
@@ -43,6 +45,7 @@ public class Arrow : MonoBehaviour
                     DamageAble(damageable);
                     ArrowParticle();
                 }
+
                 break;
             case false:
                 if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
@@ -51,6 +54,7 @@ public class Arrow : MonoBehaviour
                     DamageAble(damageable);
                     ArrowParticle();
                 }
+
                 break;
         }
 
@@ -69,11 +73,12 @@ public class Arrow : MonoBehaviour
         if (particlePrefab == null) return;
         if (particle == null)
         {
-            particle = Instantiate(particlePrefab, transform.position, Quaternion.identity, GameManager.Instance.transform);
+            particle = Instantiate(particlePrefab, transform.position, Quaternion.identity,
+                GameManager.Instance.transform);
             particle.Play();
             return;
         }
-        
+
         particle.transform.position = transform.position;
         particle.gameObject.SetActive(true);
         particle.Play();
@@ -87,8 +92,8 @@ public class Arrow : MonoBehaviour
         StopArrowCoroutine();
         arrowCoroutine = null;
     }
-    
-    public void StopArrowCoroutine()
+
+    private void StopArrowCoroutine()
     {
         if (arrowCoroutine == null) return;
         StopCoroutine(arrowCoroutine);
@@ -96,24 +101,19 @@ public class Arrow : MonoBehaviour
         collider2D.enabled = false;
     }
 
-    public void ResetArrow()
+    private void ResetArrow()
     {
         elapsedTime = 0f;
         collider2D.enabled = true;
     }
-    
-    public void ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
-    {
-        ResetArrow();
-        arrowCoroutine = StartCoroutine(ShotArrowCoroutine(p0, p1, p2));
-    }
+
 
     private IEnumerator ShotArrowCoroutine(Vector2 p0, Vector2 p1, Vector2 p2)
     {
         Vector2 previousPos = p0;
-        
+
         p2.y = 0f;
-        
+
         elapsedTime = 0f;
 
         while (elapsedTime < Duration)
@@ -123,7 +123,7 @@ public class Arrow : MonoBehaviour
 
             Vector2 pos = BezierCurve.Quadratic(p0, p1, p2, t);
             transform.position = pos;
-        
+
             Vector2 direction = pos - previousPos;
             if (direction != Vector2.zero)
             {
@@ -150,13 +150,17 @@ public class Arrow : MonoBehaviour
                 yield return null;
             }
         }
-        
+
         collider2D.enabled = false;
-    
+
         yield return new WaitForSeconds(4f);
-    
+
         gameObject.SetActive(false);
     }
-
     
+    public void ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
+    {
+        ResetArrow();
+        arrowCoroutine = StartCoroutine(ShotArrowCoroutine(p0, p1, p2));
+    }
 }

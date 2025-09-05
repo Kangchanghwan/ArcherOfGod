@@ -152,35 +152,21 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.26666668
-    functionName: UpManualPosition
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.33333334
-    functionName: StartManualRotation
+    functionName: OnJumpStart_JumpShoot
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.5833333
-    functionName: StopManualRotation
+    functionName: OnShootArrow_JumpShoot
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.6
-    functionName: LinearArrowTrigger
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.8833333
-    functionName: DownManualPosition
+  - time: 0.9
+    functionName: OnLanding__JumpShoot
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

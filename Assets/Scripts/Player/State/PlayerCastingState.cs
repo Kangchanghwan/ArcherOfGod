@@ -17,16 +17,6 @@ public class PlayerCastingState : PlayerState
     public override void Update()
     {
         base.Update();
-        
-        if (Controller.OnMove)
-        {
-            Controller.ChangeState(Controller.MoveState);
-        }
-
-        if (TriggerCalled)
-        {
-            Controller.ChangeState(Controller.AttackState);
-        }
     }
 
 }
