@@ -5,6 +5,12 @@ public class PlayerContext : IContextBase
 {
     public Animator Animator { get; set; }
     public Rigidbody2D RigidBody2D { get; set; }
+
+    public PlayerContext(Animator animator, Rigidbody2D rigidBody2D)
+    {
+        Animator = animator;
+        RigidBody2D = rigidBody2D;
+    }
 }
 
 
@@ -33,8 +39,6 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
 
     public SkillJumpShoot SkillJumpShoot { get; private set; }
 
-    private bool _canSkill;
-
 
     private void Awake()
     {
@@ -52,7 +56,11 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
 
         _health = GetComponent<EntityHealth>();
     }
-    
+
+    private void Update()
+    {
+        CurrentState.StateUpdate();
+    }
 
     private void Die()
     {

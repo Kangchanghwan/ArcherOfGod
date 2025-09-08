@@ -21,17 +21,10 @@ public class PlayerState : MonoBehaviour
         Rigidbody2D = Player?.Rigidbody2D;
     }
 
-
-    // public virtual void Update()
-    // {
-    //     // InputManager input = InputManagerSingleton.Instance.InputManager; 
-    //     // if (input.Player.JumpShot.WasPressedThisFrame() && CanJumpShot())
-    //     // {
-    //     //     skillManager.jumpShoot.SetSillOnCooldown();
-    //     //     Controller.ChangeState(Controller.SkillState);
-    //     // }
-    // }
+    public virtual void StateUpdate()
+    {
         
+    }
     public virtual void Enter()
     {
         Animator.SetBool(animBoolName, true);

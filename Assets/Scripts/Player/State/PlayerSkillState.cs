@@ -1,33 +1,29 @@
+using System;
 using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 public class PlayerSkillState : PlayerState
 {
-
     public SkillBase Skill { get; set; }
-    
+
+
     public override void Enter()
     {
-        base.Enter();
+        if(Skill == null) return;
         animBoolName = Skill.AnimationName;
+        base.Enter();
+        
+        Rigidbody2D.linearVelocity = Vector2.zero;
+        Skill.Initialize(new PlayerContext(Animator, Rigidbody2D));
+        Skill.SetSkillOnCooldown();
+        
         Player.CanMove = false;
         Player.CanSkill = false;
+        Player.FlipController();
+
+        StartCoroutine(Skill.SkillCoroutine());
     }
-    
-    public void Update()
-    {
-        Skill?.ExecuteSkill();
-    }
-    
-    // protected void FaceTarget()
-    // {
-    //     if (player.target != null)
-    //     {
-    //         Vector3 directionToEnemy = player.target.GetTransform().position - player.transform.position;
-    //         if (directionToEnemy.x > 0 && !playerController.facingRight)
-    //             playerController.Flip();
-    //     }
-    // }
+
     
     public override void Exit()
     {

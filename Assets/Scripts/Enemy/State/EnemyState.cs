@@ -23,7 +23,7 @@ public class EnemyState : EntityState
 
         if (CanJumpShot())
         {
-            skillManager.jumpShoot.SetSillOnCooldown();
+            skillManager.jumpShoot.SetSkillOnCooldown();
             stateMachine.ChangeState(enemy.jumpShootState);
         }
         

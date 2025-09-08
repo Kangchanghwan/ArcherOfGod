@@ -9,7 +9,7 @@ public class PlayerMoveState : PlayerState
     public float XInput { get; set; }
     
 
-    public void Update()
+    public override void StateUpdate()
     {
         OnMove();
     }

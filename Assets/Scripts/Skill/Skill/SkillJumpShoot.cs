@@ -4,147 +4,77 @@ using System.Collections;
 public class SkillJumpShoot : SkillBase
 {
     [Header("Jump Settings")]
-    [SerializeField] private float jumpHeight = 5f;
-    [SerializeField] private float jumpDuration = 1f;      // 전체 점프 지속시간
-    [SerializeField] private AnimationCurve jumpCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] private float jumpHeight;
 
-    private bool _isSkillActive = false;
     private Vector3 _originalPosition;
-    private Coroutine _currentSkillCoroutine;
+
+    private bool _up;
+    private bool _hover;
+    private bool _down;
+    private bool _left;
     
-    
-    protected override IEnumerator SkillCoroutine()
+    public override IEnumerator SkillCoroutine()
     {
-        _isSkillActive = true;
+        _up = false;
+        _hover = false;
+        _down = false;
+        _left = false;
         _originalPosition = rb.transform.position;
         
-        // 애니메이션 이벤트에서 호출될 때까지 대기하거나
-        // 또는 바로 점프 시작
         print("SkillCoroutine() 실행");
         
-        yield return StartCoroutine(ExecuteJump());
-        // 스킬 완료 후 정리
-        _isSkillActive = false;
+        currentSkillCoroutine = StartCoroutine(ExecuteJump());
+        yield return currentSkillCoroutine;
     }
 
     private IEnumerator ExecuteJump()
     {
+        // 상승 전 대기 단계
+        yield return new WaitUntil(() => _up); // up이 참이 될때까지 기다림
         // 상승 단계
         yield return StartCoroutine(RisePhase());
-        
-        // 공중에서 정지 (애니메이션 이벤트로 발사 타이밍 제어)
-        yield return StartCoroutine(HoverPhase());
-        
+        // 공중에서 정지 단계
+        yield return new  WaitUntil(() => _down);
         // 하강 단계
         yield return StartCoroutine(FallPhase());
     }
 
+  
     private IEnumerator RisePhase()
     {
-        float elapsedTime = 0f;
-        float riseDuration = jumpDuration * 0.4f; // 전체의 40%
-        Vector3 startPos = _originalPosition;
-        Vector3 peakPos = _originalPosition + Vector3.up * jumpHeight;
-
-        // 물리 비활성화
         rb.bodyType = RigidbodyType2D.Kinematic;
         
-        while (elapsedTime < riseDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / riseDuration;
-            
-            // 커브를 적용한 자연스러운 상승
-            float curveValue = jumpCurve.Evaluate(t);
-            rb.transform.position = Vector3.Lerp(startPos, peakPos, curveValue);
-            
-            yield return null;
-        }
-        
-        rb.transform.position = peakPos;
+        float peak = _originalPosition.y + jumpHeight;
+        rb.transform.position = new Vector2(_originalPosition.x, peak);
+        yield return new WaitUntil(() => _hover); 
     }
 
-    private IEnumerator HoverPhase()
-    {
-        float hoverDuration = jumpDuration * 0.2f; // 전체의 20%
-        float elapsedTime = 0f;
-        
-        // 공중에서 잠시 정지
-        while (elapsedTime < hoverDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-    }
 
     private IEnumerator FallPhase()
     {
-        float elapsedTime = 0f;
-        float fallDuration = jumpDuration * 0.4f; // 전체의 40%
-        Vector3 startPos = rb.transform.position;
-        Vector3 endPos = _originalPosition;
-
-        while (elapsedTime < fallDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / fallDuration;
-            
-            // 하강 커브 (더 빠르게 떨어지도록)
-            float curveValue = Mathf.Pow(t, 2); // 가속하며 떨어짐
-            rb.transform.position = Vector3.Lerp(startPos, endPos, curveValue);
-            
-            yield return null;
-        }
+        rb.transform.position = new Vector2(_originalPosition.x, _originalPosition.y);
         
-        // 정확히 원래 위치로 복귀
-        rb.transform.position = _originalPosition;
-        
-        // 물리 복구
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.linearVelocity = Vector2.zero;
+        yield return new WaitUntil(() => _left);
     }
     
-    // 스킬 취소
-    public void CancelSkill()
-    {
-        if (_currentSkillCoroutine != null)
-        {
-            StopCoroutine(_currentSkillCoroutine);
-            
-            // 즉시 원래 상태로 복구
-            rb.transform.position = _originalPosition;
-            rb.bodyType = RigidbodyType2D.Dynamic;
-            rb.linearVelocity = Vector2.zero;
-            
-            _isSkillActive = false;
-        }
-    }
+    public void OnJumpReadyTrigger() => Debug.Log("OnJumpReadyTrigger");
+    
+    public void OnJumpStart() => _up = true;
+    public void OnJumpEnd() => _up = false;
+    
+    public void OnHoverStart() => _hover = true;
+    public void OnHoverEnd() => _hover = false;
+    
+    public void OnShootArrowTrigger() => Debug.Log("Arrow Shoot");
 
-    // 애니메이션 이벤트에서 호출 (점프 시작 시점)
-    public void OnJumpStart()
-    {
-        Debug.Log("Jump Started!");
-        // 필요시 추가 로직
-        // StartCoroutine(RisePhase());
-    }
+    public void OnDownStart() => _down = true;
+    public void OnDownEnd() => _down = false;
+    
+    public void OnLeftStart() => _left = true;
+    public void OnLeftEnd() => _left = false;
 
-    // 애니메이션 이벤트에서 호출 (발사 시점)
-    public void OnShootArrow()
-    {
-        Debug.Log("Arrow Shot!");
-        // 화살 발사 로직
-        // ShootArrow();
-        // StartCoroutine(HoverPhase());
-        
-    }
-
-    // 애니메이션 이벤트에서 호출 (착지 시점)
-    public void OnLanding()
-    {
-        Debug.Log("Landed!");
-        // 착지 이펙트나 사운드
-        // StartCoroutine(FallPhase());
-    }
     
 
 

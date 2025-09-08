@@ -17,15 +17,15 @@ public abstract class SkillBase : MonoBehaviour
     
     protected Rigidbody2D rb;
     protected Animator animator;
-
-    public Rigidbody2D TargetRigidBody2D { get; set; }
+    
+    protected Coroutine currentSkillCoroutine;
     
     protected void Awake()
     {
         lastTimeUsed = firstCooldown;
     }
     
-    public virtual void Initialize(IContextBase context)
+    public void Initialize(IContextBase context)
     {
         animator = context.Animator;
         rb = context.RigidBody2D;
@@ -40,17 +40,23 @@ public abstract class SkillBase : MonoBehaviour
         }
         return true;
     }
-    
+    // 스킬 취소
+    public void CancelSkill()
+    {
+        if (currentSkillCoroutine != null)
+        {
+            StopCoroutine(currentSkillCoroutine);
+            
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
     
     private bool OnCooldown() => Time.time < lastTimeUsed + cooldown;
-    public void SetSillOnCooldown() => lastTimeUsed = Time.time;
+    public void SetSkillOnCooldown() => lastTimeUsed = Time.time;
     public void ResetCoolDownBy(float cooldownReduction) => lastTimeUsed = lastTimeUsed + cooldownReduction;
     public void ResetCooldown() => lastTimeUsed = Time.time;
-
-    public virtual void ExecuteSkill()
-    {
-        StartCoroutine(SkillCoroutine());
-    }
-    protected abstract IEnumerator SkillCoroutine();
+    
+    public abstract IEnumerator SkillCoroutine();
 
 }

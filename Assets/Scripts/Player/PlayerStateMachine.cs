@@ -51,8 +51,8 @@ public class PlayerStateMachine : MonoBehaviour
                 if (_player.CurrentState.TriggerCalled)
                     ChangeState(_player.CastingState);
             },
-            PlayerDeadState => () => { }, // 상태 변경 없음
-            PlayerIdleState => () => { }, // 상태 변경 없음
+            PlayerDeadState => () => { }, 
+            PlayerIdleState => () => { },
 
             _ => () => { } // 기본값
         };
@@ -77,7 +77,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         var skill = skillNumber switch
         {
-            1 => _player.SkillJumpShoot,
+            0 => _player.SkillJumpShoot,
             _ => null
         };
 
