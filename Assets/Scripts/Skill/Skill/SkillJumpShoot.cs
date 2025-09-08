@@ -3,9 +3,10 @@ using System.Collections;
 
 public class SkillJumpShoot : SkillBase
 {
-    [Header("Jump Settings")]
+    [Header("Skill Settings")]
     [SerializeField] private float jumpHeight;
-
+    [SerializeField] private Arrow arrow;
+    [SerializeField] private Transform firePoint;
     private Vector3 _originalPosition;
 
     private bool _up;
@@ -20,8 +21,6 @@ public class SkillJumpShoot : SkillBase
         _down = false;
         _left = false;
         _originalPosition = rb.transform.position;
-        
-        print("SkillCoroutine() 실행");
         
         currentSkillCoroutine = StartCoroutine(ExecuteJump());
         yield return currentSkillCoroutine;
@@ -67,7 +66,7 @@ public class SkillJumpShoot : SkillBase
     public void OnHoverStart() => _hover = true;
     public void OnHoverEnd() => _hover = false;
     
-    public void OnShootArrowTrigger() => Debug.Log("Arrow Shoot");
+    public void OnShootArrowTrigger() => Arrow(PoolObject(arrow.gameObject).GetComponent<Arrow>());
 
     public void OnDownStart() => _down = true;
     public void OnDownEnd() => _down = false;
@@ -75,7 +74,14 @@ public class SkillJumpShoot : SkillBase
     public void OnLeftStart() => _left = true;
     public void OnLeftEnd() => _left = false;
 
-    
-
+    private void Arrow(Arrow arrow)
+    {
+        arrow.gameObject.SetActive(true);
+        Vector2 p0 = firePoint.position;
+        Vector2 p1 = p0;
+        Vector2 p2 = target.position;
+        arrow.Duration = 1.5f;
+        arrow.ShotArrow(p0, p1, p2);
+    }
 
 }

@@ -2,29 +2,23 @@ using UnityEngine;
 
 public class EnemyAttackState : EnemyState
 {
-    public EnemyAttackState(StateMachine stateMachine, string animBoolName, Enemy enemy) : base(stateMachine,
-        animBoolName, enemy)
-    {
-    }
+    [SerializeField]
+    private AttackBase attackBase;
+    [SerializeField]
+    private float attackSpeed;
+    [SerializeField]
+    private Transform startPoint;
+    
 
     public override void Enter()
     {
         base.Enter();
-        if (enemy.facingRight) enemy.Flip();
+        Animator.SetFloat("AttackSpeed", attackSpeed);
+        Enemy.FlipController();
     }
 
-    public override void Update()
+    public void Attack()
     {
-        base.Update();
-
-        if (triggerCalled)
-        {
-            stateMachine.ChangeState(enemy.moveState);
-        }
-    }
-
-    public override void Exit()
-    {
-        base.Exit();
+        attackBase.Attack(startPoint, GameManager.Instance.EnemyOfTarget.GetTransform());
     }
 }

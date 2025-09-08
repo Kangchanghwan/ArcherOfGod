@@ -5,10 +5,6 @@ using UnityEngine;
 
 public class Arrow : MonoBehaviour
 {
-    [field: Header("Arrow")]
-    [field: SerializeField]
-    public bool TargetPlayerOrBot { get; set; }
-
     [SerializeField] private float damage;
     [field: SerializeField] public float Duration { get; set; }
     [SerializeField] private ParticleSystem particlePrefab;

@@ -1,5 +1,3 @@
-using System;
-using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 public class PlayerSkillState : PlayerState
@@ -14,7 +12,10 @@ public class PlayerSkillState : PlayerState
         base.Enter();
         
         Rigidbody2D.linearVelocity = Vector2.zero;
-        Skill.Initialize(new PlayerContext(Animator, Rigidbody2D));
+        Skill.Initialize(
+            Rigidbody2D, 
+            GameManager.Instance.PlayerOfTarget.GetTransform()
+            );
         Skill.SetSkillOnCooldown();
         
         Player.CanMove = false;

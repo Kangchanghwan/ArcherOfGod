@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class SkillBase : MonoBehaviour
@@ -16,19 +17,21 @@ public abstract class SkillBase : MonoBehaviour
     public string AnimationName => animationName;
     
     protected Rigidbody2D rb;
-    protected Animator animator;
+    protected Transform target;
     
     protected Coroutine currentSkillCoroutine;
     
+    protected Queue<GameObject> pools = new Queue<GameObject>();
+
     protected void Awake()
     {
         lastTimeUsed = firstCooldown;
     }
     
-    public void Initialize(IContextBase context)
+    public void Initialize( Rigidbody2D rigidbody ,Transform target)
     {
-        animator = context.Animator;
-        rb = context.RigidBody2D;
+        this.rb = rigidbody;
+        this.target = target;
     }
 
 
@@ -51,6 +54,33 @@ public abstract class SkillBase : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
     }
+    
+    protected GameObject PoolObject(GameObject prefab)
+    {
+        GameObject pool = null;
+
+        if (pools.Count > 0)
+        {
+            for (int i = 0; i < pools.Count; i++)
+            {
+                pool = pools.Dequeue();
+                if (pool.activeSelf == false)
+                {
+                    pools.Enqueue(pool);
+                    pool.SetActive(true);
+                    return pool;
+                }
+
+                pools.Enqueue(pool);
+            }
+        }
+
+        pool = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, -180f), GameManager.Instance.transform);
+        pools.Enqueue(pool);
+        pool.SetActive(true);
+        return pool;
+    }
+
     
     private bool OnCooldown() => Time.time < lastTimeUsed + cooldown;
     public void SetSkillOnCooldown() => lastTimeUsed = Time.time;

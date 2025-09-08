@@ -7,17 +7,8 @@ public class PlayerAttackState: PlayerState
     [SerializeField]
     private float attackSpeed;
     [SerializeField]
-    private Transform StartPoint;
+    private Transform startPoint;
 
-
-    protected override void Start()
-    {
-        base.Start();
-        attackBase.Initialize(
-            StartPoint,
-            GameManager.Instance.PlayerOfTarget.GetTransform()
-            );
-    }
     public override void Enter()
     {
         base.Enter();
@@ -27,6 +18,6 @@ public class PlayerAttackState: PlayerState
 
     public void Attack()
     {
-        attackBase.Attack();
+        attackBase.Attack(startPoint, GameManager.Instance.PlayerOfTarget.GetTransform());
     }
 }

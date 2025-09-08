@@ -1,19 +1,6 @@
 using System;
 using UnityEngine;
 
-public class PlayerContext : IContextBase
-{
-    public Animator Animator { get; set; }
-    public Rigidbody2D RigidBody2D { get; set; }
-
-    public PlayerContext(Animator animator, Rigidbody2D rigidBody2D)
-    {
-        Animator = animator;
-        RigidBody2D = rigidBody2D;
-    }
-}
-
-
 public class Player : MonoBehaviour, IDamageable, ITargetable
 {
     public static event Action OnPlayerDeath;
@@ -22,9 +9,8 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
     public bool CanMove { get; set; } = true;
     public bool OnMove { get; set; }
     public PlayerState CurrentState { get; set; }
-    public bool FacingRight { get; set; }
-
-
+    
+    private bool _facingRight;
     private EntityHealth _health;
 
     public Rigidbody2D Rigidbody2D { get; private set; }
@@ -69,7 +55,7 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
 
     private void Flip()
     {
-        FacingRight = !FacingRight;
+        _facingRight = !_facingRight;
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
@@ -77,11 +63,11 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
 
     public void FlipController(float x = 1f)
     {
-        if (x > 0 && !FacingRight)
+        if (x > 0 && !_facingRight)
         {
             Flip();
         }
-        else if (x < 0 && FacingRight)
+        else if (x < 0 && _facingRight)
         {
             Flip();
         }

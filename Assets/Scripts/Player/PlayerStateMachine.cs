@@ -11,10 +11,23 @@ public class PlayerStateMachine : MonoBehaviour
         _player = GetComponent<Player>();
     }
 
+    private void OnEnable()
+    {
+        Player.OnPlayerDeath += ChangeStateDead();
+        Enemy.OnEnemyDeath += ChangeStateIdle();
+    }
+
+    private void OnDisable()
+    {
+        Player.OnPlayerDeath -= ChangeStateDead();
+        Enemy.OnEnemyDeath -= ChangeStateIdle();
+    }
+
     private void Start()
     {
         Initialize(_player.CastingState);
     }
+
 
     private void Update()
     {
@@ -51,13 +64,17 @@ public class PlayerStateMachine : MonoBehaviour
                 if (_player.CurrentState.TriggerCalled)
                     ChangeState(_player.CastingState);
             },
-            PlayerDeadState => () => { }, 
+            PlayerDeadState => () => { },
             PlayerIdleState => () => { },
 
             _ => () => { } // 기본값
         };
     }
 
+
+    private Action ChangeStateIdle() => () => ChangeState(_player.IdleState);
+
+    private Action ChangeStateDead() => () => ChangeState(_player.DeadState);
 
     public void Initialize(PlayerState startState)
     {
@@ -88,9 +105,6 @@ public class PlayerStateMachine : MonoBehaviour
         _player.SkillState.Skill = skill;
         ChangeState(_player.SkillState);
     }
-
-    private void DieState() => Player.OnPlayerDeath += () => ChangeState(_player.DeadState);
-    private void TargetDieState() => Enemy.OnEnemyDeath += () => ChangeState(_player.IdleState);
 
     public void UpdateInputX(float inputX)
     {

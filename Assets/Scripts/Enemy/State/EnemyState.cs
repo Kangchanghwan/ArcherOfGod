@@ -1,65 +1,96 @@
 using UnityEngine;
 
-public class EnemyState : EntityState
+public class EnemyState : MonoBehaviour
 {
+    [SerializeField]
+    protected string animBoolName;
+    
+    protected Enemy Enemy;
+    protected Animator Animator;
+    protected Rigidbody2D Rigidbody2D;
 
-    protected Enemy enemy;
-    protected EnemySkillManager skillManager;
+    public bool TriggerCalled { get; private set; }
 
-    
-    public EnemyState(StateMachine stateMachine, string animBoolName, Enemy enemy) : 
-        base(stateMachine, animBoolName)
+    protected virtual void Awake()
     {
-        this.enemy = enemy;
-        animator = enemy.animator;
-        rigidbody2D = enemy.rb;
-        skillManager = enemy.skillManager;
-    }
-    
-    public override void Update()
-    {
-        base.Update();
-        
-
-        if (CanJumpShot())
-        {
-            skillManager.jumpShoot.SetSkillOnCooldown();
-            stateMachine.ChangeState(enemy.jumpShootState);
-        }
-        
-    }
-    
-    private bool CanJumpShot()
-    {
-        if (skillManager.jumpShoot.CanUseSkill() == false)
-        {
-            return false;
-        }
-        if (enemy.stateMachine.currentState == enemy.jumpShootState)
-        {
-            return false;
-        }
-        if (enemy.stateMachine.currentState == enemy.idleState)
-        {
-            return false;
-        }
-        if (enemy.stateMachine.currentState == enemy.deadState)
-        {
-            return false;
-        }
-        return true;
-    }
-    
-    protected void FaceTarget()
-    {
-        if (enemy.target != null)
-        {
-            Vector3 directionToEnemy = enemy.target.GetTransform().position - enemy.transform.position;
-            if (directionToEnemy.x > 0 && !enemy.facingRight)
-                enemy.Flip();
-            else if (directionToEnemy.x < 0 && enemy.facingRight)
-                enemy.Flip();
-        }
+        Enemy = GetComponentInParent<Enemy>();
     }
 
+    private void EnsureInitialized()
+    {
+        if (Animator == null)
+        {
+            Animator = Enemy?.Animator;
+        }
+
+        if (Rigidbody2D == null)
+        {
+            Rigidbody2D =  Enemy?.Rigidbody2D;
+        }
+    }
+    public virtual void Enter()
+    {
+        EnsureInitialized();
+        Animator.SetBool(animBoolName, true);
+        TriggerCalled = false;
+    }
+
+    public virtual void Exit()
+    {
+        Animator.SetBool(animBoolName, false);
+    }
+
+
+    public void AnimationTrigger() => TriggerCalled = true;
+
+
+    // public override void Update()
+    // {
+    //     // base.Update();
+    //     //
+    //     //
+    //     // if (CanJumpShot())
+    //     // {
+    //     //     skillManager.jumpShoot.SetSkillOnCooldown();
+    //     //     stateMachine.ChangeState(enemy.SkillState);
+    //     // }
+    //     //
+    // }
+
+    // private bool CanJumpShot()
+    // {
+    //     if (skillManager.jumpShoot.CanUseSkill() == false)
+    //     {
+    //         return false;
+    //     }
+    //     if (enemy.stateMachine.currentState == enemy.SkillState)
+    //     {
+    //         return false;
+    //     }
+    //     if (enemy.stateMachine.currentState == enemy.IdleState)
+    //     {
+    //         return false;
+    //     }
+    //     if (enemy.stateMachine.currentState == enemy.DeadState)
+    //     {
+    //         return false;
+    //     }
+    //     return true;
+    // }
+    //
+    // protected void FaceTarget()
+    // {
+    //     if (enemy.target != null)
+    //     {
+    //         Vector3 directionToEnemy = enemy.target.GetTransform().position - enemy.transform.position;
+    //         if (directionToEnemy.x > 0 && !enemy.facingRight)
+    //             enemy.Flip();
+    //         else if (directionToEnemy.x < 0 && enemy.facingRight)
+    //             enemy.Flip();
+    //     }
+    // }
+
+    public virtual void StateUpdate()
+    {
+    }
 }
