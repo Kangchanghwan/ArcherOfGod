@@ -1,43 +1,45 @@
+using System;
 using UnityEngine;
 
-public class PlayerState
+public class PlayerState : MonoBehaviour
 {
-    private readonly string _animBoolName;
+    [SerializeField]
+    protected string animBoolName;
 
     protected Player Player;
-    protected readonly Animator Animator;
-    protected readonly Rigidbody2D Rigidbody2D;
+    protected Animator Animator;
+    protected Rigidbody2D Rigidbody2D;
 
     public bool TriggerCalled { get; private set; }
 
 
 
-    public PlayerState(PlayerContext context, string animBoolName)
+    protected virtual void Start()
     {
-        this.Player = context.Player;
-        this.Rigidbody2D =  context.RigidBody2D;
-        this.Animator = context.Animator;
-        this._animBoolName = animBoolName;
+        Player = GetComponentInParent<Player>();
+        Animator = Player?.Animator;
+        Rigidbody2D = Player?.Rigidbody2D;
     }
-    
-    public virtual void Update()
-    {
-        // InputManager input = InputManagerSingleton.Instance.InputManager; 
-        // if (input.Player.JumpShot.WasPressedThisFrame() && CanJumpShot())
-        // {
-        //     skillManager.jumpShoot.SetSillOnCooldown();
-        //     Controller.ChangeState(Controller.SkillState);
-        // }
-    }
+
+
+    // public virtual void Update()
+    // {
+    //     // InputManager input = InputManagerSingleton.Instance.InputManager; 
+    //     // if (input.Player.JumpShot.WasPressedThisFrame() && CanJumpShot())
+    //     // {
+    //     //     skillManager.jumpShoot.SetSillOnCooldown();
+    //     //     Controller.ChangeState(Controller.SkillState);
+    //     // }
+    // }
         
     public virtual void Enter()
     {
-        Animator.SetBool(_animBoolName, true);
+        Animator.SetBool(animBoolName, true);
         TriggerCalled = false;
     }
     public virtual void Exit()
     {
-        Animator.SetBool(_animBoolName, false);
+        Animator.SetBool(animBoolName, false);
     }
     // private bool CanJumpShot()
     // {

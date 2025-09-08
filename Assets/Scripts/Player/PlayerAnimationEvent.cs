@@ -2,21 +2,19 @@ using UnityEngine;
 
 public class PlayerAnimationEvent : MonoBehaviour
 {
-    private PlayerController _playerController;
-    private SkillJumpShoot _skillJumpShoot;
+    private Player _player;
     
     private void Awake()
     {
-        _playerController = GetComponentInParent<PlayerController>();
-        _skillJumpShoot = transform.parent.GetComponentInChildren<SkillJumpShoot>();
+        _player = GetComponentInParent<Player>();
     }
 
-    public void AnimationTrigger() => _playerController.AnimationTrigger();
-    public void ArrowTrigger() => _playerController.AttackState.Attack();
+    public void AnimationTrigger() => _player.AnimationTrigger();
+    public void ArrowTrigger() => _player.AttackState.Attack();
 
-    public void OnJumpStart_JumpShoot() => _skillJumpShoot.OnJumpStart();
-    public void OnShootArrow_JumpShoot() => _skillJumpShoot.OnShootArrow();
-    public void OnLanding__JumpShoot() => _skillJumpShoot.OnLanding();
+    public void OnJumpStart_JumpShoot() => _player.SkillJumpShoot.OnJumpStart();
+    public void OnShootArrow_JumpShoot() =>  _player.SkillJumpShoot.OnShootArrow();
+    public void OnLanding__JumpShoot() =>  _player.SkillJumpShoot.OnLanding();
         
 
     // public void LinearArrowTrigger() => _playerController.AttackState.LinearShoot();

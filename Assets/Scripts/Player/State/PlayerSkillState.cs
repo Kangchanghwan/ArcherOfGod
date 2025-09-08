@@ -1,34 +1,22 @@
+using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 public class PlayerSkillState : PlayerState
 {
 
-    private readonly SkillBase _skill;
-
-
-    public PlayerSkillState(PlayerContext context, SkillBase skill) : base(context,  skill.AnimationName)
-    {
-        _skill = skill;
-        _skill.Initialize(context);
-    }
-
+    public SkillBase Skill { get; set; }
+    
     public override void Enter()
     {
         base.Enter();
-        Controller.CanMove = false;
-        Controller.CanSkill = false;
+        animBoolName = Skill.AnimationName;
+        Player.CanMove = false;
+        Player.CanSkill = false;
     }
     
-    public override void Update()
+    public void Update()
     {
-        base.Update();
-        
-        _skill.ExecuteSkill();
-    
-        if (TriggerCalled)
-        {
-            Controller.ChangeState(Controller.CastingState);
-        }
+        Skill?.ExecuteSkill();
     }
     
     // protected void FaceTarget()
@@ -44,7 +32,7 @@ public class PlayerSkillState : PlayerState
     public override void Exit()
     {
         base.Exit();
-        Controller.CanMove = true;
-        Controller.CanSkill = true;
+        Player.CanMove = true;
+        Player.CanSkill = true;
     }
 }

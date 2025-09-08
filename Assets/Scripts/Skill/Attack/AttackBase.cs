@@ -4,13 +4,14 @@ using UnityEngine;
 
 public abstract class AttackBase : MonoBehaviour
 {
-    protected Rigidbody2D rigidbody2D;
-    public Rigidbody2D TargetRigidBody2D { get; set; }
-
-    public virtual void Initialize(IContextBase context)
-    {
-        rigidbody2D = context.RigidBody2D;
-    }
+    protected Transform EndPoint { get; private set; }
+    protected Transform StartPoint { get; private set; }
 
     public abstract void Attack();
+
+    public void Initialize(Transform startPoint, Transform endPoint)
+    {
+        StartPoint = startPoint;
+        EndPoint = endPoint;
+    }
 }

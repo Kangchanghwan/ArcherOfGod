@@ -2,33 +2,31 @@ using UnityEngine;
 
 public class PlayerAttackState: PlayerState
 {
-    private readonly AttackBase _attackBase;
-    private float _attackSpeed = 2f;
-    
-    public PlayerAttackState(PlayerContext context, string animBoolName, AttackBase attackBase) : base(context, animBoolName)
-    {
-        _attackBase = attackBase;
-        _attackBase.Initialize(context);
-    }
+    [SerializeField]
+    private AttackBase attackBase;
+    [SerializeField]
+    private float attackSpeed;
+    [SerializeField]
+    private Transform StartPoint;
 
+
+    protected override void Start()
+    {
+        base.Start();
+        attackBase.Initialize(
+            StartPoint,
+            GameManager.Instance.PlayerOfTarget.GetTransform()
+            );
+    }
     public override void Enter()
     {
         base.Enter();
-        Animator.SetFloat("AttackSpeed", _attackSpeed);
-        Controller.FlipController();
-        _attackBase.TargetRigidBody2D = 
-            GameManager.Instance.PlayerOfTarget
-                .GetTransform().GetComponent<Rigidbody2D>();
+        Animator.SetFloat("AttackSpeed", attackSpeed);
+        Player.FlipController();
     }
 
     public void Attack()
     {
-        _attackBase.Attack();
+        attackBase.Attack();
     }
-
-    public override void Update()
-    {
-        base.Update();
-    }
-
 }

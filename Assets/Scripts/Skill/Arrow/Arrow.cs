@@ -36,26 +36,19 @@ public class Arrow : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         IDamageable damageable;
-        switch (TargetPlayerOrBot)
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            case true:
-                if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
-                {
-                    damageable = other.GetComponent<IDamageable>();
-                    DamageAble(damageable);
-                    ArrowParticle();
-                }
+            damageable = other.GetComponent<IDamageable>();
+            DamageAble(damageable);
+            ArrowParticle();
+        }
 
-                break;
-            case false:
-                if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
-                {
-                    damageable = other.GetComponent<IDamageable>();
-                    DamageAble(damageable);
-                    ArrowParticle();
-                }
-
-                break;
+        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            damageable = other.GetComponent<IDamageable>();
+            DamageAble(damageable);
+            ArrowParticle();
         }
 
         if (other.gameObject.layer == LayerMask.NameToLayer("Ground") && groundVfx)
@@ -157,7 +150,7 @@ public class Arrow : MonoBehaviour
 
         gameObject.SetActive(false);
     }
-    
+
     public void ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
     {
         ResetArrow();

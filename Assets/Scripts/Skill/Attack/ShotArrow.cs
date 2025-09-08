@@ -36,7 +36,8 @@ public class ShotArrow : AttackBase
             }
         }
 
-        arrow = Instantiate(arrowPrefab, transform.position, Quaternion.Euler(0, 0, -180f), GameManager.Instance.transform);
+        arrow = Instantiate(arrowPrefab, StartPoint.position, Quaternion.Euler(0, 0, -180f),
+            GameManager.Instance.transform);
         Arrow(arrow);
         arrows.Enqueue(arrow);
     }
@@ -44,10 +45,9 @@ public class ShotArrow : AttackBase
     private void Arrow(Arrow arrow)
     {
         arrow.gameObject.SetActive(true);
-        Vector2 p0 = transform.position + (Vector3.up * 0.5f);
+        Vector2 p0 = StartPoint.position + (Vector3.up * 0.5f);
         Vector2 p1 = Vector2.up * 8f;
-        Vector2 p2 = TargetRigidBody2D.transform.position;
-        arrow.TargetPlayerOrBot = rigidbody2D.gameObject.layer.Equals(LayerMask.NameToLayer("Bot"));
+        Vector2 p2 = EndPoint.transform.position;
         arrow.ShotArrow(p0, p1, p2);
     }
 }
