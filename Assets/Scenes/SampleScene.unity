@@ -1446,6 +1446,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animBoolName: Attack
+  attackBase: {fileID: 916831614}
+  attackSpeed: 1.6
+  startPoint: {fileID: 1575680502}
 --- !u!1 &954086481
 GameObject:
   m_ObjectHideFlags: 0
@@ -1784,7 +1787,7 @@ MonoBehaviour:
   animBoolName: Attack
   attackBase: {fileID: 916831614}
   attackSpeed: 1.6
-  StartPoint: {fileID: 583393633}
+  startPoint: {fileID: 583393633}
 --- !u!1 &1380076498
 GameObject:
   m_ObjectHideFlags: 0

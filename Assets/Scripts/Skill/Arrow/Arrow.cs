@@ -102,7 +102,6 @@ public class Arrow : MonoBehaviour
         Vector2 previousPos = p0;
 
         p2.y = 0f;
-
         elapsedTime = 0f;
 
         while (elapsedTime < Duration)
@@ -124,21 +123,6 @@ public class Arrow : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        if (p2.x >= -1.9f && p2.x <= 1.9f)
-        {
-            Vector2 startPos = transform.position;
-            Vector2 endPos = new Vector2(p2.x, -8f);
-            float dropDuration = 0.5f;
-            float dropTime = 0f;
-
-            while (dropTime < dropDuration)
-            {
-                dropTime += Time.deltaTime;
-                float t = dropTime / dropDuration;
-                transform.position = Vector2.Lerp(startPos, endPos, t);
-                yield return null;
-            }
-        }
 
         collider2D.enabled = false;
 

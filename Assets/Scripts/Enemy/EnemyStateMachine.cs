@@ -40,17 +40,27 @@ public class EnemyStateMachine : MonoBehaviour
             EnemyAttackState => () =>
             {
                 if (_enemy.CurrentState.TriggerCalled)
-                    ChangeState(_enemy.CastingState);
+                    ChangeState(_enemy.MoveState);
             },
             EnemyCastingState => () =>
             {
                 if (_enemy.CurrentState.TriggerCalled)
-                    ChangeState(_enemy.AttackState);
+                {
+                    if (_enemy.CanSkill)
+                        ChangeState(_enemy.SkillState);
+                    else
+                        ChangeState(_enemy.AttackState);
+                }
             },
             EnemySkillState => () =>
             {
                 if (_enemy.CurrentState.TriggerCalled)
                     ChangeState(_enemy.MoveState);
+            },
+            EnemyMoveState => () =>
+            {
+                if (_enemy.CanMove == false)
+                    ChangeState(_enemy.CastingState);
             },
             EnemyDeadState => () => { },
             EnemyIdleState => () => { },

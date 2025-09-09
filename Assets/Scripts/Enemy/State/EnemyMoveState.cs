@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class EnemyMoveState : EnemyState
@@ -10,37 +11,50 @@ public class EnemyMoveState : EnemyState
     [SerializeField]
     private Vector2 wallCheckOffset = new Vector2(0.5f, 0f);
     [SerializeField]
-    private float moveStateTime;
+    private float moveStateTimeMin;
+    [SerializeField]
+    private float moveStateTimeMax;
     [SerializeField]
     public float moveSpeed;
+
 
 
     public override void Enter()
     {
         base.Enter();
+        Enemy.CanMove = true;
         _dir = Random.Range(0, 2) == 0 ? -1f : 1f;
+        StartCoroutine(RandomMove());
     }
 
-    // public override void Update()
-    // {
-    //     base.Update();
-    //     
-    //     if (enemy.canMove == false) return;
-    //
-    //     // 벽 감지
-    //     if (IsWallDetected())
-    //     {
-    //         FlipDirection();
-    //     }
-    //
-    //     // enemy.SetVelocity(dir * enemy.moveSpeed * Time.deltaTime, rigidbody2D.linearVelocity.y);
-    //     
-    //     if (stateTimer < 0)
-    //         stateMachine.ChangeState(enemy.CastingState);
-    // }
+    private IEnumerator RandomMove()
+    {
+        float moveStateTime =  Random.Range(moveStateTimeMin, moveStateTimeMax);
+
+        while (moveStateTime > 0f)
+        {
+            moveStateTime -= Time.deltaTime;
+            if (IsWallDetected())
+            {
+                FlipDirection();
+            }
+            OnMove();
+            yield return null;
+        }
+        Enemy.CanMove = false;
+    }
+    
+    private void OnMove()
+    {
+        var movement = new Vector2(_dir * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
+        Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
+        Enemy.FlipController(_dir);
+    }
+ 
     private bool IsWallDetected()
     {
-        Vector2 rayOrigin = (Vector2)Enemy.transform.position + wallCheckOffset;
+        Vector2 rayOrigin = 
+            (Vector2)Enemy.transform.position + wallCheckOffset;
         Vector2 rayDirection = Vector2.right * _dir;
         
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, wallCheckDistance, LayerMask.GetMask("Wall"));
@@ -51,9 +65,5 @@ public class EnemyMoveState : EnemyState
     private void FlipDirection()
     {
         _dir *= -1f;
-    }
-    public override void Exit()
-    {
-        base.Exit();
     }
 }

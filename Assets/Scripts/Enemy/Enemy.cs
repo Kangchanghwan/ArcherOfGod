@@ -11,13 +11,11 @@ public class Enemy : MonoBehaviour, IDamageable, ITargetable
 
     private EntityHealth _health;
 
-    public bool CanSkill { get; set; } = true;
+    public bool CanSkill => SkillJumpShoot.CanUseSkill();
+
     public bool CanMove { get; set; } = true;
 
     private bool _facingRight;
-
-    // [Header("Enemy Settings")]
-    // public ITargetable target;
 
     public EnemyAttackState AttackState { get; private set; }
     public EnemyMoveState MoveState { get; private set; }
@@ -54,7 +52,7 @@ public class Enemy : MonoBehaviour, IDamageable, ITargetable
     }
 
 
-    public void FlipController(float x = 1f)
+    public void FlipController(float x = -1f)
     {
         if (x > 0 && !_facingRight)
         {
@@ -94,6 +92,11 @@ public class Enemy : MonoBehaviour, IDamageable, ITargetable
         {
             Die();
         }
+    }
+
+    public SkillBase GetRandomSkill()
+    {
+        return SkillJumpShoot;
     }
 
     public Transform GetTransform() => transform;

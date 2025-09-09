@@ -2,19 +2,25 @@ using UnityEngine;
 
 public class EnemySkillState : EnemyState
 {
-    [Header("Jump Settings")]
-    public float jumpForce = 10f;
-    
+    private SkillBase _skill;
     
     public override void Enter()
     {
+        _skill = Enemy.GetRandomSkill();
+        this.animBoolName =  _skill.AnimationName;
         base.Enter();
-        Enemy.CanMove = false;
+        Rigidbody2D.linearVelocity = Vector2.zero;
+        _skill.Initialize(
+            Rigidbody2D, 
+            GameManager.Instance.EnemyOfTarget.GetTransform()
+        );
+        _skill.SetSkillOnCooldown();
+        Enemy.FlipController();
+        StartCoroutine(_skill.SkillCoroutine());
     }
     
     public override void Exit()
     {
         base.Exit();
-        Enemy.CanMove = true;
     }
 }

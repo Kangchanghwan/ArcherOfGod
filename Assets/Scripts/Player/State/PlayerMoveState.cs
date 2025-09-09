@@ -16,8 +16,8 @@ public class PlayerMoveState : PlayerState
 
     private void OnMove()
     {
-        Rigidbody2D.linearVelocity =
-            new Vector2(XInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
+        var movement = new Vector2(XInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
+        Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         Player.FlipController(XInput);
     }
     

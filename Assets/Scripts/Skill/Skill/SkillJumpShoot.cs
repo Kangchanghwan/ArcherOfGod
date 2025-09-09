@@ -7,6 +7,9 @@ public class SkillJumpShoot : SkillBase
     [SerializeField] private float jumpHeight;
     [SerializeField] private Arrow arrow;
     [SerializeField] private Transform firePoint;
+    [SerializeField] private int damage;
+    [SerializeField] private float arrowSpeed;
+    
     private Vector3 _originalPosition;
 
     private bool _up;

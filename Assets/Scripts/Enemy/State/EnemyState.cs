@@ -33,11 +33,13 @@ public class EnemyState : MonoBehaviour
         EnsureInitialized();
         Animator.SetBool(animBoolName, true);
         TriggerCalled = false;
+        Debug.Log("Entered " + this.GetType().Name);
     }
 
     public virtual void Exit()
     {
         Animator.SetBool(animBoolName, false);
+        Debug.Log("Exited " + this.GetType().Name);
     }
 
 

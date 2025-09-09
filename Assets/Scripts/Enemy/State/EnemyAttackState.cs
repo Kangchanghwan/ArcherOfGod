@@ -8,7 +8,10 @@ public class EnemyAttackState : EnemyState
     private float attackSpeed;
     [SerializeField]
     private Transform startPoint;
-    
+    [SerializeField]
+    private int damage;
+    [SerializeField]
+    private float arrowSpeed;
 
     public override void Enter()
     {
@@ -19,6 +22,8 @@ public class EnemyAttackState : EnemyState
 
     public void Attack()
     {
-        attackBase.Attack(startPoint, GameManager.Instance.EnemyOfTarget.GetTransform());
+        attackBase.Attack(
+            startPoint, 
+            GameManager.Instance.EnemyOfTarget.GetTransform());
     }
 }

@@ -147,9 +147,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e4f7e1f4aa3bcc4a97fc6a19d07e131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <TargetPlayerOrBot>k__BackingField: 1
   damage: 0
   <Duration>k__BackingField: 2
   particlePrefab: {fileID: 0}
   groundVfx: 1
-  hasHitGround: 0
+  hasHitGround: 1
