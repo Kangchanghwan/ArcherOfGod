@@ -1,10 +1,7 @@
 using UnityEngine;
 
-public class EnemyState : MonoBehaviour
+public abstract class EnemyState : MonoBehaviour
 {
-    [SerializeField]
-    protected string animBoolName;
-    
     protected Enemy Enemy;
     protected Animator Animator;
     protected Rigidbody2D Rigidbody2D;
@@ -13,8 +10,10 @@ public class EnemyState : MonoBehaviour
 
     protected virtual void Awake()
     {
-        Enemy = GetComponentInParent<Enemy>();
+        Enemy = GetComponentInParent<Enemy>(true);
     }
+
+    protected abstract string GetAnimationName();
 
     private void EnsureInitialized()
     {
@@ -25,72 +24,26 @@ public class EnemyState : MonoBehaviour
 
         if (Rigidbody2D == null)
         {
-            Rigidbody2D =  Enemy?.Rigidbody2D;
+            Rigidbody2D = Enemy?.Rigidbody2D;
         }
     }
+
     public virtual void Enter()
     {
         EnsureInitialized();
-        Animator.SetBool(animBoolName, true);
+        Animator.SetBool(GetAnimationName(), true);
         TriggerCalled = false;
         Debug.Log("Entered " + this.GetType().Name);
     }
 
     public virtual void Exit()
     {
-        Animator.SetBool(animBoolName, false);
+        Animator.SetBool(GetAnimationName(), false);
         Debug.Log("Exited " + this.GetType().Name);
     }
 
-
     public void AnimationTrigger() => TriggerCalled = true;
 
-
-    // public override void Update()
-    // {
-    //     // base.Update();
-    //     //
-    //     //
-    //     // if (CanJumpShot())
-    //     // {
-    //     //     skillManager.jumpShoot.SetSkillOnCooldown();
-    //     //     stateMachine.ChangeState(enemy.SkillState);
-    //     // }
-    //     //
-    // }
-
-    // private bool CanJumpShot()
-    // {
-    //     if (skillManager.jumpShoot.CanUseSkill() == false)
-    //     {
-    //         return false;
-    //     }
-    //     if (enemy.stateMachine.currentState == enemy.SkillState)
-    //     {
-    //         return false;
-    //     }
-    //     if (enemy.stateMachine.currentState == enemy.IdleState)
-    //     {
-    //         return false;
-    //     }
-    //     if (enemy.stateMachine.currentState == enemy.DeadState)
-    //     {
-    //         return false;
-    //     }
-    //     return true;
-    // }
-    //
-    // protected void FaceTarget()
-    // {
-    //     if (enemy.target != null)
-    //     {
-    //         Vector3 directionToEnemy = enemy.target.GetTransform().position - enemy.transform.position;
-    //         if (directionToEnemy.x > 0 && !enemy.facingRight)
-    //             enemy.Flip();
-    //         else if (directionToEnemy.x < 0 && enemy.facingRight)
-    //             enemy.Flip();
-    //     }
-    // }
 
     public virtual void StateUpdate()
     {

@@ -4,8 +4,5 @@ using UnityEngine;
 
 public abstract class AttackBase : MonoBehaviour
 {
-
-
-    public abstract void Attack(Transform startPoint, Transform endPoint);
-    
+    public abstract void Attack(Vector2 startPoint, Transform endPoint);
 }

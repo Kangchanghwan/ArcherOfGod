@@ -23,7 +23,6 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
     public PlayerIdleState IdleState { get; private set; }
     public PlayerSkillState SkillState { get; private set; }
 
-    public SkillJumpShoot SkillJumpShoot { get; private set; }
 
 
     private void Awake()
@@ -37,8 +36,6 @@ public class Player : MonoBehaviour, IDamageable, ITargetable
         DeadState = GetComponentInChildren<PlayerDeadState>();
         IdleState = GetComponentInChildren<PlayerIdleState>();
         SkillState = GetComponentInChildren<PlayerSkillState>();
-
-        SkillJumpShoot = GetComponentInChildren<SkillJumpShoot>();
 
         _health = GetComponent<EntityHealth>();
     }

@@ -101,7 +101,7 @@ public class Arrow : MonoBehaviour
     {
         Vector2 previousPos = p0;
 
-        p2.y = 0f;
+        p2.y = -1f;
         elapsedTime = 0f;
 
         while (elapsedTime < Duration)
@@ -115,8 +115,8 @@ public class Arrow : MonoBehaviour
             Vector2 direction = pos - previousPos;
             if (direction != Vector2.zero)
             {
-                // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                transform.up = direction.normalized;
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                transform.rotation = Quaternion.Euler(0f, 0f, angle);
             }
 
             previousPos = pos;

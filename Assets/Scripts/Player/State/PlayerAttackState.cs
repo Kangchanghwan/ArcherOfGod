@@ -1,23 +1,42 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
-public class PlayerAttackState: PlayerState
+public class PlayerAttackState : PlayerState
 {
-    [SerializeField]
-    private AttackBase attackBase;
-    [SerializeField]
-    private float attackSpeed;
-    [SerializeField]
-    private Transform startPoint;
+    private AttackBase _attackBase;
+    [SerializeField] private float attackSpeed;
+    [SerializeField] private Vector2 firePointOffset;
+    private Coroutine _currentRoutine;
+    protected override string GetAnimationName() => "Attack";
+
+    private void Start()
+    {
+        _attackBase = GetComponent<AttackBase>();
+    }
 
     public override void Enter()
     {
         base.Enter();
         Animator.SetFloat("AttackSpeed", attackSpeed);
         Player.FlipController();
+        _currentRoutine = StartCoroutine(Attack());
     }
 
-    public void Attack()
+    private IEnumerator Attack()
     {
-        attackBase.Attack(startPoint, GameManager.Instance.PlayerOfTarget.GetTransform());
+        yield return new WaitForSeconds(0.62f/attackSpeed);
+
+        _attackBase.Attack(
+            (Vector2)transform.position + firePointOffset,
+            GameManager.Instance.PlayerOfTarget.GetTransform()
+        );
+        yield return new WaitUntil(() => TriggerCalled);
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        StopCoroutine(_currentRoutine);
     }
 }

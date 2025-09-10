@@ -5,17 +5,14 @@ using UnityEngine;
 public class Enemy : MonoBehaviour, IDamageable, ITargetable
 {
     public static event Action OnEnemyDeath;
-    
+
     public Rigidbody2D Rigidbody2D { get; private set; }
     public Animator Animator { get; private set; }
 
     private EntityHealth _health;
-
-    public bool CanSkill => SkillJumpShoot.CanUseSkill();
-
-    public bool CanMove { get; set; } = true;
-
     private bool _facingRight;
+    public bool CanSkill => SkillJumpShoot.CanUseSkill();
+    public bool CanMove { get; set; } = true;
 
     public EnemyAttackState AttackState { get; private set; }
     public EnemyMoveState MoveState { get; private set; }
@@ -25,7 +22,7 @@ public class Enemy : MonoBehaviour, IDamageable, ITargetable
     public EnemyDeadState DeadState { get; private set; }
 
     public EnemyState CurrentState { get; set; }
-    
+
     public SkillJumpShoot SkillJumpShoot { get; private set; }
 
 
@@ -40,12 +37,12 @@ public class Enemy : MonoBehaviour, IDamageable, ITargetable
         SkillState = GetComponentInChildren<EnemySkillState>();
         IdleState = GetComponentInChildren<EnemyIdleState>();
         DeadState = GetComponentInChildren<EnemyDeadState>();
-        
+
         SkillJumpShoot = GetComponentInChildren<SkillJumpShoot>();
 
         _health = GetComponent<EntityHealth>();
     }
-    
+
     private void Update()
     {
         CurrentState.StateUpdate();

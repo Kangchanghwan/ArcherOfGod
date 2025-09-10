@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerCastingState : PlayerState
 {
+    protected override string GetAnimationName() => "Casting";
 
     public override void Enter()
     {

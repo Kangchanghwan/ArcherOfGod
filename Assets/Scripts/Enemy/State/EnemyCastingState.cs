@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class EnemyCastingState: EnemyState
+public class EnemyCastingState : EnemyState
 {
-   
+    protected override string GetAnimationName() => "Casting";
 
     public override void Enter()
     {

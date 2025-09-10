@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerDeadState : PlayerState
 {
+    protected override string GetAnimationName() => "Dead";
 
     public override void Enter()
     {

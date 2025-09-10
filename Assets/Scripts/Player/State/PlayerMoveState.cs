@@ -3,16 +3,16 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerState
 {
-
-    [SerializeField]
-    private float moveSpeed = 1000f;
+    [SerializeField] private float moveSpeed = 10f;
     public float XInput { get; set; }
-    
+
 
     public override void StateUpdate()
     {
         OnMove();
     }
+
+    protected override string GetAnimationName() => "Move";
 
     private void OnMove()
     {
@@ -20,5 +20,4 @@ public class PlayerMoveState : PlayerState
         Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         Player.FlipController(XInput);
     }
-    
 }

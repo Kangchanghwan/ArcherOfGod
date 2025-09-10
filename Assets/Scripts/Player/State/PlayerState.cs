@@ -1,10 +1,8 @@
 using System;
 using UnityEngine;
 
-public class PlayerState : MonoBehaviour
+public abstract class PlayerState : MonoBehaviour
 {
-    [SerializeField] protected string animBoolName;
-
     protected Player Player;
     protected Animator Animator;
     protected Rigidbody2D Rigidbody2D;
@@ -13,8 +11,9 @@ public class PlayerState : MonoBehaviour
 
     protected virtual void Awake()
     {
-        Player = GetComponentInParent<Player>();
+        Player = GetComponentInParent<Player>(true);
     }
+
     private void EnsureInitialized()
     {
         if (Animator == null)
@@ -24,36 +23,27 @@ public class PlayerState : MonoBehaviour
 
         if (Rigidbody2D == null)
         {
-            Rigidbody2D =  Player?.Rigidbody2D;
+            Rigidbody2D = Player?.Rigidbody2D;
         }
     }
+
     public virtual void StateUpdate()
     {
     }
 
+    protected abstract string GetAnimationName();
+
     public virtual void Enter()
     {
         EnsureInitialized();
-        Animator.SetBool(animBoolName, true);
+        Animator.SetBool(GetAnimationName(), true);
         TriggerCalled = false;
     }
 
     public virtual void Exit()
     {
-        Animator.SetBool(animBoolName, false);
+        Animator.SetBool(GetAnimationName(), false);
     }
-    // private bool CanJumpShot()
-    // {
-    //     if (skillManager.jumpShoot.CanUseSkill() == false)
-    //     {
-    //         return false;
-    //     }
-    //     if (Controller.CurrentState ==Controller.SkillState)
-    //     {
-    //         return false;
-    //     }
-    //     return true;
-    // }
 
     public void AnimationTrigger() => TriggerCalled = true;
 }

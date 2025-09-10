@@ -92,9 +92,10 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void TryUseSkill(int skillNumber)
     {
-        var skill = skillNumber switch
+        SkillBase skill = skillNumber switch
         {
-            0 => _player.SkillJumpShoot,
+            0 => _player.SkillState.SkillJumpShoot,
+            1 => _player.SkillState.SkillBombShoot,
             _ => null
         };
 
@@ -102,7 +103,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (skill.CanUseSkill() == false) return;
         if (_player.CanSkill == false) return;
 
-        _player.SkillState.Skill = skill;
+        _player.SkillState.CurrentSkill = skill;
         ChangeState(_player.SkillState);
     }
 
