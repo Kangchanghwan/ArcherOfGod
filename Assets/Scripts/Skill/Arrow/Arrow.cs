@@ -8,20 +8,18 @@ public class Arrow : MonoBehaviour
     [SerializeField] private float damage;
     [field: SerializeField] public float Duration { get; set; }
     [SerializeField] private ParticleSystem particlePrefab;
-    private float elapsedTime = 0f;
+    private float _elapsedTime = 0f;
 
     [SerializeField] private bool groundVfx;
     [SerializeField] private bool hasHitGround;
 
-    private Coroutine arrowCoroutine;
-
-    private Collider2D collider2D;
-
-    private ParticleSystem particle;
-
+    private Coroutine _arrowCoroutine;
+    private Collider2D _collider2D;
+    private ParticleSystem _particle;
+    
     private void Awake()
     {
-        collider2D = GetComponent<Collider2D>();
+        _collider2D = GetComponent<Collider2D>();
     }
 
     private void OnEnable()
@@ -33,14 +31,8 @@ public class Arrow : MonoBehaviour
     {
         IDamageable damageable;
 
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
-        {
-            damageable = other.GetComponent<IDamageable>();
-            DamageAble(damageable);
-            ArrowParticle();
-        }
-
-        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player") ||
+            other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
             damageable = other.GetComponent<IDamageable>();
             DamageAble(damageable);
@@ -60,17 +52,17 @@ public class Arrow : MonoBehaviour
     private void ArrowParticle()
     {
         if (particlePrefab == null) return;
-        if (particle == null)
+        if (_particle == null)
         {
-            particle = Instantiate(particlePrefab, transform.position, Quaternion.identity,
+            _particle = Instantiate(particlePrefab, transform.position, Quaternion.identity,
                 GameManager.Instance.transform);
-            particle.Play();
+            _particle.Play();
             return;
         }
 
-        particle.transform.position = transform.position;
-        particle.gameObject.SetActive(true);
-        particle.Play();
+        _particle.transform.position = transform.position;
+        _particle.gameObject.SetActive(true);
+        _particle.Play();
     }
 
     private void DamageAble(IDamageable damageable)
@@ -79,21 +71,21 @@ public class Arrow : MonoBehaviour
         damageable.TakeDamage(damage);
         gameObject.SetActive(false);
         StopArrowCoroutine();
-        arrowCoroutine = null;
+        _arrowCoroutine = null;
     }
 
     private void StopArrowCoroutine()
     {
-        if (arrowCoroutine == null) return;
-        StopCoroutine(arrowCoroutine);
-        arrowCoroutine = null;
-        collider2D.enabled = false;
+        if (_arrowCoroutine == null) return;
+        StopCoroutine(_arrowCoroutine);
+        _arrowCoroutine = null;
+        _collider2D.enabled = false;
     }
 
     private void ResetArrow()
     {
-        elapsedTime = 0f;
-        collider2D.enabled = true;
+        _elapsedTime = 0f;
+        _collider2D.enabled = true;
     }
 
 
@@ -102,12 +94,12 @@ public class Arrow : MonoBehaviour
         Vector2 previousPos = p0;
 
         p2.y = -1f;
-        elapsedTime = 0f;
+        _elapsedTime = 0f;
 
-        while (elapsedTime < Duration)
+        while (_elapsedTime < Duration)
         {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / Duration;
+            _elapsedTime += Time.deltaTime;
+            float t = _elapsedTime / Duration;
 
             Vector2 pos = BezierCurve.Quadratic(p0, p1, p2, t);
             transform.position = pos;
@@ -124,7 +116,7 @@ public class Arrow : MonoBehaviour
         }
 
 
-        collider2D.enabled = false;
+        _collider2D.enabled = false;
 
         yield return new WaitForSeconds(4f);
 
@@ -134,6 +126,6 @@ public class Arrow : MonoBehaviour
     public void ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
     {
         ResetArrow();
-        arrowCoroutine = StartCoroutine(ShotArrowCoroutine(p0, p1, p2));
+        _arrowCoroutine = StartCoroutine(ShotArrowCoroutine(p0, p1, p2));
     }
 }

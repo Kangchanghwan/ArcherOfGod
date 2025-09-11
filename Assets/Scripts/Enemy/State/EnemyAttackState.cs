@@ -8,7 +8,8 @@ public class EnemyAttackState : EnemyState
     [SerializeField] private Vector2 firePointOffset;
     [SerializeField] private int damage;
     [SerializeField] private float arrowSpeed;
-    [SerializeField] private Coroutine _currentCoroutine;
+
+    private Coroutine _currentCoroutine;
 
     protected override string GetAnimationName() => "Attack";
 
@@ -27,12 +28,13 @@ public class EnemyAttackState : EnemyState
 
     private IEnumerator Attack()
     {
-        yield return new WaitForSeconds(0.62f/attackSpeed);
+        yield return new WaitForSeconds(0.87f / attackSpeed);
 
         _attackBase.Attack(
             (Vector2)transform.position + firePointOffset,
             GameManager.Instance.EnemyOfTarget.GetTransform()
         );
+        
         yield return new WaitUntil(() => TriggerCalled);
     }
 

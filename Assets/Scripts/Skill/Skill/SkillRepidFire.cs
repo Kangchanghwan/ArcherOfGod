@@ -1,32 +1,43 @@
 using System.Collections;
 using UnityEngine;
 
-public class SkillBombShoot : SkillBase
+public class SkillRipedFire : SkillBase
 {
+        
     [Header("Skill Settings")] [SerializeField]
     private Arrow arrow;
 
     [SerializeField] private int damage;
     [SerializeField] private float arrowSpeed;
+    
+    [SerializeField] private int arrowCount = 5;
+    [SerializeField] private float repeatStartTime = 0.3f; // 반복 시작 지점
+    [SerializeField] private float repeatEndTime = 0.7f;   // 반복 끝 지점
+    
+    [SerializeField] private Vector2 fireOffset = new  Vector2(0.4f, 0.4f);
 
-    [SerializeField] private Vector2 fireOffset;
-    [SerializeField] private int arrowCount;
     public override string GetAnimationName() => "Attack";
-
     public override IEnumerator SkillCoroutine()
     {
-        anim.SetFloat("AttackSpeed", 1f);   
-        yield return new WaitForSeconds(0.63f);
+        int currentArrowCount = 0;
         
-        for (int i = 0; i < arrowCount; i++)
+        // 연속 발사 루프
+        while (currentArrowCount < arrowCount)
         {
+            anim.Play("Attack", 0, repeatStartTime);
+            
+            yield return new WaitForSeconds((repeatEndTime - repeatStartTime) * 0.5f);
+            
             var arrowGo = PoolObject(arrow.gameObject).GetComponent<Arrow>();
             Arrow(arrowGo);
+            currentArrowCount++;
+            
+            yield return new WaitForSeconds((repeatEndTime - repeatStartTime) * 0.5f);
         }
-        yield return new WaitForSeconds(.2f);
         
+        yield return new WaitForSeconds(0.2f);
     }
-
+    
     private void Arrow(Arrow arrow)
     {
         arrow.gameObject.SetActive(true);
@@ -37,4 +48,5 @@ public class SkillBombShoot : SkillBase
         arrow.Duration = arrowSpeed;
         arrow.ShotArrow(p0, p1, p2);
     }
+
 }

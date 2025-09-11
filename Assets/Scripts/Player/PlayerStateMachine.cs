@@ -96,6 +96,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             0 => _player.SkillState.SkillJumpShoot,
             1 => _player.SkillState.SkillBombShoot,
+            2 => _player.SkillState.SkillRipedFire,
             _ => null
         };
 

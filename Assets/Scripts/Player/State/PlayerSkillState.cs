@@ -5,11 +5,13 @@ public class PlayerSkillState : PlayerState
     public SkillBase CurrentSkill { get; set; }
     public SkillJumpShoot SkillJumpShoot { get; private set; }
     public SkillBombShoot SkillBombShoot { get; private set; }
+    public SkillRipedFire SkillRipedFire { get; private set; }
 
     private void Start()
     {
         SkillJumpShoot = GetComponent<SkillJumpShoot>();
         SkillBombShoot = GetComponent<SkillBombShoot>();
+        SkillRipedFire = GetComponent<SkillRipedFire>();
     }
     protected override string GetAnimationName() => CurrentSkill.GetAnimationName();
 
