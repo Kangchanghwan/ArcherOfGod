@@ -6,12 +6,16 @@ public class PlayerSkillState : PlayerState
     public SkillJumpShoot SkillJumpShoot { get; private set; }
     public SkillBombShoot SkillBombShoot { get; private set; }
     public SkillRipedFire SkillRipedFire { get; private set; }
+    public SkillWhirlWind SkillWhirlWind { get; private set; }
+    public SkillCopyCat SkillCopyCat { get; private set; }
 
     private void Start()
     {
         SkillJumpShoot = GetComponent<SkillJumpShoot>();
         SkillBombShoot = GetComponent<SkillBombShoot>();
         SkillRipedFire = GetComponent<SkillRipedFire>();
+        SkillWhirlWind = GetComponent<SkillWhirlWind>();
+        SkillCopyCat = GetComponent<SkillCopyCat>();
     }
     protected override string GetAnimationName() => CurrentSkill.GetAnimationName();
 

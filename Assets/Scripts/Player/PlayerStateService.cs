@@ -97,6 +97,8 @@ public class PlayerStateService : MonoBehaviour
             0 => _player.SkillState.SkillJumpShoot,
             1 => _player.SkillState.SkillBombShoot,
             2 => _player.SkillState.SkillRipedFire,
+            3 => _player.SkillState.SkillWhirlWind,
+            4 => _player.SkillState.SkillCopyCat,
             _ => null
         };
 
