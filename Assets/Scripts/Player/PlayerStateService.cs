@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class PlayerStateMachine : MonoBehaviour
+public class PlayerStateService : MonoBehaviour
 {
     private Player _player;
 

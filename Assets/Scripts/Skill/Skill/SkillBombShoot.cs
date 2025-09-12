@@ -15,7 +15,7 @@ public class SkillBombShoot : SkillBase
 
     public override IEnumerator SkillCoroutine()
     {
-        anim.SetFloat("AttackSpeed", 1f);   
+        Anim.SetFloat("AttackSpeed", 1f);   
         yield return new WaitForSeconds(0.63f);
         
         for (int i = 0; i < arrowCount; i++)
@@ -32,7 +32,7 @@ public class SkillBombShoot : SkillBase
         arrow.gameObject.SetActive(true);
         Vector2 p0 = (Vector2)transform.position + fireOffset;
         Vector2 p1 = Vector2.up * 7f;
-        Vector2 targetPosition = target.transform.position;
+        Vector2 targetPosition = Target.transform.position;
         Vector2 p2 = new Vector2(targetPosition.x +  Random.Range(0f,3f),  targetPosition.y);
         arrow.Duration = arrowSpeed;
         arrow.ShotArrow(p0, p1, p2);

@@ -3,52 +3,56 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum SkillType
+{
+    BombShoot,
+    JumpShoot,
+    RepidFire
+}
+
 public abstract class SkillBase : MonoBehaviour
 {
-    [Header("General detail")] [SerializeField]
-    private float cooldown;
-    [SerializeField] private float lastTimeUsed = 0f;
+    [Header("General detail")]
+    [SerializeField] private float cooldown;
+    [SerializeField] protected UISkillSlot uiSkillSlot;
+    
+    private float _lastTimeUsed;
 
-    protected Rigidbody2D rb;
-    protected Transform target;
-    protected Animator anim;
+    protected Rigidbody2D Rb;
+    protected Transform Target;
+    protected Animator Anim;
 
-    protected Coroutine currentSkillCoroutine;
+    protected Coroutine CurrentSkillCoroutine;
 
     protected Queue<GameObject> pools = new Queue<GameObject>();
+    
 
-    protected void Awake()
+ 
+    private void Start()
     {
-        lastTimeUsed = cooldown;
+        uiSkillSlot?.StartCooldown(cooldown);
     }
-
+    
     public void Initialize(Rigidbody2D rigidbody, Animator anim, Transform target)
     {
-        this.rb = rigidbody;
-        this.anim = anim;
-        this.target = target;
+        this.Rb = rigidbody;
+        this.Anim = anim;
+        this.Target = target;
     }
 
 
-    public bool CanUseSkill()
-    {
-        if (OnCooldown())
-        {
-            return false;
-        }
-
-        return true;
-    }
+    public bool CanUseSkill() => !OnCooldown();
 
     // 스킬 취소
     public void CancelSkill()
     {
-        if (currentSkillCoroutine != null)
+        if (CurrentSkillCoroutine != null)
         {
-            StopCoroutine(currentSkillCoroutine);
+            StopCoroutine(CurrentSkillCoroutine);
 
-            rb.bodyType = RigidbodyType2D.Dynamic;
-            rb.linearVelocity = Vector2.zero;
+            Rb.bodyType = RigidbodyType2D.Dynamic;
+            Rb.linearVelocity = Vector2.zero;
         }
     }
 
@@ -79,10 +83,12 @@ public abstract class SkillBase : MonoBehaviour
     }
 
 
-    private bool OnCooldown() => Time.time < lastTimeUsed + cooldown;
-    public void SetSkillOnCooldown() => lastTimeUsed = Time.time;
-    public void ResetCoolDownBy(float cooldownReduction) => lastTimeUsed = lastTimeUsed + cooldownReduction;
-    public void ResetCooldown() => lastTimeUsed = Time.time;
+    private bool OnCooldown() => Time.time < _lastTimeUsed + cooldown;
+    public void SetSkillOnCooldown()
+    {
+        _lastTimeUsed = Time.time;
+        uiSkillSlot?.StartCooldown(cooldown);
+    }
 
     public abstract IEnumerator SkillCoroutine();
     public abstract string GetAnimationName();

@@ -126,6 +126,24 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Skill_4"",
+                    ""type"": ""Button"",
+                    ""id"": ""7d38db35-5226-4c8d-bca8-0ae20d5a4b19"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Skill_5"",
+                    ""type"": ""Button"",
+                    ""id"": ""f74b85f3-4916-4022-a2ef-ddcdc0a9f612"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -194,6 +212,28 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
                     ""action"": ""Skill_3"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""55077604-6e04-44f7-8d60-c087d0c62578"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Skill_4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5c232637-b4e6-43bc-bf21-9121be1c77eb"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Skill_5"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -206,6 +246,8 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         m_Player_Skill_1 = m_Player.FindAction("Skill_1", throwIfNotFound: true);
         m_Player_Skill_2 = m_Player.FindAction("Skill_2", throwIfNotFound: true);
         m_Player_Skill_3 = m_Player.FindAction("Skill_3", throwIfNotFound: true);
+        m_Player_Skill_4 = m_Player.FindAction("Skill_4", throwIfNotFound: true);
+        m_Player_Skill_5 = m_Player.FindAction("Skill_5", throwIfNotFound: true);
     }
 
     ~@InputManager()
@@ -290,6 +332,8 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Skill_1;
     private readonly InputAction m_Player_Skill_2;
     private readonly InputAction m_Player_Skill_3;
+    private readonly InputAction m_Player_Skill_4;
+    private readonly InputAction m_Player_Skill_5;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -317,6 +361,14 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Skill_3".
         /// </summary>
         public InputAction @Skill_3 => m_Wrapper.m_Player_Skill_3;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Skill_4".
+        /// </summary>
+        public InputAction @Skill_4 => m_Wrapper.m_Player_Skill_4;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Skill_5".
+        /// </summary>
+        public InputAction @Skill_5 => m_Wrapper.m_Player_Skill_5;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -355,6 +407,12 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
             @Skill_3.started += instance.OnSkill_3;
             @Skill_3.performed += instance.OnSkill_3;
             @Skill_3.canceled += instance.OnSkill_3;
+            @Skill_4.started += instance.OnSkill_4;
+            @Skill_4.performed += instance.OnSkill_4;
+            @Skill_4.canceled += instance.OnSkill_4;
+            @Skill_5.started += instance.OnSkill_5;
+            @Skill_5.performed += instance.OnSkill_5;
+            @Skill_5.canceled += instance.OnSkill_5;
         }
 
         /// <summary>
@@ -378,6 +436,12 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
             @Skill_3.started -= instance.OnSkill_3;
             @Skill_3.performed -= instance.OnSkill_3;
             @Skill_3.canceled -= instance.OnSkill_3;
+            @Skill_4.started -= instance.OnSkill_4;
+            @Skill_4.performed -= instance.OnSkill_4;
+            @Skill_4.canceled -= instance.OnSkill_4;
+            @Skill_5.started -= instance.OnSkill_5;
+            @Skill_5.performed -= instance.OnSkill_5;
+            @Skill_5.canceled -= instance.OnSkill_5;
         }
 
         /// <summary>
@@ -446,5 +510,19 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSkill_3(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Skill_4" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSkill_4(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Skill_5" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSkill_5(InputAction.CallbackContext context);
     }
 }

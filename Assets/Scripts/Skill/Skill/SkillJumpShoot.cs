@@ -24,10 +24,10 @@ public class SkillJumpShoot : SkillBase
         _hover = false;
         _down = false;
         _left = false;
-        _originalPosition = rb.transform.position;
+        _originalPosition = Rb.transform.position;
 
-        currentSkillCoroutine = StartCoroutine(ExecuteJump());
-        yield return currentSkillCoroutine;
+        CurrentSkillCoroutine = StartCoroutine(ExecuteJump());
+        yield return CurrentSkillCoroutine;
     }
 
     public override string GetAnimationName() => "JumpShoot";
@@ -47,20 +47,20 @@ public class SkillJumpShoot : SkillBase
 
     private IEnumerator RisePhase()
     {
-        rb.bodyType = RigidbodyType2D.Kinematic;
+        Rb.bodyType = RigidbodyType2D.Kinematic;
 
         float peak = _originalPosition.y + jumpHeight;
-        rb.transform.position = new Vector2(_originalPosition.x, peak);
+        Rb.transform.position = new Vector2(_originalPosition.x, peak);
         yield return new WaitUntil(() => _hover);
     }
 
 
     private IEnumerator FallPhase()
     {
-        rb.transform.position = new Vector2(_originalPosition.x, _originalPosition.y);
+        Rb.transform.position = new Vector2(_originalPosition.x, _originalPosition.y);
 
-        rb.bodyType = RigidbodyType2D.Dynamic;
-        rb.linearVelocity = Vector2.zero;
+        Rb.bodyType = RigidbodyType2D.Dynamic;
+        Rb.linearVelocity = Vector2.zero;
         yield return new WaitUntil(() => _left);
     }
 
@@ -89,7 +89,7 @@ public class SkillJumpShoot : SkillBase
         arrow.gameObject.SetActive(true);
         Vector2 p0 = (Vector2)transform.position + fireOffset;
         Vector2 p1 = p0;
-        Vector2 p2 = target.position;
+        Vector2 p2 = Target.position;
         arrow.Duration = arrowSpeed;
         arrow.ShotArrow(p0, p1, p2);
     }
