@@ -11,10 +11,10 @@ public class SkillRipedFire : SkillBase
     [SerializeField] private float arrowSpeed;
     
     [SerializeField] private int arrowCount = 5;
-    [SerializeField] private float repeatStartTime = 0.3f; // 반복 시작 지점
-    [SerializeField] private float repeatEndTime = 0.7f;   // 반복 끝 지점
-    
     [SerializeField] private Vector2 fireOffset = new  Vector2(0.4f, 0.4f);
+    
+    private readonly float _repeatStartTime = 0.3f; // 반복 시작 지점
+    private readonly float _repeatEndTime = 0.7f;   // 반복 끝 지점
 
     public override string GetAnimationName() => "Attack";
     public override IEnumerator SkillCoroutine()
@@ -24,15 +24,15 @@ public class SkillRipedFire : SkillBase
         // 연속 발사 루프
         while (currentArrowCount < arrowCount)
         {
-            Anim.Play("Attack", 0, repeatStartTime);
+            Anim.Play("Attack", 0, _repeatStartTime);
             
-            yield return new WaitForSeconds((repeatEndTime - repeatStartTime) * 0.5f);
+            yield return new WaitForSeconds((_repeatEndTime - _repeatStartTime) * 0.5f);
             
             var arrowGo = PoolObject(arrow.gameObject).GetComponent<Arrow>();
             Arrow(arrowGo);
             currentArrowCount++;
             
-            yield return new WaitForSeconds((repeatEndTime - repeatStartTime) * 0.5f);
+            yield return new WaitForSeconds((_repeatEndTime - _repeatStartTime) * 0.5f);
         }
         
         yield return new WaitForSeconds(0.2f);

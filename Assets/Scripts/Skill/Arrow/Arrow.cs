@@ -74,7 +74,7 @@ public class Arrow : MonoBehaviour
         _arrowCoroutine = null;
     }
 
-    private void StopArrowCoroutine()
+    public void StopArrowCoroutine()
     {
         if (_arrowCoroutine == null) return;
         StopCoroutine(_arrowCoroutine);
@@ -128,4 +128,5 @@ public class Arrow : MonoBehaviour
         ResetArrow();
         _arrowCoroutine = StartCoroutine(ShotArrowCoroutine(p0, p1, p2));
     }
+    
 }
