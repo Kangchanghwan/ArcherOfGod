@@ -3,7 +3,6 @@ using UnityEngine;
 public class PlayerSkillState : PlayerState
 {
     public bool OnSkill { get; private set; }
-    public bool TriggerSkill { get; private set; }
     public SkillBase CurrentSkill { get; set; }
     public SkillJumpShoot SkillJumpShoot { get; private set; }
     public SkillBombShoot SkillBombShoot { get; private set; }
@@ -16,7 +15,6 @@ public class PlayerSkillState : PlayerState
     protected override void Start()
     {
         base.Start();
-        SubscribeToInput();
         
         SkillJumpShoot = GetComponent<SkillJumpShoot>();
         SkillBombShoot = GetComponent<SkillBombShoot>();
@@ -25,24 +23,8 @@ public class PlayerSkillState : PlayerState
         SkillCopyCat = GetComponent<SkillCopyCat>();
     }
     
-    private void SubscribeToInput()
-    {
-        InputController.OnSkillTriggered += HandleSkillInput;
-    }
-
-    private void HandleSkillInput(int skillNumber)
-    {
-        // 스킬 상태에서만 입력 처리
-        if (OnSkill)
-        {
-            return; // 이미 스킬 사용 중이면 무시
-        }
-
-        // 스킬 사용 시도
-        TryUseSkill(skillNumber);
-    }
-
-    public void TryUseSkill(int skillNumber)
+    
+    public bool TryUseSkill(int skillNumber)
     {
         SkillBase skill = skillNumber switch
         {
@@ -54,20 +36,20 @@ public class PlayerSkillState : PlayerState
             _ => null
         };
     
-        if (skill == null) return;
-        if (skill.CanUseSkill() == false) return;
-        if (OnSkill) return;
+        if (skill == null) return false;
+        if (skill.CanUseSkill() == false) return false;
+        if (OnSkill) return false;
     
         CurrentSkill = skill;
-        TriggerSkill = true;
+        return true;
     }
 
     
     public override void Enter()
     {
-        TriggerSkill = false;
         base.Enter();
-
+        OnSkill = true;
+        
         Rigidbody2D.linearVelocity = Vector2.zero;
         CurrentSkill.Initialize(
             Rigidbody2D,
@@ -76,7 +58,7 @@ public class PlayerSkillState : PlayerState
         );
         CurrentSkill.SetSkillOnCooldown();
 
-        FlipController();
+        Player.FlipController();
 
         StartCoroutine(CurrentSkill.SkillCoroutine());
     }

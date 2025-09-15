@@ -25,7 +25,7 @@ public class EnemyMoveState : EnemyState
     public override void StateUpdate()
     {
         var dir = _movement.Movement();
-        FlipController(dir);
+        Enemy.FlipController(dir);
     }
     
     // public override void Enter()

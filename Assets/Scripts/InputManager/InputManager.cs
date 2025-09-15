@@ -88,7 +88,7 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
     ""name"": ""InputManager"",
     ""maps"": [
         {
-            ""name"": ""Player"",
+            ""name"": ""Controller"",
             ""id"": ""daf3d0b3-8d53-4ae8-81b2-36e6001019e7"",
             ""actions"": [
                 {
@@ -240,19 +240,19 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
     ],
     ""controlSchemes"": []
 }");
-        // Player
-        m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
-        m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
-        m_Player_Skill_1 = m_Player.FindAction("Skill_1", throwIfNotFound: true);
-        m_Player_Skill_2 = m_Player.FindAction("Skill_2", throwIfNotFound: true);
-        m_Player_Skill_3 = m_Player.FindAction("Skill_3", throwIfNotFound: true);
-        m_Player_Skill_4 = m_Player.FindAction("Skill_4", throwIfNotFound: true);
-        m_Player_Skill_5 = m_Player.FindAction("Skill_5", throwIfNotFound: true);
+        // Controller
+        m_Controller = asset.FindActionMap("Controller", throwIfNotFound: true);
+        m_Controller_Move = m_Controller.FindAction("Move", throwIfNotFound: true);
+        m_Controller_Skill_1 = m_Controller.FindAction("Skill_1", throwIfNotFound: true);
+        m_Controller_Skill_2 = m_Controller.FindAction("Skill_2", throwIfNotFound: true);
+        m_Controller_Skill_3 = m_Controller.FindAction("Skill_3", throwIfNotFound: true);
+        m_Controller_Skill_4 = m_Controller.FindAction("Skill_4", throwIfNotFound: true);
+        m_Controller_Skill_5 = m_Controller.FindAction("Skill_5", throwIfNotFound: true);
     }
 
     ~@InputManager()
     {
-        UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputManager.Player.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Controller.enabled, "This will cause a leak and performance issues, InputManager.Controller.Disable() has not been called.");
     }
 
     /// <summary>
@@ -325,54 +325,54 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         return asset.FindBinding(bindingMask, out action);
     }
 
-    // Player
-    private readonly InputActionMap m_Player;
-    private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
-    private readonly InputAction m_Player_Move;
-    private readonly InputAction m_Player_Skill_1;
-    private readonly InputAction m_Player_Skill_2;
-    private readonly InputAction m_Player_Skill_3;
-    private readonly InputAction m_Player_Skill_4;
-    private readonly InputAction m_Player_Skill_5;
+    // Controller
+    private readonly InputActionMap m_Controller;
+    private List<IControllerActions> m_ControllerActionsCallbackInterfaces = new List<IControllerActions>();
+    private readonly InputAction m_Controller_Move;
+    private readonly InputAction m_Controller_Skill_1;
+    private readonly InputAction m_Controller_Skill_2;
+    private readonly InputAction m_Controller_Skill_3;
+    private readonly InputAction m_Controller_Skill_4;
+    private readonly InputAction m_Controller_Skill_5;
     /// <summary>
-    /// Provides access to input actions defined in input action map "Player".
+    /// Provides access to input actions defined in input action map "Controller".
     /// </summary>
-    public struct PlayerActions
+    public struct ControllerActions
     {
         private @InputManager m_Wrapper;
 
         /// <summary>
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
-        public PlayerActions(@InputManager wrapper) { m_Wrapper = wrapper; }
+        public ControllerActions(@InputManager wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "Player/Move".
+        /// Provides access to the underlying input action "Controller/Move".
         /// </summary>
-        public InputAction @Move => m_Wrapper.m_Player_Move;
+        public InputAction @Move => m_Wrapper.m_Controller_Move;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Skill_1".
+        /// Provides access to the underlying input action "Controller/Skill_1".
         /// </summary>
-        public InputAction @Skill_1 => m_Wrapper.m_Player_Skill_1;
+        public InputAction @Skill_1 => m_Wrapper.m_Controller_Skill_1;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Skill_2".
+        /// Provides access to the underlying input action "Controller/Skill_2".
         /// </summary>
-        public InputAction @Skill_2 => m_Wrapper.m_Player_Skill_2;
+        public InputAction @Skill_2 => m_Wrapper.m_Controller_Skill_2;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Skill_3".
+        /// Provides access to the underlying input action "Controller/Skill_3".
         /// </summary>
-        public InputAction @Skill_3 => m_Wrapper.m_Player_Skill_3;
+        public InputAction @Skill_3 => m_Wrapper.m_Controller_Skill_3;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Skill_4".
+        /// Provides access to the underlying input action "Controller/Skill_4".
         /// </summary>
-        public InputAction @Skill_4 => m_Wrapper.m_Player_Skill_4;
+        public InputAction @Skill_4 => m_Wrapper.m_Controller_Skill_4;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Skill_5".
+        /// Provides access to the underlying input action "Controller/Skill_5".
         /// </summary>
-        public InputAction @Skill_5 => m_Wrapper.m_Player_Skill_5;
+        public InputAction @Skill_5 => m_Wrapper.m_Controller_Skill_5;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_Player; }
+        public InputActionMap Get() { return m_Wrapper.m_Controller; }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
         public void Enable() { Get().Enable(); }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
@@ -380,9 +380,9 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
         public bool enabled => Get().enabled;
         /// <summary>
-        /// Implicitly converts an <see ref="PlayerActions" /> to an <see ref="InputActionMap" /> instance.
+        /// Implicitly converts an <see ref="ControllerActions" /> to an <see ref="InputActionMap" /> instance.
         /// </summary>
-        public static implicit operator InputActionMap(PlayerActions set) { return set.Get(); }
+        public static implicit operator InputActionMap(ControllerActions set) { return set.Get(); }
         /// <summary>
         /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
         /// </summary>
@@ -390,11 +390,11 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
         /// </remarks>
-        /// <seealso cref="PlayerActions" />
-        public void AddCallbacks(IPlayerActions instance)
+        /// <seealso cref="ControllerActions" />
+        public void AddCallbacks(IControllerActions instance)
         {
-            if (instance == null || m_Wrapper.m_PlayerActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_PlayerActionsCallbackInterfaces.Add(instance);
+            if (instance == null || m_Wrapper.m_ControllerActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_ControllerActionsCallbackInterfaces.Add(instance);
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
@@ -421,8 +421,8 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         /// <remarks>
         /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
         /// </remarks>
-        /// <seealso cref="PlayerActions" />
-        private void UnregisterCallbacks(IPlayerActions instance)
+        /// <seealso cref="ControllerActions" />
+        private void UnregisterCallbacks(IControllerActions instance)
         {
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
@@ -445,12 +445,12 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         }
 
         /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="PlayerActions.UnregisterCallbacks(IPlayerActions)" />.
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="ControllerActions.UnregisterCallbacks(IControllerActions)" />.
         /// </summary>
-        /// <seealso cref="PlayerActions.UnregisterCallbacks(IPlayerActions)" />
-        public void RemoveCallbacks(IPlayerActions instance)
+        /// <seealso cref="ControllerActions.UnregisterCallbacks(IControllerActions)" />
+        public void RemoveCallbacks(IControllerActions instance)
         {
-            if (m_Wrapper.m_PlayerActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_ControllerActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
@@ -460,27 +460,27 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
         /// </remarks>
-        /// <seealso cref="PlayerActions.AddCallbacks(IPlayerActions)" />
-        /// <seealso cref="PlayerActions.RemoveCallbacks(IPlayerActions)" />
-        /// <seealso cref="PlayerActions.UnregisterCallbacks(IPlayerActions)" />
-        public void SetCallbacks(IPlayerActions instance)
+        /// <seealso cref="ControllerActions.AddCallbacks(IControllerActions)" />
+        /// <seealso cref="ControllerActions.RemoveCallbacks(IControllerActions)" />
+        /// <seealso cref="ControllerActions.UnregisterCallbacks(IControllerActions)" />
+        public void SetCallbacks(IControllerActions instance)
         {
-            foreach (var item in m_Wrapper.m_PlayerActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_ControllerActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_PlayerActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_ControllerActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
     /// <summary>
-    /// Provides a new <see cref="PlayerActions" /> instance referencing this action map.
+    /// Provides a new <see cref="ControllerActions" /> instance referencing this action map.
     /// </summary>
-    public PlayerActions @Player => new PlayerActions(this);
+    public ControllerActions @Controller => new ControllerActions(this);
     /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Player" which allows adding and removing callbacks.
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Controller" which allows adding and removing callbacks.
     /// </summary>
-    /// <seealso cref="PlayerActions.AddCallbacks(IPlayerActions)" />
-    /// <seealso cref="PlayerActions.RemoveCallbacks(IPlayerActions)" />
-    public interface IPlayerActions
+    /// <seealso cref="ControllerActions.AddCallbacks(IControllerActions)" />
+    /// <seealso cref="ControllerActions.RemoveCallbacks(IControllerActions)" />
+    public interface IControllerActions
     {
         /// <summary>
         /// Method invoked when associated input action "Move" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.

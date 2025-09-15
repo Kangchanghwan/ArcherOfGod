@@ -10,6 +10,7 @@ public class PlayerMoveState : PlayerState
     {
         base.Start();
         _movement = GetComponent<IMovement>();
+ 
     }
 
     public override void Enter()
@@ -21,7 +22,7 @@ public class PlayerMoveState : PlayerState
     public override void StateUpdate()
     {
         var dir = _movement.Movement();
-        FlipController(dir);
+        Player.FlipController(dir);
     }
     public bool OnMove() => _movement.OnMove();
 

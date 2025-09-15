@@ -3,8 +3,7 @@ using UnityEngine;
 
 public class EnemyStateMachine : MonoBehaviour
 {
-    public Animator Animator {get; private set;}
-    public Rigidbody2D Rigidbody2D { get; private set; }
+
 
     private EnemyAttackState AttackState { get; set; }
     private EnemyMoveState MoveState { get; set; }
@@ -18,8 +17,6 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void Awake()
     {
-        Animator = GetComponentInChildren<Animator>();
-        Rigidbody2D = GetComponent<Rigidbody2D>();
         
         CastingState = GetComponentInChildren<EnemyCastingState>();
         AttackState = GetComponentInChildren<EnemyAttackState>();

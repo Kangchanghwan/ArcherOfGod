@@ -23,7 +23,7 @@ public class EnemyAttackState : EnemyState
     {
         base.Enter();
         Animator.SetFloat("AttackSpeed", attackSpeed);
-        FlipController();
+        Enemy.FlipController();
         _currentCoroutine = StartCoroutine(Attack());
     }
 

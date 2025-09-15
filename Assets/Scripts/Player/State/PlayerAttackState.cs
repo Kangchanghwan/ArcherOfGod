@@ -20,7 +20,7 @@ public class PlayerAttackState : PlayerState
     {
         base.Enter();
         Animator.SetFloat("AttackSpeed", attackSpeed);
-        FlipController();
+        Player.FlipController();
         _currentRoutine = StartCoroutine(Attack());
     }
 

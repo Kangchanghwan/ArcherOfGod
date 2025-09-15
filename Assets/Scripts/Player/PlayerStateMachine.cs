@@ -5,8 +5,6 @@ public class PlayerStateMachine : MonoBehaviour
 {
     private PlayerState _currentState;
 
-    public Animator Animator { get; private set; }
-    public Rigidbody2D Rigidbody2D { get; private set; }
     private PlayerAttackState AttackState { get; set; }
     private PlayerMoveState MoveState { get; set; }
     private PlayerCastingState CastingState { get; set; }
@@ -16,9 +14,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void Awake()
     {
-        Animator = GetComponentInChildren<Animator>();
-        Rigidbody2D = GetComponent<Rigidbody2D>();
-
         AttackState = GetComponentInChildren<PlayerAttackState>();
         MoveState = GetComponentInChildren<PlayerMoveState>();
         CastingState = GetComponentInChildren<PlayerCastingState>();
@@ -53,10 +48,38 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void OnSkillEventListener()
     {
-        if (SkillState.TriggerSkill)
+        if (InputManagerSingleton.Instance.InputManager.Controller.Skill_1.WasPressedThisFrame() &&
+            SkillState.TryUseSkill(1))
+        {
             ChangeState(SkillState);
+            return;
+        }
+        if (InputManagerSingleton.Instance.InputManager.Controller.Skill_2.WasPressedThisFrame() &&
+            SkillState.TryUseSkill(2))
+        {
+            ChangeState(SkillState);
+            return;
+        }
+        if (InputManagerSingleton.Instance.InputManager.Controller.Skill_3.WasPressedThisFrame() &&
+            SkillState.TryUseSkill(3))
+        {
+            ChangeState(SkillState);
+            return;
+        }
+        if (InputManagerSingleton.Instance.InputManager.Controller.Skill_4.WasPressedThisFrame() &&
+            SkillState.TryUseSkill(4))
+        {
+            ChangeState(SkillState);
+            return;
+        }
+        if (InputManagerSingleton.Instance.InputManager.Controller.Skill_5.WasPressedThisFrame() &&
+            SkillState.TryUseSkill(5))
+        {
+            ChangeState(SkillState);
+            return;
+        }
     }
-    
+
 
     private Action StateChangeAction()
     {

@@ -25,7 +25,7 @@ public class EnemySkillState : EnemyState
             GameManager.Instance.EnemyOfTarget.GetTransform()
         );
         _skill.SetSkillOnCooldown();
-        FlipController();
+        Enemy.FlipController();
         StartCoroutine(_skill.SkillCoroutine());
     }
 

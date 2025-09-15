@@ -1,19 +1,21 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(InputController))]
 public class ManualMovement : MonoBehaviour, IMovement
 {
-    private Rigidbody2D _rb;
-    private InputController _input;
-    
     [SerializeField] private float moveSpeed;
 
-    private void Awake()
-    {
-        _input = GetComponent<InputController>();
-    }
+    private Rigidbody2D _rb;
+    private float _xInput;
+    
 
+    private void OnEnable()
+    {
+        InputManagerSingleton.Instance.InputManager.Controller.Move.performed +=
+            ctx => _xInput = ctx.ReadValue<float>();
+        InputManagerSingleton.Instance.InputManager.Controller.Move.canceled +=
+            _ => _xInput = 0f;
+    }
     public void Initialize(Rigidbody2D rb)
     {
         _rb = rb;
@@ -21,13 +23,13 @@ public class ManualMovement : MonoBehaviour, IMovement
 
     public float Movement()
     {
-        var movement = new Vector2(_input.XInput * moveSpeed * Time.deltaTime, _rb.linearVelocity.y);
+        var movement = new Vector2(_xInput * moveSpeed * Time.deltaTime, _rb.linearVelocity.y);
         _rb.MovePosition(_rb.position + movement);
-        return _input.XInput;
+        return _xInput;
     }
 
     public bool OnMove()
     {
-        return Mathf.Abs(_input.XInput) > 0.1f;
+        return Mathf.Abs(_xInput) > 0.1f;
     }
 }
