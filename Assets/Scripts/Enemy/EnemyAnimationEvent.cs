@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class EnemyAnimationEvent : MonoBehaviour
 {
-    private Enemy _enemy;
+    private EnemyStateMachine _enemy;
 
     private void Awake()
     {
-        _enemy = GetComponentInParent<Enemy>();
+        _enemy = GetComponentInParent<EnemyStateMachine>();
     }
 
     public void AnimationTrigger() => _enemy.AnimationTrigger();

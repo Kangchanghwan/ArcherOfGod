@@ -1,65 +1,52 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EnemyMoveState : EnemyState
 {
-    private float _dir = 1f;
-    [SerializeField] private LayerMask wallLayerMask;
-    [SerializeField] private float wallCheckDistance = 0.7f;
-    [SerializeField] private Vector2 wallCheckOffset = new Vector2(0.5f, 0f);
-    [SerializeField] private float moveStateTimeMin;
-    [SerializeField] private float moveStateTimeMax;
-    [SerializeField] public float moveSpeed;
+    private IMovement _movement;
+    public bool OnMove =>  _movement.OnMove();
+    
 
     protected override string GetAnimationName() => "Move";
 
+    protected override void Start()
+    {
+        base.Start();
+        _movement = GetComponent<IMovement>();
+    }
     public override void Enter()
     {
         base.Enter();
-        Enemy.CanMove = true;
-        _dir = Random.Range(0, 2) == 0 ? -1f : 1f;
-        StartCoroutine(RandomMove());
+        _movement.Initialize(Rigidbody2D);
     }
-
-    private IEnumerator RandomMove()
+    
+    public override void StateUpdate()
     {
-        float moveStateTime = Random.Range(moveStateTimeMin, moveStateTimeMax);
-
-        while (moveStateTime > 0f)
-        {
-            moveStateTime -= Time.deltaTime;
-            if (IsWallDetected())
-            {
-                FlipDirection();
-            }
-
-            OnMove();
-            yield return null;
-        }
-
-        Enemy.CanMove = false;
+        var dir = _movement.Movement();
+        FlipController(dir);
     }
+    
+    // public override void Enter()
+    // {
+    //     base.Enter();
+    //     Enemy.OnMove = true;
+    //     _dir = Random.Range(0, 2) == 0 ? -1f : 1f;
+    //     Enemy.FlipController(_dir);
+    //     _moveStateTime = Random.Range(moveStateTimeMin, moveStateTimeMax);
+    // }
 
-    private void OnMove()
-    {
-        var movement = new Vector2(_dir * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
-        Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
-        Enemy.FlipController(_dir);
-    }
+    // public override void StateUpdate()
+    // {
+    //     _moveStateTime -= Time.fixedDeltaTime;
+    //     if (_moveStateTime <= 0)
+    //     {
+    //         Enemy.OnMove = false;
+    //         return;
+    //     }
+    //
+    //     _movement.Movement(_dir);
+    // }
 
-    private bool IsWallDetected()
-    {
-        Vector2 rayOrigin =
-            (Vector2)Enemy.transform.position + wallCheckOffset;
-        Vector2 rayDirection = Vector2.right * _dir;
-
-        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, wallCheckDistance, LayerMask.GetMask("Wall"));
-
-        return hit.collider != null;
-    }
-
-    private void FlipDirection()
-    {
-        _dir *= -1f;
-    }
 }

@@ -3,12 +3,34 @@ using UnityEngine;
 
 public class EnemyStateMachine : MonoBehaviour
 {
-    private Enemy _enemy;
+    public Animator Animator {get; private set;}
+    public Rigidbody2D Rigidbody2D { get; private set; }
+
+    private EnemyAttackState AttackState { get; set; }
+    private EnemyMoveState MoveState { get; set; }
+    private EnemyCastingState CastingState { get; set; }
+    private EnemySkillState SkillState { get; set; }
+    private EnemyIdleState IdleState { get; set; }
+    private EnemyDeadState DeadState { get; set; }
+
+    private EnemyState CurrentState { get; set; }
+    public SkillJumpShoot SkillJumpShoot { get; private set; }
 
     private void Awake()
     {
-        _enemy = GetComponent<Enemy>();
+        Animator = GetComponentInChildren<Animator>();
+        Rigidbody2D = GetComponent<Rigidbody2D>();
+        
+        CastingState = GetComponentInChildren<EnemyCastingState>();
+        AttackState = GetComponentInChildren<EnemyAttackState>();
+        MoveState = GetComponentInChildren<EnemyMoveState>();
+        SkillState = GetComponentInChildren<EnemySkillState>();
+        IdleState = GetComponentInChildren<EnemyIdleState>();
+        DeadState = GetComponentInChildren<EnemyDeadState>();
+
+        SkillJumpShoot = GetComponentInChildren<SkillJumpShoot>();
     }
+
 
     private void OnEnable()
     {
@@ -25,42 +47,48 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void Start()
     {
-        Initialize(_enemy.CastingState);
+        Initialize(CastingState);
     }
-
+   
     private void Update()
     {
         StateChangeAction()?.Invoke();
+        CurrentState.StateUpdate();
     }
 
     private Action StateChangeAction()
     {
-        return _enemy.CurrentState switch
+        return CurrentState switch
         {
             EnemyAttackState => () =>
             {
-                if (_enemy.CurrentState.TriggerCalled)
-                    ChangeState(_enemy.MoveState);
+                if (CurrentState.TriggerCalled)
+                {
+                    if (UnityEngine.Random.Range(0, 2) == 1)
+                        ChangeState(MoveState);
+                    else
+                        ChangeState(CastingState);
+                }
             },
             EnemyCastingState => () =>
             {
-                if (_enemy.CurrentState.TriggerCalled)
+                if (CurrentState.TriggerCalled)
                 {
-                    if (_enemy.CanSkill)
-                        ChangeState(_enemy.SkillState);
+                    if (SkillState.CanSkill)
+                        ChangeState(SkillState);
                     else
-                        ChangeState(_enemy.AttackState);
+                        ChangeState(AttackState);
                 }
             },
             EnemySkillState => () =>
             {
-                if (_enemy.CurrentState.TriggerCalled)
-                    ChangeState(_enemy.MoveState);
+                if (CurrentState.TriggerCalled)
+                    ChangeState(MoveState);
             },
             EnemyMoveState => () =>
             {
-                if (_enemy.CanMove == false)
-                    ChangeState(_enemy.CastingState);
+                if (MoveState.OnMove == false)
+                    ChangeState(CastingState);
             },
             EnemyDeadState => () => { },
             EnemyIdleState => () => { },
@@ -68,20 +96,25 @@ public class EnemyStateMachine : MonoBehaviour
         };
     }
 
-    private Action ChangeStateIdle() => () => ChangeState(_enemy.IdleState);
-
-    private Action ChangeStateDead() => () => ChangeState(_enemy.DeadState);
+    private Action ChangeStateIdle() => () => ChangeState(IdleState);
+    private Action ChangeStateDead() => () => ChangeState(DeadState);
 
     private void Initialize(EnemyState startState)
     {
-        _enemy.CurrentState = startState;
-        _enemy.CurrentState.Enter();
+        CurrentState = startState;
+        CurrentState.Enter();
     }
 
     private void ChangeState(EnemyState newState)
     {
-        _enemy.CurrentState.Exit();
-        _enemy.CurrentState = newState;
-        _enemy.CurrentState.Enter();
+        CurrentState.Exit();
+        CurrentState = newState;
+        CurrentState.Enter();
     }
+    public virtual void AnimationTrigger()
+    {
+        CurrentState.AnimationTrigger();
+    }
+
+
 }

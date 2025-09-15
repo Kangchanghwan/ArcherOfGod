@@ -10,8 +10,9 @@ public class PlayerAttackState : PlayerState
     private Coroutine _currentRoutine;
     protected override string GetAnimationName() => "Attack";
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         _attackBase = GetComponent<AttackBase>();
     }
 
@@ -19,7 +20,7 @@ public class PlayerAttackState : PlayerState
     {
         base.Enter();
         Animator.SetFloat("AttackSpeed", attackSpeed);
-        Player.FlipController();
+        FlipController();
         _currentRoutine = StartCoroutine(Attack());
     }
 

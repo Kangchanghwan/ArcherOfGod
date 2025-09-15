@@ -3,21 +3,26 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerState
 {
-    [SerializeField] private float moveSpeed = 10f;
-    public float XInput { get; set; }
+    private IMovement _movement;
+    protected override string GetAnimationName() => "Move";
 
+    protected override void Start()
+    {
+        base.Start();
+        _movement = GetComponent<IMovement>();
+    }
+
+    public override void Enter()
+    {
+        base.Enter();
+        _movement.Initialize(Rigidbody2D);
+    }
 
     public override void StateUpdate()
     {
-        OnMove();
+        var dir = _movement.Movement();
+        FlipController(dir);
     }
+    public bool OnMove() => _movement.OnMove();
 
-    protected override string GetAnimationName() => "Move";
-
-    private void OnMove()
-    {
-        var movement = new Vector2(XInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
-        Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
-        Player.FlipController(XInput);
-    }
 }

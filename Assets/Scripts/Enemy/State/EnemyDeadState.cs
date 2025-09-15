@@ -7,6 +7,6 @@ public class EnemyDeadState : EnemyState
     public override void Enter()
     {
         base.Enter();
-        Enemy.Rigidbody2D.simulated = false;
+        Rigidbody2D.simulated = false;
     }
 }

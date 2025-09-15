@@ -13,8 +13,9 @@ public class EnemyAttackState : EnemyState
 
     protected override string GetAnimationName() => "Attack";
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         _attackBase = GetComponent<AttackBase>();
     }
 
@@ -22,7 +23,7 @@ public class EnemyAttackState : EnemyState
     {
         base.Enter();
         Animator.SetFloat("AttackSpeed", attackSpeed);
-        Enemy.FlipController();
+        FlipController();
         _currentCoroutine = StartCoroutine(Attack());
     }
 

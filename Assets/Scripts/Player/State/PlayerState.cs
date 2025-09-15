@@ -3,42 +3,34 @@ using UnityEngine;
 
 public abstract class PlayerState : MonoBehaviour
 {
-    protected Player Player;
+    private bool _facingRight;
+
     protected Animator Animator;
     protected Rigidbody2D Rigidbody2D;
+    protected PlayerStateMachine StateMachine;
 
     public bool TriggerCalled { get; private set; }
 
-    protected virtual void Awake()
+    protected virtual void Start()
     {
-        Player = GetComponentInParent<Player>(true);
-    }
+        StateMachine = GetComponentInParent<PlayerStateMachine>();
 
-    private void EnsureInitialized()
-    {
-        if (Animator == null)
-        {
-            Animator = Player?.Animator;
-        }
-
-        if (Rigidbody2D == null)
-        {
-            Rigidbody2D = Player?.Rigidbody2D;
-        }
+        Animator = StateMachine.Animator;
+        Rigidbody2D = StateMachine.Rigidbody2D;
     }
 
     public virtual void StateUpdate()
     {
     }
-
-    protected abstract string GetAnimationName();
-
     public virtual void Enter()
     {
-        EnsureInitialized();
+        if (Animator == null) return;
         Animator.SetBool(GetAnimationName(), true);
         TriggerCalled = false;
     }
+    protected abstract string GetAnimationName();
+
+  
 
     public virtual void Exit()
     {
@@ -46,4 +38,25 @@ public abstract class PlayerState : MonoBehaviour
     }
 
     public void AnimationTrigger() => TriggerCalled = true;
+    
+    private void Flip()
+    {
+        _facingRight = !_facingRight;
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+    }
+
+    public void FlipController(float x = 1f)
+    {
+        if (x > 0 && !_facingRight)
+        {
+            Flip();
+        }
+        else if (x < 0 && _facingRight)
+        {
+            Flip();
+        }
+    }
+
 }
