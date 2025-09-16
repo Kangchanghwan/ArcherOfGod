@@ -3,12 +3,12 @@ using UnityEngine;
 
 public abstract class EntityBase : MonoBehaviour
 {
-
+    public Transform Target => SetTarget();
     public Rigidbody2D Rigidbody2D { get; private set; }
     public Animator Animator { get; private set; }
     
-    protected bool FacingTarget { get; set; }
-    public Transform Target => SetTarget();
+    private bool _facingTarget;
+    
     protected virtual void Awake()
     {
         Animator = GetComponentInChildren<Animator>();
@@ -17,11 +17,11 @@ public abstract class EntityBase : MonoBehaviour
 
     public void FlipController(float x = 0)
     {
-        if (x >= 0 && !FacingTarget)
+        if (x >= 0 && !_facingTarget)
         {
             Flip();
         }
-        else if (x <= 0 && FacingTarget)
+        else if (x <= 0 && _facingTarget)
         {
             Flip();
         }
@@ -31,15 +31,15 @@ public abstract class EntityBase : MonoBehaviour
         if (Target != null)
         {
             Vector3 directionToEnemy = Target.position - transform.position;
-            if (directionToEnemy.x > 0 && !FacingTarget)
+            if (directionToEnemy.x > 0 && !_facingTarget)
                 Flip();
-            else if (directionToEnemy.x < 0 && FacingTarget)
+            else if (directionToEnemy.x < 0 && _facingTarget)
                 Flip();
         }
     }
     private void Flip()
     {
-        FacingTarget = !FacingTarget;
+        _facingTarget = !_facingTarget;
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;

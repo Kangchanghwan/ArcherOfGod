@@ -4,15 +4,12 @@ using UnityEngine;
 public class Player : EntityBase, IDamageable, ITargetable
 {
     public static event Action OnPlayerDeath;
-    
     private EntityHealth _health;
 
     protected override void Awake()
     {
         base.Awake();
         _health = GetComponent<EntityHealth>();
-        FacingTarget = false;
-        
     }
     protected override Transform SetTarget() => GameManager.Instance.PlayerOfTarget.GetTransform();
 

@@ -41,7 +41,7 @@ public class AIMovement : MovementBase
 
     public override bool OnMove()
     {
-        return _moveStateTime <= 0;
+        return _moveStateTime > 0f;
     }
 
     private bool IsWallDetected()

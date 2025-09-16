@@ -7,8 +7,6 @@ public class Enemy : EntityBase, IDamageable, ITargetable
     public static event Action OnEnemyDeath;
     private EntityHealth _health;
 
-    private Transform _target;
-    
     protected override void Awake()
     {
         base.Awake();

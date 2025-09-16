@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class EnemyStateMachine : StateMachineBase
+public class BotStateMachine : StateMachineBase
 {
     // 통합된 상태들
     private AttackState _attackState;
