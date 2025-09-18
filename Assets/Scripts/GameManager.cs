@@ -1,14 +1,15 @@
 
+using Util;
+
 public class GameManager : Singleton<GameManager>
 {
     public ITargetable PlayerOfTarget { get; private set; }
     public ITargetable EnemyOfTarget { get; private set; }
 
-    protected override void Awake()
+    private void Start()
     {
         PlayerOfTarget = FindAnyObjectByType<Enemy>();
         EnemyOfTarget = FindAnyObjectByType<Player>();
     }
-    
     
 }

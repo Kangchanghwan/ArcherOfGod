@@ -7,34 +7,30 @@ public class CopyCatStateMachine : StateMachineBase
     private AttackState _attackState;
     private MoveState _moveState;
     private CastingState _castingState;
-    private DeadState _deadState;
-    private IdleState _idleState;
     private SkillState _skillState;
+    private FadeInState _fadeInState;
+    private FadeOutState _fadeOutState;
 
     private void Awake()
     {
         _attackState = GetComponentInChildren<AttackState>();
         _moveState = GetComponentInChildren<MoveState>();
         _castingState = GetComponentInChildren<CastingState>();
-        _deadState = GetComponentInChildren<DeadState>();
-        _idleState = GetComponentInChildren<IdleState>();
         _skillState = GetComponentInChildren<SkillState>();
+        _fadeInState = GetComponentInChildren<FadeInState>();
+        _fadeOutState = GetComponentInChildren<FadeOutState>();
     }
 
 
     private void OnEnable()
     {
         SubscribeToEvents();
+        Initialize(_fadeInState);
     }
 
     private void OnDisable()
     {
         UnsubscribeFromEvents();
-    }
-
-    private void Start()
-    {
-        Initialize(_castingState);
     }
 
     protected override void HandleStateTransitions()
@@ -51,11 +47,21 @@ public class CopyCatStateMachine : StateMachineBase
             CastingState => HandleCastingStateTransition,
             SkillState => HandleSkillStateTransition,
             MoveState => HandleMoveStateTransition,
+            FadeInState => HandleFadeInStateTransition,
+            FadeOutState => () => { },
             DeadState => () => { }, // 죽은 상태에서는 전환 없음
             IdleState => () => { }, // 대기 상태에서는 전환 없음
             _ => () => { }
         };
     }
+
+    private void HandleFadeInStateTransition()
+    {
+        if(_fadeInState.isDone)
+            ChangeState(_castingState);
+    }
+
+
 
     private void HandleAttackStateTransition()
     {
@@ -93,17 +99,14 @@ public class CopyCatStateMachine : StateMachineBase
 
     private void SubscribeToEvents()
     {
-        CopyCat.OnCopyCatDeath += OnCopyCatDeath;
         Enemy.OnEnemyDeath += OnEnemyDeath;
     }
 
     private void UnsubscribeFromEvents()
     {
-        CopyCat.OnCopyCatDeath -= OnCopyCatDeath;
         Enemy.OnEnemyDeath -= OnEnemyDeath;
     }
 
-    private void OnCopyCatDeath() => ChangeState(_deadState);
-    private void OnEnemyDeath() => ChangeState(_idleState);
-    
+    private void OnEnemyDeath() => ChangeState(_fadeOutState);
+    public void OnChangeFadeOutState() => ChangeState(_fadeOutState);
 }
