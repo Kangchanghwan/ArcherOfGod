@@ -18,19 +18,19 @@ public class AIMovement : MovementBase
 
     public override void Initialize(Rigidbody2D rb)
     {
-        Rb = rb;
+        Rigidbody2D = rb;
         _moveStateTime = Random.Range(moveStateTimeMin, moveStateTimeMax);
     }
 
-    public override float Movement()
+    public override float OnMove()
     {
         if (IsWallDetected())
         {
             FlipDirection();
         }
 
-        var movement = new Vector2(_dir * speed * Time.deltaTime, Rb.linearVelocity.y);
-        Rb.MovePosition(Rb.position + movement);
+        var movement = new Vector2(_dir * speed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
+        Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         return _dir;
     }
 
@@ -39,7 +39,7 @@ public class AIMovement : MovementBase
         _moveStateTime -= Time.deltaTime;
     }
 
-    public override bool OnMove()
+    public override bool IsOnMove()
     {
         return _moveStateTime > 0f;
     }

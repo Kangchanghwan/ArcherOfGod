@@ -33,7 +33,7 @@ public class Arrow : MonoBehaviour
             other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
             var damageable = other.GetComponent<IDamageable>();
-            DamageAble(damageable);
+            OnDamage(damageable);
             ArrowParticle();
         }
 
@@ -63,7 +63,7 @@ public class Arrow : MonoBehaviour
         _particle.Play();
     }
 
-    private void DamageAble(IDamageable damageable)
+    private void OnDamage(IDamageable damageable)
     {
         if (damageable == null) return;
         damageable.TakeDamage(damage);

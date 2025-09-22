@@ -2,9 +2,9 @@ using UnityEngine;
 
 public abstract class MovementBase : MonoBehaviour
 {
-    protected Rigidbody2D Rb;
+    protected Rigidbody2D Rigidbody2D;
 
     public abstract void Initialize(Rigidbody2D rb);
-    public abstract float Movement();
-    public abstract bool OnMove();
+    public abstract float OnMove();
+    public abstract bool IsOnMove();
 }

@@ -18,17 +18,17 @@ public class ManualMovement : MovementBase
 
     public override void Initialize(Rigidbody2D rb)
     {
-        Rb = rb;
+        Rigidbody2D = rb;
     }
 
-    public override float Movement()
+    public override float OnMove()
     {
-        var movement = new Vector2(_xInput * moveSpeed * Time.deltaTime, Rb.linearVelocity.y);
-        Rb.MovePosition(Rb.position + movement);
+        var movement = new Vector2(_xInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
+        Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         return _xInput;
     }
 
-    public override bool OnMove()
+    public override bool IsOnMove()
     {
         return Mathf.Abs(_xInput) > 0.1f;
     }

@@ -5,16 +5,16 @@ public class FadeOutState: StateBase
 {
     [SerializeField]
     private float fadeTime = 0.5f;
-    private IDamageable _damageable;
+
+    public bool IsDone { get; private set; }
 
     [SerializeField]
     private SpriteRenderer spriteRenderer;
     
     public override void Enter()
     {
+        IsDone = false;
         base.Enter();
-        if (Entity is IDamageable entity)
-            _damageable = entity;
         StartCoroutine(FadeOut());
     }
 
@@ -30,7 +30,8 @@ public class FadeOutState: StateBase
             spriteRenderer.color = spriteRendererColor;
             yield return null;
         }
-        Entity.gameObject.SetActive(false);
+
+        IsDone = true;
     }
     
     public override void Exit()

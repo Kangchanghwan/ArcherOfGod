@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 public class MoveState : StateBase
 {
     private MovementBase _movementBase;
-    public bool OnMove =>  _movementBase.OnMove();
+    public bool OnMove =>  _movementBase.IsOnMove();
     
 
     protected override string GetAnimationName() => "Move";
@@ -24,7 +24,7 @@ public class MoveState : StateBase
     
     public override void StateUpdate()
     {
-        var dir = _movementBase.Movement();
+        var dir = _movementBase.OnMove();
         Entity.FlipController(dir);
     }
     

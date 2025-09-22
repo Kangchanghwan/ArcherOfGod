@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class CopyCatStateMachine : StateMachineBase
 {
-    // 통합된 상태들
+    private CopyCat _copyCat;
+
     private AttackState _attackState;
     private MoveState _moveState;
     private CastingState _castingState;
@@ -13,6 +14,8 @@ public class CopyCatStateMachine : StateMachineBase
 
     private void Awake()
     {
+        _copyCat = GetComponent<CopyCat>();
+
         _attackState = GetComponentInChildren<AttackState>();
         _moveState = GetComponentInChildren<MoveState>();
         _castingState = GetComponentInChildren<CastingState>();
@@ -33,12 +36,18 @@ public class CopyCatStateMachine : StateMachineBase
         UnsubscribeFromEvents();
     }
 
+    protected override void Update()
+    {
+        HandleOnDead();
+        base.Update();
+    }
+
     protected override void HandleStateTransitions()
     {
         GetStateTransitionAction()?.Invoke();
     }
-    
-    
+
+
     private Action GetStateTransitionAction()
     {
         return CurrentState switch
@@ -48,19 +57,26 @@ public class CopyCatStateMachine : StateMachineBase
             SkillState => HandleSkillStateTransition,
             MoveState => HandleMoveStateTransition,
             FadeInState => HandleFadeInStateTransition,
-            FadeOutState => () => { },
+            FadeOutState => HandleFadeOutStateEnd,
             DeadState => () => { }, // 죽은 상태에서는 전환 없음
             IdleState => () => { }, // 대기 상태에서는 전환 없음
             _ => () => { }
         };
     }
 
-    private void HandleFadeInStateTransition()
+    private void HandleFadeOutStateEnd()
     {
-        if(_fadeInState.isDone)
-            ChangeState(_castingState);
+        if (_fadeOutState.IsDone)
+        {
+            _copyCat.gameObject.SetActive(false);
+        }
     }
 
+    private void HandleFadeInStateTransition()
+    {
+        if (_fadeInState.isDone)
+            ChangeState(_castingState);
+    }
 
 
     private void HandleAttackStateTransition()
@@ -108,5 +124,12 @@ public class CopyCatStateMachine : StateMachineBase
     }
 
     private void OnEnemyDeath() => ChangeState(_fadeOutState);
-    public void OnChangeFadeOutState() => ChangeState(_fadeOutState);
+
+    public void HandleOnDead()
+    {
+        if (_copyCat.IsDead && CurrentState is not FadeOutState)
+        {
+            ChangeState(_fadeOutState);
+        }
+    }
 }
