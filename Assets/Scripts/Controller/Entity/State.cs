@@ -41,6 +41,8 @@ namespace Component.Entity
 
     public class AttackState : PlayerStateBase
     {
+        private float _attackTimer;
+        private bool _hasAttacked;
         public AttackState(PlayerController controller) : base(controller)
         {
         }
@@ -49,14 +51,27 @@ namespace Component.Entity
         public override void Enter()
         {
             base.Enter();
-            Controller.Attack().Forget();
+            _attackTimer = 0f;
+            _hasAttacked = false;
+            Controller.AttackReady();
         }
 
         public override void Execute()
         {
             base.Execute();
+        
+            _attackTimer += Time.deltaTime;
+        
+            // 공격 타이밍에 도달하면 공격 실행
+            if (!_hasAttacked && _attackTimer >= Controller.AttackDelay)
+            {
+                Controller.ExecuteAttack();
+                _hasAttacked = true;
+            }
+        
             if (Controller.IsOnMove) 
                 Controller.ChangeMoveState();
+            
             if (TriggerCalled)
                 Controller.ChangeCastingState();
         }

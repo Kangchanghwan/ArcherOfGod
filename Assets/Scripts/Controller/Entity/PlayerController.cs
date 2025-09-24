@@ -24,7 +24,6 @@ namespace Controller.Entity
         [Header("Player Move Info")]
         [SerializeField]private float moveSpeed = 10f;
 
-
         [Header("Component")] [SerializeField] private HealthSystem healthSystem;
         [SerializeField] private ShotArrow shotArrow;
 
@@ -43,7 +42,7 @@ namespace Controller.Entity
 
         private float _xInput;
         public bool IsOnMove => Mathf.Abs(_xInput) > 0.1f;
-
+        public float AttackDelay => attackDelay;
         protected override void Awake()
         {
             base.Awake();
@@ -107,15 +106,14 @@ namespace Controller.Entity
             );
         }
 
-        
-        public async UniTask Attack(CancellationToken cancellationToken = default)
+        public void AttackReady()
         {
             Animator.SetFloat("AttackSpeed", attackSpeed);
             FaceTarget();
-    
-            // 공격 딜레이 대기
-            await UniTask.Delay((int)(attackDelay * 1000 / attackSpeed), cancellationToken: cancellationToken);
-    
+        }
+        
+        public void ExecuteAttack()
+        {
             // 화살 공격 실행
             shotArrow.Attack(new ShotArrowCommand(
                 damage: attack,
@@ -123,11 +121,8 @@ namespace Controller.Entity
                 startPoint: (Vector2)transform.position + firePointOffset,
                 endPoint: Target
             ));
-    
-            // 애니메이션 트리거 대기
-            await UniTask.WaitUntil(() => StateMachine.CurrentState.AnimationTrigger(), cancellationToken: cancellationToken);
+            
         }
-
 
         private void HandlePlayerDeath()
         {
