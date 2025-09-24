@@ -1,4 +1,5 @@
 using System;
+using Component.Entity;
 using UnityEngine;
 
 public class BotStateMachine : StateMachineBase
@@ -94,13 +95,13 @@ public class BotStateMachine : StateMachineBase
     private void SubscribeToEvents()
     {
         Enemy.OnEnemyDeath += OnEnemyDeath;
-        Player.OnPlayerDeath += OnPlayerDeath;
+        // PlayerController.OnPlayerDeath += OnPlayerDeath;
     }
 
     private void UnsubscribeFromEvents()
     {
         Enemy.OnEnemyDeath -= OnEnemyDeath;
-        Player.OnPlayerDeath -= OnPlayerDeath;
+        // PlayerController.OnPlayerDeath -= OnPlayerDeath;
     }
 
     private void OnEnemyDeath() => ChangeState(_deadState);

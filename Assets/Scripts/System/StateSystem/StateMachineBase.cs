@@ -11,7 +11,7 @@ public abstract class StateMachineBase : MonoBehaviour
         if (CurrentState == null) return;
         
         HandleStateTransitions();
-        CurrentState.StateUpdate();
+        CurrentState.Execute();
     }
 
     protected void Initialize(StateBase startState)

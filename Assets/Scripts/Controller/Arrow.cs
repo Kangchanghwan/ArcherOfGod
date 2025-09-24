@@ -5,23 +5,23 @@ using UnityEngine;
 
 public class Arrow : MonoBehaviour
 {
-    [SerializeField] private float damage;
-    [field: SerializeField] public float Duration { get; set; }
+    public float damage;
+    public float Duration { get; set; }
+    
     [SerializeField] private ParticleSystem particlePrefab;
-    private float _elapsedTime = 0f;
-
     [SerializeField] private bool groundVfx;
     [SerializeField] private bool hasHitGround;
 
     private Coroutine _arrowCoroutine;
     private Collider2D _collider2D;
     private ParticleSystem _particle;
+    private float _elapsedTime;
     
     private void Awake()
     {
         _collider2D = GetComponent<Collider2D>();
     }
-
+    
     private void OnEnable()
     {
         ResetArrow();
@@ -29,14 +29,12 @@ public class Arrow : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player") ||
-            other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
-        {
-            var damageable = other.GetComponent<IDamageable>();
-            OnDamage(damageable);
-            ArrowParticle();
-        }
+        CheckPlayerOrEnemy(other);
+        CheckGround(other);
+    }
 
+    private void CheckGround(Collider2D other)
+    {
         if (other.gameObject.layer == LayerMask.NameToLayer("Ground") && groundVfx)
         {
             ArrowParticle();
@@ -44,6 +42,17 @@ public class Arrow : MonoBehaviour
             {
                 gameObject.SetActive(false);
             }
+        }
+    }
+
+    private void CheckPlayerOrEnemy(Collider2D other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player") ||
+            other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            var damageable = other.GetComponent<IDamageable>();
+            OnDamage(damageable);
+            ArrowParticle();
         }
     }
 

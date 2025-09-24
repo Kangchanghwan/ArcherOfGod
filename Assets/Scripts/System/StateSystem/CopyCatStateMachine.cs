@@ -127,9 +127,9 @@ public class CopyCatStateMachine : StateMachineBase
 
     public void HandleOnDead()
     {
-        if (_copyCat.IsDead && CurrentState is not FadeOutState)
-        {
-            ChangeState(_fadeOutState);
-        }
+        // if (_copyCat.IsDead && CurrentState is not FadeOutState)
+        // {
+        //     ChangeState(_fadeOutState);
+        // }
     }
 }

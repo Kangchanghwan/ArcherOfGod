@@ -1,4 +1,6 @@
 
+using Component.Entity;
+using Controller.Entity;
 using Util;
 
 public class GameManager : Singleton<GameManager>
@@ -9,7 +11,7 @@ public class GameManager : Singleton<GameManager>
     private void Start()
     {
         PlayerOfTarget = FindAnyObjectByType<Enemy>();
-        EnemyOfTarget = FindAnyObjectByType<Player>();
+        // EnemyOfTarget = FindAnyObjectByType<PlayerController>();
     }
     
 }

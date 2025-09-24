@@ -1,3 +1,4 @@
+using Controller.Entity;
 using UnityEngine;
 
 public abstract class StateBase: MonoBehaviour
@@ -17,7 +18,7 @@ public abstract class StateBase: MonoBehaviour
         Rigidbody2D = Entity.Rigidbody2D;
     }
 
-    public virtual void StateUpdate()
+    public virtual void Execute()
     {
     }
     public virtual void Enter()

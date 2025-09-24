@@ -1,4 +1,6 @@
 using System;
+using System.InputSystem;
+using Component.Entity;
 using UnityEngine;
 
 public class PlayerStateMachine: StateMachineBase
@@ -108,13 +110,13 @@ public class PlayerStateMachine: StateMachineBase
     
     private void SubscribeToEvents()
     {
-        Player.OnPlayerDeath += OnPlayerDeath;
+        // PlayerController.OnPlayerDeath += OnPlayerDeath;
         Enemy.OnEnemyDeath += OnEnemyDeath;
     }
 
     private void UnsubscribeFromEvents()
     {
-        Player.OnPlayerDeath -= OnPlayerDeath;
+        // PlayerController.OnPlayerDeath -= OnPlayerDeath;
         Enemy.OnEnemyDeath -= OnEnemyDeath;
     }
 

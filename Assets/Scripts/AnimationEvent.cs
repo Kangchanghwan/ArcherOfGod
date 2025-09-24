@@ -1,17 +1,19 @@
+using System.StateSystem;
+using Controller.Entity;
 using UnityEngine;
 
 public class AnimationEvent : MonoBehaviour
 {
-    private StateMachineBase _stateMachine;
+    private StateMachine _stateMachine;
     [SerializeField]
     private SkillJumpShoot skillJumpShoot;
 
     private void Awake()
     {
-        _stateMachine = GetComponentInParent<StateMachineBase>();
+        _stateMachine = GetComponent<PlayerController>().StateMachine;
     }
 
-    public void AnimationTrigger() => _stateMachine.AnimationTrigger();
+    public void AnimationTrigger() => _stateMachine.TriggerCalled();
     public void OnJumpReadStartTrigger_JumpShoot() => skillJumpShoot.OnJumpReadyTrigger();
     public void OnJumpStart_JumpShoot() => skillJumpShoot.OnJumpStart();
     public void OnJumpEnd_JumpShoot() => skillJumpShoot.OnJumpEnd();

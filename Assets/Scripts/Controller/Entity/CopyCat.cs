@@ -1,20 +1,21 @@
 using System;
+using Controller.Entity;
 using UnityEngine;
 
 public class CopyCat : EntityBase, IDamageable
 {
-    public bool IsDead => _health.GetCurrentHealth() <= 0;
+    // public bool IsDead => _healthSystem.GetCurrentHealth() <= 0;
     
     [SerializeField]
     private int healthDrainPerSecond;
     private float _timer;
     
-    private EntityHealth _health;
+    private HealthSystem _healthSystem;
     
     protected override void Awake()
     {
         base.Awake();
-        _health = GetComponent<EntityHealth>();
+        _healthSystem = GetComponent<HealthSystem>();
     }
 
     private void Update()
@@ -28,13 +29,12 @@ public class CopyCat : EntityBase, IDamageable
         }
     }
 
-    protected override Transform SetTarget() => GameManager.Instance.PlayerOfTarget.GetTransform();
+    // protected override Transform SetTarget() => GameManager.Instance.PlayerOfTarget.GetTransform();
 
 
     public void TakeDamage(float damage)
     {
         // 체력 감소
-        _health.ReduceHealth(damage);
     }
 
     public Transform GetTransform() => transform;

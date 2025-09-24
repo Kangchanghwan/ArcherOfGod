@@ -22,7 +22,7 @@ public class MoveState : StateBase
         _movementBase.Initialize(Rigidbody2D);
     }
     
-    public override void StateUpdate()
+    public override void Execute()
     {
         var dir = _movementBase.OnMove();
         Entity.FlipController(dir);
