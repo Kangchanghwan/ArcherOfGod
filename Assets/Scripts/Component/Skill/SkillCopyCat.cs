@@ -1,6 +1,7 @@
 using System.Threading;
 using Component.Skill;
 using Cysharp.Threading.Tasks;
+using MVC.Controller.CopyCat;
 using UnityEngine;
 
 namespace Component.SkillSystem
@@ -21,7 +22,9 @@ namespace Component.SkillSystem
         public override async UniTask SkillTask(CancellationToken cancellationToken)
         {
             await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);
-            Instantiate(cloningObject, transform.position, Quaternion.identity);
+            var copyCat = Instantiate(cloningObject, transform.position, Quaternion.identity);
+            var copyCatController = copyCat?.GetComponent<CopyCatController>();
+            if (copyCatController != null) copyCatController.Target = Target;
         }
     }
 }

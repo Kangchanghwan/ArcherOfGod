@@ -4,20 +4,21 @@ using Random = UnityEngine.Random;
 
 namespace Component.Impact
 {
+    [System.Serializable]
+    public struct WhirlWindCommand
+    {
+        public Transform target;
+        public float pullRadius;
+        public float swirlSpeed;
+        public float pullStrength;
+        public float randomness;
+        public float whirlDuration;
+        public float arrowsDuration;
+    }
+
     public class WhirlWind: ImpactBase
     {
-        [SerializeField]
-        private Transform _target;
-    
-        [Header("Whirlwind Settings")]
-        [SerializeField] private float pullRadius = 3f;
-        [SerializeField] private float swirlSpeed = 2f;
-        [SerializeField] private float pullStrength = 0.5f;
-        [SerializeField] private float randomness = 0.5f;
-        [SerializeField] private float whirlDuration = 10f;
-        [SerializeField] private float arrowsDuration = 1f;
-
-
+        private WhirlWindCommand _command;
         private readonly List<Arrow> _arrows = new();
         private float _timer;
         [SerializeField]
@@ -29,30 +30,33 @@ namespace Component.Impact
             _released = false;
             _arrows.Clear();
         }
-    
-        public void SetTarget(Transform target) => _target = target;
+
+        public void Initialize(WhirlWindCommand command)
+        {
+            _command = command;
+        }
     
         protected override void OnImpact()
         {
-            _timer +=  Time.deltaTime;
+            _timer += Time.deltaTime;
             if (_timer < .5f) return; // 회오리 치는 시간
-            if (_timer > whirlDuration) _released = true;
+            if (_timer > _command.whirlDuration) _released = true;
         
             if (_released == false)
                 OnEffect();
             else
                 OnRelease();
         }
+
         private void OnEffect()
         {
-
-            foreach (var hitArrow in  Physics2D.OverlapCircleAll(transform.position, pullRadius))
+            foreach (var hitArrow in Physics2D.OverlapCircleAll(transform.position, _command.pullRadius))
             {
                 Arrow arrow = hitArrow.GetComponent<Arrow>();
                 if(arrow == null || _arrows.Contains(arrow)) continue;
             
                 _arrows.Add(arrow);
-                arrow.StopArrowCoroutine();
+                arrow.StopArrowTask();
             }
         
             foreach (var arrow in _arrows)
@@ -60,12 +64,11 @@ namespace Component.Impact
                 Vector2 dir = transform.position - arrow.transform.position;
                 Vector2 tangent = new Vector2(-dir.y, dir.x).normalized;
             
-                arrow.transform.position += (Vector3)tangent * (swirlSpeed * Time.deltaTime);
-                arrow.transform.position += (Vector3)dir.normalized * (pullStrength * Time.deltaTime);
-                arrow.transform.position += (Vector3)Random.insideUnitCircle * (randomness * Time.deltaTime);
+                arrow.transform.position += (Vector3)tangent * (_command.swirlSpeed * Time.deltaTime);
+                arrow.transform.position += (Vector3)dir.normalized * (_command.pullStrength * Time.deltaTime);
+                arrow.transform.position += (Vector3)Random.insideUnitCircle * (_command.randomness * Time.deltaTime);
             }
         }
-    
     
         private void OnRelease()
         {
@@ -74,22 +77,20 @@ namespace Component.Impact
             gameObject.SetActive(false);
         }
 
-
         private void ShotArrow(Arrow arrow)
         {
             Vector2 p0 = arrow.transform.position;
             Vector2 p1 = Vector2.up * 8f;
-            Vector2 target = _target.position;
-            Vector2 p2 = target; 
-            //new Vector2(Random.Range(-3f, 3f), 0f);
-            arrow.duration = arrowsDuration;
+            Vector2 target = _command.target.position;
+            Vector2 p2 = new Vector2(target.x + Random.Range(0f , _command.randomness), target.y); 
+            arrow.duration = _command.arrowsDuration;
             arrow.ShotArrow(p0, p1, p2);
         }
 
         // private void OnDrawGizmos()
         // {
         //     Gizmos.color = Color.red;
-        //     Gizmos.DrawWireSphere(transform.position, pullRadius);    
+        //     Gizmos.DrawWireSphere(transform.position, _command.pullRadius);    
         // }
     }
 }

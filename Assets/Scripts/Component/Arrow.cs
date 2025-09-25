@@ -1,5 +1,7 @@
-using System.Collections;
+using System;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace Component
 {
@@ -12,7 +14,7 @@ namespace Component
         [SerializeField] private bool groundVfx;
         [SerializeField] private bool hasHitGround;
 
-        private Coroutine _arrowCoroutine;
+        private CancellationTokenSource _cancellationTokenSource;
         private Collider2D _collider2D;
         private ParticleSystem _particle;
         private float _elapsedTime;
@@ -25,6 +27,16 @@ namespace Component
         private void OnEnable()
         {
             ResetArrow();
+        }
+
+        private void OnDisable()
+        {
+            StopArrowTask();
+        }
+
+        private void OnDestroy()
+        {
+            StopArrowTask();
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -77,15 +89,17 @@ namespace Component
             if (damageable == null) return;
             damageable.TakeDamage(damage);
             gameObject.SetActive(false);
-            StopArrowCoroutine();
-            _arrowCoroutine = null;
+            StopArrowTask();
         }
 
-        public void StopArrowCoroutine()
+        public void StopArrowTask()
         {
-            if (_arrowCoroutine == null) return;
-            StopCoroutine(_arrowCoroutine);
-            _arrowCoroutine = null;
+            if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+                _cancellationTokenSource = null;
+            }
             _collider2D.enabled = false;
         }
 
@@ -95,46 +109,57 @@ namespace Component
             _collider2D.enabled = true;
         }
 
-
-        private IEnumerator ShotArrowCoroutine(Vector2 p0, Vector2 p1, Vector2 p2)
+        private async UniTask ShotArrowTask(Vector2 p0, Vector2 p1, Vector2 p2, CancellationToken cancellationToken)
         {
             Vector2 previousPos = p0;
-
             p2.y = -1f;
             _elapsedTime = 0f;
+            _collider2D.enabled = true;
 
-            while (_elapsedTime < duration)
+            try
             {
-                _elapsedTime += Time.deltaTime;
-                float t = _elapsedTime / duration;
-
-                Vector2 pos = BezierCurve.Quadratic(p0, p1, p2, t);
-                transform.position = pos;
-
-                Vector2 direction = pos - previousPos;
-                if (direction != Vector2.zero)
+                while (_elapsedTime < duration)
                 {
-                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    
+                    _elapsedTime += Time.deltaTime;
+                    float t = _elapsedTime / duration;
+
+                    Vector2 pos = BezierCurve.Quadratic(p0, p1, p2, t);
+                    transform.position = pos;
+
+                    Vector2 direction = pos - previousPos;
+                    if (direction != Vector2.zero)
+                    {
+                        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                    }
+
+                    previousPos = pos;
+                    await UniTask.NextFrame(cancellationToken);
                 }
 
-                previousPos = pos;
-                yield return new WaitForEndOfFrame();
+                _collider2D.enabled = false;
+                await UniTask.Delay(4000, cancellationToken: cancellationToken);
+                
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    gameObject.SetActive(false);
+                }
             }
-
-
-            _collider2D.enabled = false;
-
-            yield return new WaitForSeconds(4f);
-
-            gameObject.SetActive(false);
+            catch (OperationCanceledException)
+            {
+                // Task was cancelled, cleanup if needed
+            }
         }
 
-        public void ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
+        public async void ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
         {
             ResetArrow();
-            _arrowCoroutine = StartCoroutine(ShotArrowCoroutine(p0, p1, p2));
+            StopArrowTask(); // Stop any existing task
+            
+            _cancellationTokenSource = new CancellationTokenSource();
+            await ShotArrowTask(p0, p1, p2, _cancellationTokenSource.Token);
         }
-    
     }
 }

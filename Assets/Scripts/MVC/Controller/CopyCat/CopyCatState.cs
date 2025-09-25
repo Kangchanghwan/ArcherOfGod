@@ -120,7 +120,6 @@ namespace MVC.Controller.CopyCat
         {
             base.Execute();
             Controller.ExecuteMove();
-            
             // 움직임이 멈추면 Casting 상태로 전환
             if (Controller.IsOnMove is false)
                 Controller.ChangeCastingState();
@@ -164,7 +163,7 @@ namespace MVC.Controller.CopyCat
     // FadeIn State - SpriteRenderer 기반 페이드인 효과 (UniTask 사용)
     public class FadeInState : CopyCatStateBase
     {
-        [SerializeField] private float fadeTime = 0.5f;
+        private float fadeTime = 0.5f;
         private SpriteRenderer _spriteRenderer;
         private CancellationTokenSource _fadeCancellationToken;
         
@@ -235,7 +234,6 @@ namespace MVC.Controller.CopyCat
         public override void Execute()
         {
             base.Execute();
-            
             // 페이드인 완료 시 Casting 상태로 전환
             if (isDone)
             {
@@ -260,7 +258,7 @@ namespace MVC.Controller.CopyCat
     // FadeOut State - SpriteRenderer 기반 페이드아웃 효과 (UniTask 사용)
     public class FadeOutState : CopyCatStateBase
     {
-        [SerializeField] private float fadeTime = 0.5f;
+        private float fadeTime = 0.5f;
         private SpriteRenderer _spriteRenderer;
         private CancellationTokenSource _fadeCancellationToken;
         

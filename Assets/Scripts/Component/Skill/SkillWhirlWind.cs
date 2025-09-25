@@ -10,6 +10,14 @@ namespace Component.Skill
         [Header("Skill Settings")]
         [SerializeField] private GameObject whirlWind;
 
+        [Header("Whirlwind Settings")]
+        [SerializeField] private float pullRadius = 3f;
+        [SerializeField] private float swirlSpeed = 2f;
+        [SerializeField] private float pullStrength = 0.5f;
+        [SerializeField] private float randomness = 0.5f;
+        [SerializeField] private float whirlDuration = 10f;
+        [SerializeField] private float arrowsDuration = 1f;
+
         public override void Initialize(Rigidbody2D rigidbody, Animator anim, Transform target)
         {
             base.Initialize(rigidbody, anim, target);
@@ -21,9 +29,25 @@ namespace Component.Skill
         {
             var poolObject = PoolObject(whirlWind);
             poolObject.transform.position = new Vector2(transform.position.x, transform.position.y + 1f);
-            poolObject.GetComponent<WhirlWind>()?.SetTarget(Target);
+            
+            var whirlWindComponent = poolObject.GetComponent<WhirlWind>();
+            if (whirlWindComponent != null)
+            {
+                var command = new WhirlWindCommand
+                {
+                    target = Target,
+                    pullRadius = pullRadius,
+                    swirlSpeed = swirlSpeed,
+                    pullStrength = pullStrength,
+                    randomness = randomness,
+                    whirlDuration = whirlDuration,
+                    arrowsDuration = arrowsDuration
+                };
 
-            await UniTask.Delay(System.TimeSpan.FromSeconds(10f), cancellationToken: cancellationToken);
+                whirlWindComponent.Initialize(command);
+            }
+
+            await UniTask.Delay(System.TimeSpan.FromSeconds(whirlDuration + 1f), cancellationToken: cancellationToken);
             poolObject.gameObject.SetActive(false);
         }
     }
