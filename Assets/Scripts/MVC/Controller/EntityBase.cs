@@ -1,25 +1,59 @@
-using Component.StateSystem;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using IState = Interface.IState;
+using StateMachine = Component.StateSystem.StateMachine;
 
 namespace Controller.Entity
 {
-    public abstract class EntityBase : MonoBehaviour
+    public abstract class EntityStateBase<T> : IState where T : EntityControllerBase
     {
-        [SerializeField]
-        public Transform Target;
+        protected readonly T Controller;
+        private readonly Animator _animator;
+
+        protected EntityStateBase(T entityControllerBase)
+        {
+            Controller = entityControllerBase;
+            _animator = entityControllerBase.Animator;
+        }
+
+        protected bool TriggerCalled { get; private set; }
+
+        public virtual void Enter()
+        {
+            _animator.SetBool(GetAnimationName(), true);
+            TriggerCalled = false;
+        }
+
+        public virtual void Execute()
+        {
+        }
+
+        public virtual void Exit()
+        {
+            _animator.SetBool(GetAnimationName(), false);
+        }
+
+        public bool AnimationTrigger() => TriggerCalled = true;
+
+        protected abstract string GetAnimationName();
+    }
+
+    public abstract class EntityControllerBase : MonoBehaviour
+    {
+        [SerializeField] public Transform Target;
         public Rigidbody2D Rigidbody2D;
         public Animator Animator;
 
         public StateMachine StateMachine { get; protected set; }
 
         private bool _facingTarget;
-    
+
         protected virtual void Awake()
         {
             Animator = GetComponent<Animator>();
             Rigidbody2D = GetComponent<Rigidbody2D>();
-        
+
             Debug.Assert(Animator != null);
             Debug.Assert(Rigidbody2D != null);
         }
@@ -35,6 +69,7 @@ namespace Controller.Entity
                 Flip();
             }
         }
+
         public void FaceTarget()
         {
             if (Target != null)
@@ -46,6 +81,7 @@ namespace Controller.Entity
                     Flip();
             }
         }
+
         private void Flip()
         {
             _facingTarget = !_facingTarget;
@@ -54,6 +90,6 @@ namespace Controller.Entity
             transform.localScale = scale;
         }
 
-        public void AnimationTrigger() => StateMachine.TriggerCalled();
+        public abstract void AnimationTrigger();
     }
 }

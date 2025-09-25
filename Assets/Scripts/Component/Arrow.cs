@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using Manager;
 
 namespace Component
 {
@@ -9,7 +10,7 @@ namespace Component
     {
         public float damage;
         public float duration;
-    
+
         [SerializeField] private ParticleSystem particlePrefab;
         [SerializeField] private bool groundVfx;
         [SerializeField] private bool hasHitGround;
@@ -18,12 +19,12 @@ namespace Component
         private Collider2D _collider2D;
         private ParticleSystem _particle;
         private float _elapsedTime;
-    
+
         private void Awake()
         {
             _collider2D = GetComponent<Collider2D>();
         }
-    
+
         private void OnEnable()
         {
             ResetArrow();
@@ -100,6 +101,7 @@ namespace Component
                 _cancellationTokenSource.Dispose();
                 _cancellationTokenSource = null;
             }
+
             _collider2D.enabled = false;
         }
 
@@ -121,7 +123,7 @@ namespace Component
                 while (_elapsedTime < duration)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    
+
                     _elapsedTime += Time.deltaTime;
                     float t = _elapsedTime / duration;
 
@@ -141,7 +143,7 @@ namespace Component
 
                 _collider2D.enabled = false;
                 await UniTask.Delay(4000, cancellationToken: cancellationToken);
-                
+
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     gameObject.SetActive(false);
@@ -157,7 +159,7 @@ namespace Component
         {
             ResetArrow();
             StopArrowTask(); // Stop any existing task
-            
+
             _cancellationTokenSource = new CancellationTokenSource();
             await ShotArrowTask(p0, p1, p2, _cancellationTokenSource.Token);
         }

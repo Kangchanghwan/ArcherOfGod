@@ -1,53 +1,20 @@
 using System.Threading;
 using Component.Skill;
-using Component.SkillSystem;
+using Controller.Entity;
 using Cysharp.Threading.Tasks;
-using Interface;
 using UnityEngine;
 
 namespace MVC.Controller.CopyCat
 {
-    public abstract class CopyCatStateBase : IState
-    {
-        protected readonly CopyCatController Controller;
-        protected readonly Animator Animator;
 
-        protected CopyCatStateBase(CopyCatController controller)
-        {
-            Controller = controller;
-            Animator = Controller.Animator;
-        }
-
-        public bool TriggerCalled { get; private set; }
-
-        public virtual void Enter()
-        {
-            Animator.SetBool(GetAnimationName(), true);
-            TriggerCalled = false;
-        }
-        
-        public virtual void Execute()
-        {
-        }
-    
-        public virtual void Exit()
-        {
-            Animator.SetBool(GetAnimationName(), false);
-        }
-
-        public bool AnimationTrigger() => TriggerCalled = true;
-    
-        protected abstract string GetAnimationName();
-    }
-
-    // Attack State
-    public class AttackState : CopyCatStateBase
+    public class AttackState : EntityStateBase<CopyCatController>
     {
         private float _attackTimer;
         private bool _hasAttacked;
         
         public AttackState(CopyCatController controller) : base(controller)
         {
+            
         }
         
         protected override string GetAnimationName() => "Attack";
@@ -85,8 +52,9 @@ namespace MVC.Controller.CopyCat
     }
     
     // Casting State
-    public class CastingState : CopyCatStateBase
+    public class CastingState : EntityStateBase<CopyCatController>
     {
+        
         public CastingState(CopyCatController controller) : base(controller)
         {
         }
@@ -108,7 +76,7 @@ namespace MVC.Controller.CopyCat
     }
 
     // Move State
-    public class MoveState : CopyCatStateBase
+    public class MoveState : EntityStateBase<CopyCatController>
     {
         public MoveState(CopyCatController controller) : base(controller)
         {
@@ -127,7 +95,7 @@ namespace MVC.Controller.CopyCat
     }
 
     // Skill State
-    public class SkillState : CopyCatStateBase
+    public class SkillState : EntityStateBase<CopyCatController>
     {
         private readonly SkillBase _skill;
         
@@ -161,11 +129,12 @@ namespace MVC.Controller.CopyCat
     }
 
     // FadeIn State - SpriteRenderer 기반 페이드인 효과 (UniTask 사용)
-    public class FadeInState : CopyCatStateBase
+    public class FadeInState : EntityStateBase<CopyCatController>
     {
         private float fadeTime = 0.5f;
         private SpriteRenderer _spriteRenderer;
         private CancellationTokenSource _fadeCancellationToken;
+
         
         public bool isDone { get; private set; }
 
@@ -256,7 +225,7 @@ namespace MVC.Controller.CopyCat
     }
 
     // FadeOut State - SpriteRenderer 기반 페이드아웃 효과 (UniTask 사용)
-    public class FadeOutState : CopyCatStateBase
+    public class FadeOutState : EntityStateBase<CopyCatController>
     {
         private float fadeTime = 0.5f;
         private SpriteRenderer _spriteRenderer;
@@ -347,7 +316,7 @@ namespace MVC.Controller.CopyCat
     }
 
     // Dead State
-    public class DeadState : CopyCatStateBase
+    public class DeadState : EntityStateBase<CopyCatController>
     {
         public DeadState(CopyCatController controller) : base(controller)
         {
@@ -370,9 +339,8 @@ namespace MVC.Controller.CopyCat
     }
 
     // Idle State
-    public class IdleState : CopyCatStateBase
+    public class IdleState : EntityStateBase<CopyCatController>
     {
-
         public IdleState(CopyCatController controller) : base(controller)
         {
         }

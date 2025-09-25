@@ -10,7 +10,7 @@ using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.Player
 {
-    public class PlayerController : EntityBase, IDamageable
+    public class PlayerController : EntityControllerBase, IDamageable
     {
         [Header("Player Model Info")] [SerializeField]
         private int attack;
@@ -79,6 +79,14 @@ namespace MVC.Controller.Player
             Debug.Assert(shotArrow != null);
         }
 
+        public override void AnimationTrigger()
+        {
+            if (StateMachine.CurrentState is EntityStateBase<PlayerController> currentState)
+            {
+                currentState.AnimationTrigger(); 
+            }
+        }
+
 
         private void OnEnable()
         {
@@ -86,7 +94,7 @@ namespace MVC.Controller.Player
             _inputManager.Controller.Move.performed += ctx => _xInput = ctx.ReadValue<float>();
             _inputManager.Controller.Move.canceled += _ => _xInput = 0f;
 
-            _model.OnPlayerDeath += HandlePlayerDeath;
+            PlayerModel.OnPlayerDeath += HandlePlayerDeath;
         }
 
         public void HandleInputSystem(bool onOff)
@@ -132,7 +140,7 @@ namespace MVC.Controller.Player
         private void OnDisable()
         {
             HandleInputSystem(false);
-            _model.OnPlayerDeath -= HandlePlayerDeath;
+            PlayerModel.OnPlayerDeath -= HandlePlayerDeath;
         }
 
         public void ExecuteMove()

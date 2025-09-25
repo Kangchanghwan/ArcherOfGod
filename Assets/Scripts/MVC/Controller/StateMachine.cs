@@ -18,7 +18,5 @@ namespace Component.StateSystem
             CurrentState = newState;
             CurrentState.Enter();
         }
-        
-        public bool TriggerCalled() => CurrentState.AnimationTrigger();
     }
 }

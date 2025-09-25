@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Manager;
 using UnityEngine;
 
 namespace Component.Skill
@@ -29,9 +30,9 @@ namespace Component.Skill
 
     public abstract class SkillBase : MonoBehaviour
     {
+        [Header("General detail")] [SerializeField]
+        private float cooldown;
 
-        [Header("General detail")]
-        [SerializeField] private float cooldown;
         [SerializeField] private UI_SkillSlot skillSlot;
 
         public SkillType SkillType { get; protected set; }
@@ -96,7 +97,8 @@ namespace Component.Skill
                 }
             }
 
-            pool = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, -180f), GameManager.Instance.transform);
+            pool = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, -180f),
+                GameManager.Instance.transform);
             _pools.Enqueue(pool);
             pool.SetActive(true);
             return pool;
@@ -117,7 +119,7 @@ namespace Component.Skill
             Rigidbody2D.linearVelocity = Vector2.zero;
             SetSkillOnCooldown();
 
-            
+
             CurrentSkillCancellationToken = new CancellationTokenSource();
 
             try

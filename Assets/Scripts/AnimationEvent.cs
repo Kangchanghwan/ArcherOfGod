@@ -7,15 +7,15 @@ public class AnimationEvent : MonoBehaviour
 {
     [SerializeField]
     private SkillJumpShoot skillJumpShoot;
-    private EntityBase _entity;
+    private EntityControllerBase _entityController;
 
     private void Start()
     {
-        _entity = GetComponent<EntityBase>();
-        Debug.Assert(_entity != null);
+        _entityController = GetComponent<EntityControllerBase>();
+        Debug.Assert(_entityController != null);
     }
 
-    public void AnimationTrigger() => _entity.AnimationTrigger();
+    public void AnimationTrigger() => _entityController.AnimationTrigger();
     public void OnJumpReadStartTrigger_JumpShoot() => skillJumpShoot.OnJumpReadyTrigger();
     public void OnJumpStart_JumpShoot() => skillJumpShoot.OnJumpStart();
     public void OnJumpEnd_JumpShoot() => skillJumpShoot.OnJumpEnd();

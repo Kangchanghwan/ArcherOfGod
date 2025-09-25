@@ -1,53 +1,21 @@
 using Component.Skill;
 using Component.SkillSystem;
+using Controller.Entity;
 using Cysharp.Threading.Tasks;
 using Interface;
 using UnityEngine;
 
 namespace MVC.Controller.Enemy
 {
-    public abstract class EnemyStateBase : IState
-    {
-        protected readonly EnemyController Controller;
-        protected readonly Animator Animator;
-
-        protected EnemyStateBase(EnemyController controller)
-        {
-            Controller = controller;
-            Animator = Controller.Animator;
-        }
-
-        public bool TriggerCalled { get; private set; }
-
-        public virtual void Enter()
-        {
-            Animator.SetBool(GetAnimationName(), true);
-            TriggerCalled = false;
-        }
-        
-        public virtual void Execute()
-        {
-        }
-    
-        public virtual void Exit()
-        {
-            Animator.SetBool(GetAnimationName(), false);
-        }
-
-        public bool AnimationTrigger() => TriggerCalled = true;
-    
-        protected abstract string GetAnimationName();
-    }
-
-    public class AttackState : EnemyStateBase
+    public class AttackState : EntityStateBase<EnemyController>
     {
         private float _attackTimer;
         private bool _hasAttacked;
         
-        public AttackState(EnemyController controller) : base(controller)
+        public AttackState(EnemyController entityControllerBase) : base(entityControllerBase)
         {
         }
-        
+
         protected override string GetAnimationName() => "Attack";
 
         public override void Enter()
@@ -83,7 +51,7 @@ namespace MVC.Controller.Enemy
         }
     }
     
-    public class CastingState : EnemyStateBase
+    public class CastingState : EntityStateBase<EnemyController>
     {
         public CastingState(EnemyController controller) : base(controller)
         {
@@ -101,7 +69,7 @@ namespace MVC.Controller.Enemy
         }
     }
 
-    public class MoveState : EnemyStateBase
+    public class MoveState : EntityStateBase<EnemyController>
     {
         public MoveState(EnemyController controller) : base(controller)
         {
@@ -118,7 +86,7 @@ namespace MVC.Controller.Enemy
         }
     }
 
-    public class SkillState : EnemyStateBase
+    public class SkillState : EntityStateBase<EnemyController>
     {
         private readonly SkillBase _skill;
         
@@ -152,7 +120,7 @@ namespace MVC.Controller.Enemy
         }
     }
     // Dead State
-    public class DeadState : EnemyStateBase
+    public class DeadState : EntityStateBase<EnemyController>
     {
         public DeadState(EnemyController controller) : base(controller)
         {
@@ -175,7 +143,7 @@ namespace MVC.Controller.Enemy
     }
 
     // Idle State
-    public class IdleState : EnemyStateBase
+    public class IdleState : EntityStateBase<EnemyController>
     {
 
         public IdleState(EnemyController controller) : base(controller)

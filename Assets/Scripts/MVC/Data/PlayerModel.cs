@@ -12,7 +12,7 @@ namespace Model
         public int GetMaxHealth() => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
         
-        public event Action OnPlayerDeath;
+        public static event Action OnPlayerDeath;
 
         public PlayerModel(int attack, int maxHealth)
         {

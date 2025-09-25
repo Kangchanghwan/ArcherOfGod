@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Manager;
 using UnityEngine;
 
 namespace Component.Attack
@@ -56,7 +57,7 @@ namespace Component.Attack
                 arrowPrefab,
                 command.StartPoint,
                 Quaternion.Euler(0, 0, -180f),
-                GameManager.Instance.transform
+                    GameManager.Instance.transform
             );
             arrow.damage = command.Damage;
             arrow.duration = command.Duration;

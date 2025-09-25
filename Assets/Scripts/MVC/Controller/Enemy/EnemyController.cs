@@ -8,11 +8,12 @@ using Controller.Entity;
 using Model;
 using UI;
 using UnityEngine;
+using static Model.EnemyModel;
 using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.Enemy
 {
-    public class EnemyController : EntityBase, IDamageable
+    public class EnemyController : EntityControllerBase, IDamageable
     {
         public static event Action OnEnemyDeath;
         
@@ -89,9 +90,17 @@ namespace MVC.Controller.Enemy
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
         }
 
+        public override void AnimationTrigger()
+        {
+            if (StateMachine.CurrentState is EntityStateBase<EnemyController> currentState)
+            {
+                currentState.AnimationTrigger(); 
+            }
+        }
+
         private void OnEnable()
         {
-            _model.OnEnemyDeath += HandleEnemyDeath;
+            EnemyModel.OnEnemyDeath += HandleEnemyDeath;
         }
 
         public void HandleInputSystem(bool onOff)
@@ -112,8 +121,7 @@ namespace MVC.Controller.Enemy
 
         private void OnDisable()
         {
-            // InputManager 관련 코드 제거
-            _model.OnEnemyDeath -= HandleEnemyDeath;
+            EnemyModel.OnEnemyDeath -= HandleEnemyDeath;
         }
 
         // AI 입력 시스템 기반 이동

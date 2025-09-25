@@ -1,15 +1,13 @@
-using Controller.Entity;
+using UnityEngine;
 using Util;
 
-public class GameManager : Singleton<GameManager>
+namespace Manager
 {
-    public ITargetable PlayerOfTarget { get; private set; }
-    public ITargetable EnemyOfTarget { get; private set; }
-
-    private void Start()
+    public class GameManager : Singleton<GameManager>
     {
-        // PlayerOfTarget = FindAnyObjectByType<EnemyController>();
-        // EnemyOfTarget = FindAnyObjectByType<PlayerController>();
+        protected override void Awake()
+        {
+            base.Awake();
+        }
     }
-    
 }

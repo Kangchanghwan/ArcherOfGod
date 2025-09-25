@@ -1,46 +1,14 @@
 using Component.Skill;
 using Component.SkillSystem;
+using Controller.Entity;
 using Cysharp.Threading.Tasks;
 using Interface;
+using MVC.Controller.Enemy;
 using UnityEngine;
 
 namespace MVC.Controller.Player
 {
-     public abstract class PlayerStateBase : IState
-    {
-        protected readonly PlayerController Controller;
-        protected readonly Animator Animator;
-
-        protected PlayerStateBase(PlayerController controller)
-        {
-            Controller = controller;
-            Animator = Controller.Animator;
-        }
-
-        public bool TriggerCalled { get; private set; }
-
-        public virtual void Enter()
-        {
-            Animator.SetBool(GetAnimationName(), true);
-            TriggerCalled = false;
-        }
-        
-        public virtual void Execute()
-        {
-        }
-    
-        public virtual void Exit()
-        {
-            Animator.SetBool(GetAnimationName(), false);
-        }
-
-
-        public bool AnimationTrigger() => TriggerCalled = true;
-    
-        protected abstract string GetAnimationName();
-    }
-
-    public class AttackState : PlayerStateBase
+    public class AttackState : EntityStateBase<PlayerController>
     {
         private float _attackTimer;
         private bool _hasAttacked;
@@ -79,7 +47,7 @@ namespace MVC.Controller.Player
 
     }
     
-    public class CastingState : PlayerStateBase
+    public class CastingState : EntityStateBase<PlayerController>
     {
         public CastingState(PlayerController controller) : base(controller)
         {
@@ -95,7 +63,7 @@ namespace MVC.Controller.Player
         }
     }
 
-    public class MoveState : PlayerStateBase
+    public class MoveState : EntityStateBase<PlayerController>
     {
         public MoveState(PlayerController controller) : base(controller)
         {
@@ -112,7 +80,7 @@ namespace MVC.Controller.Player
         }
     }
 
-    public class SkillState : PlayerStateBase
+    public class SkillState : EntityStateBase<PlayerController>
     {
         private readonly SkillBase _skill;
         
@@ -145,7 +113,7 @@ namespace MVC.Controller.Player
         }
     }
     // Dead State
-    public class DeadState : PlayerStateBase
+    public class DeadState : EntityStateBase<PlayerController>
     {
         public DeadState(PlayerController controller) : base(controller)
         {
@@ -168,7 +136,7 @@ namespace MVC.Controller.Player
     }
 
     // Idle State
-    public class IdleState : PlayerStateBase
+    public class IdleState : EntityStateBase<PlayerController>
     {
 
         public IdleState(PlayerController controller) : base(controller)

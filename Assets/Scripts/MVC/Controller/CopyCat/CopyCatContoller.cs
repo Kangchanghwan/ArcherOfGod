@@ -12,7 +12,7 @@ using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.CopyCat
 {
-    public class CopyCatController : EntityBase, IDamageable
+    public class CopyCatController : EntityControllerBase, IDamageable
     {
         public static event Action OnCopyCatDeath;
 
@@ -97,6 +97,14 @@ namespace MVC.Controller.CopyCat
             Debug.Assert(uiHealthBar != null);
             Debug.Assert(shotArrow != null);
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
+        }
+
+        public override void AnimationTrigger()
+        {
+            if (StateMachine.CurrentState is EntityStateBase<CopyCatController> currentState)
+            {
+                currentState.AnimationTrigger(); 
+            }
         }
 
         private void OnEnable()

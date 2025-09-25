@@ -8,11 +8,11 @@ namespace Model
         private int _attack;
         private readonly int _maxHealth;
         private int _currentHealth;
-        
+
         public int GetMaxHealth() => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
         
-        public event Action OnEnemyDeath;
+        public static event Action OnEnemyDeath;
 
         public EnemyModel(int attack, int maxHealth)
         {
