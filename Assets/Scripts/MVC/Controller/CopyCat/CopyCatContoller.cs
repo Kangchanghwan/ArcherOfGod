@@ -15,7 +15,7 @@ namespace MVC.Controller.CopyCat
     public class CopyCatController : EntityBase, IDamageable
     {
         public static event Action OnCopyCatDeath;
-        
+
         [Header("CopyCat Model Info")] [SerializeField]
         private int attack;
 
@@ -34,21 +34,21 @@ namespace MVC.Controller.CopyCat
         [Header("CopyCat Unique Settings")] [SerializeField]
         private int healthDrainPerSecond = 10;
 
-        [Header("Component")] 
-        [SerializeField] private UI_HealthBar uiHealthBar;
+        [Header("Component")] [SerializeField] private UI_HealthBar uiHealthBar;
         [SerializeField] private ShotArrow shotArrow;
 
         // AI 시스템 추가
-        [Header("AI System")]
-        [SerializeField] private AIInputSystem aiInputSystem;
+        [Header("AI System")] [SerializeField] private AIInputSystem aiInputSystem;
 
         #region state
+
         // CopyCat도 동일한 State 사용 (또는 CopyCat 전용 State 생성 가능)
         private AttackState _attackState;
         private CastingState _castingState;
         private MoveState _moveState;
         private FadeInState _fadeInState;
         private FadeOutState _fadeOutState;
+
         #endregion
 
         private CopyCatModel _model;
@@ -77,10 +77,10 @@ namespace MVC.Controller.CopyCat
             _moveState = new MoveState(this);
             _fadeInState = new FadeInState(this);
             _fadeOutState = new FadeOutState(this);
-            
+
             uiHealthBar = GetComponent<UI_HealthBar>();
             shotArrow = GetComponent<ShotArrow>();
-            
+
             aiInputSystem = GetComponent<AIInputSystem>();
 
             var skillBases = GetComponentsInChildren<SkillBase>(true);
@@ -104,10 +104,6 @@ namespace MVC.Controller.CopyCat
             _model.OnCopyCatDeath += HandleCopyCatDeath;
         }
 
-        public void HandleInputSystem(bool onOff)
-        {
-            // AI는 InputManager를 사용하지 않으므로 빈 구현
-        }
 
         private void Start()
         {
@@ -160,6 +156,7 @@ namespace MVC.Controller.CopyCat
             );
         }
 
+
         public void AttackReady()
         {
             Animator.SetFloat("AttackSpeed", attackSpeed);
@@ -179,7 +176,7 @@ namespace MVC.Controller.CopyCat
 
         private void HandleCopyCatDeath()
         {
-            Animator.SetTrigger("Dead");
+            StateMachine.ChangeState(_fadeOutState);
             Rigidbody2D.simulated = false;
             OnCopyCatDeath?.Invoke();
         }

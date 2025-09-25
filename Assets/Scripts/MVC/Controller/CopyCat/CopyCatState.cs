@@ -142,7 +142,6 @@ namespace MVC.Controller.CopyCat
         public override void Enter()
         {
             base.Enter();
-            Controller.HandleInputSystem(false);
             Controller.FaceTarget();
             _skill.ExecuteSkill().Forget();
         }
@@ -159,7 +158,6 @@ namespace MVC.Controller.CopyCat
         public override void Exit()
         {
             base.Exit();
-            Controller.HandleInputSystem(true);
         }
     }
 

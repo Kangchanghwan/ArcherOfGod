@@ -91,7 +91,7 @@ namespace Component.Skill
             Vector2 p0 = (Vector2)transform.position + fireOffset;
             Vector2 p1 = p0;
             Vector2 p2 = Target.position;
-            arrow.Duration = arrowSpeed;
+            arrow.duration = arrowSpeed;
             arrow.ShotArrow(p0, p1, p2);
         }
     }

@@ -6,7 +6,7 @@ namespace Component
     public class Arrow : MonoBehaviour
     {
         public float damage;
-        public float Duration { get; set; }
+        public float duration;
     
         [SerializeField] private ParticleSystem particlePrefab;
         [SerializeField] private bool groundVfx;
@@ -103,10 +103,10 @@ namespace Component
             p2.y = -1f;
             _elapsedTime = 0f;
 
-            while (_elapsedTime < Duration)
+            while (_elapsedTime < duration)
             {
                 _elapsedTime += Time.deltaTime;
-                float t = _elapsedTime / Duration;
+                float t = _elapsedTime / duration;
 
                 Vector2 pos = BezierCurve.Quadratic(p0, p1, p2, t);
                 transform.position = pos;

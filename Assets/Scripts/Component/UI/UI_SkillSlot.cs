@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static System.String;
 
-public class UISkillSlot : MonoBehaviour
+public class UI_SkillSlot : MonoBehaviour
 {
     private Image _cooldownImage;
     private TextMeshProUGUI _countDownText;

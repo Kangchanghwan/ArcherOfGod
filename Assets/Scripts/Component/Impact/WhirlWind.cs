@@ -15,6 +15,7 @@ namespace Component.Impact
         [SerializeField] private float pullStrength = 0.5f;
         [SerializeField] private float randomness = 0.5f;
         [SerializeField] private float whirlDuration = 10f;
+        [SerializeField] private float arrowsDuration = 1f;
 
 
         private readonly List<Arrow> _arrows = new();
@@ -81,7 +82,7 @@ namespace Component.Impact
             Vector2 target = _target.position;
             Vector2 p2 = target; 
             //new Vector2(Random.Range(-3f, 3f), 0f);
-
+            arrow.duration = arrowsDuration;
             arrow.ShotArrow(p0, p1, p2);
         }
 

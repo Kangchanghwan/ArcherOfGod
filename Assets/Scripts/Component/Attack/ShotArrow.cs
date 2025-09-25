@@ -59,7 +59,7 @@ namespace Component.Attack
                 GameManager.Instance.transform
             );
             arrow.damage = command.Damage;
-            arrow.Duration = command.Duration;
+            arrow.duration = command.Duration;
             BezierArrow(arrow, command.StartPoint, command.EndPoint);
             arrows.Enqueue(arrow);
         }

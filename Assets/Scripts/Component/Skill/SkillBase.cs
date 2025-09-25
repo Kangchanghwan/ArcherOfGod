@@ -29,10 +29,10 @@ namespace Component.Skill
 
     public abstract class SkillBase : MonoBehaviour
     {
-        public static event Action<SkillEventArgs> OnSkillCooldownStarted;
 
         [Header("General detail")]
         [SerializeField] private float cooldown;
+        [SerializeField] private UI_SkillSlot skillSlot;
 
         public SkillType SkillType { get; protected set; }
         public string AnimationName { get; protected set; }
@@ -48,7 +48,7 @@ namespace Component.Skill
 
         private void Start()
         {
-            OnSkillCooldownStarted?.Invoke(new SkillEventArgs(SkillType, cooldown));
+            skillSlot?.StartCooldown(cooldown);
         }
 
         public virtual void Initialize(Rigidbody2D rigidbody, Animator anim, Transform target)
@@ -107,7 +107,7 @@ namespace Component.Skill
         public void SetSkillOnCooldown()
         {
             _lastTimeUsed = Time.time;
-            OnSkillCooldownStarted?.Invoke(new SkillEventArgs(SkillType, cooldown));
+            skillSlot?.StartCooldown(cooldown);
         }
 
         public abstract UniTask SkillTask(CancellationToken cancellationToken);

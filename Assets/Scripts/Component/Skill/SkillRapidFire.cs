@@ -55,7 +55,7 @@ namespace Component.Skill
             Vector2 p1 = Vector2.up * 7f;
             Vector2 targetPosition = Target.transform.position;
             Vector2 p2 = new Vector2(targetPosition.x + UnityEngine.Random.Range(0f, 3f), targetPosition.y);
-            arrow.Duration = arrowSpeed;
+            arrow.duration = arrowSpeed;
             arrow.ShotArrow(p0, p1, p2);
         }
     }
