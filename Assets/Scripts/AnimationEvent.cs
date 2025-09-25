@@ -1,13 +1,12 @@
-using System;
-using System.SkillSystem;
-using Component.StateSystem;
+using Component.Skill;
+using Component.SkillSystem;
 using Controller.Entity;
 using UnityEngine;
 
 public class AnimationEvent : MonoBehaviour
 {
     [SerializeField]
-    private SkillJumpShootV2 skillJumpShoot;
+    private SkillJumpShoot skillJumpShoot;
     private EntityBase _entity;
 
     private void Start()

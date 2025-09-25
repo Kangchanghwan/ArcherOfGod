@@ -1,0 +1,171 @@
+using System;
+using System.Collections.Generic;
+using Component.Attack;
+using Component.Input;
+using Component.Skill;
+using Component.SkillSystem;
+using Controller.Entity;
+using Model;
+using UI;
+using UnityEngine;
+using StateMachine = Component.StateSystem.StateMachine;
+
+namespace MVC.Controller.Enemy
+{
+    public class EnemyController : EntityBase, IDamageable
+    {
+        public static event Action OnEnemyDeath;
+        
+        [Header("Enemy Model Info")] [SerializeField]
+        private int attack;
+
+        [SerializeField] private int maxHealth;
+
+        [Header("Enemy Attack Info")] [SerializeField]
+        private float attackSpeed = 1f;
+
+        [SerializeField] private Vector2 firePointOffset;
+        [SerializeField] private float arrowSpeed;
+        [SerializeField] private float attackDelay = 0.62f;
+
+        [Space] [Header("Enemy Move Info")] [SerializeField]
+        private float moveSpeed = 10f;
+
+        [Header("Component")] 
+        [SerializeField] private UI_HealthBar uiHealthBar;
+        [SerializeField] private ShotArrow shotArrow;
+
+        // AI 시스템 추가
+        [Header("AI System")]
+        [SerializeField] private AIInputSystem aiInputSystem;
+
+        #region state
+        // Enemy 전용 State 클래스들로 변경
+        private AttackState _attackState;
+        private CastingState _castingState;
+        private MoveState _moveState;
+        #endregion
+
+        private EnemyModel _model;
+        private Dictionary<SkillType, SkillBase> _skills = new();
+
+        // AI 입력 시스템 기반으로 변경
+        public bool IsOnMove => Mathf.Abs(aiInputSystem.HorizontalInput) > 0.1f;
+        public float AttackDelay => attackDelay;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            _model = new EnemyModel(
+                attack: attack,
+                maxHealth: maxHealth
+            );
+
+            StateMachine = new StateMachine();
+            // Enemy 전용 State로 교체
+            _attackState = new AttackState(this);
+            _castingState = new CastingState(this);
+            _moveState = new MoveState(this);
+
+            uiHealthBar = GetComponent<UI_HealthBar>();
+            shotArrow = GetComponent<ShotArrow>();
+            
+
+            aiInputSystem = GetComponent<AIInputSystem>();
+
+            var skillBases = GetComponentsInChildren<SkillBase>(true);
+            foreach (var skill in skillBases)
+            {
+                skill.Initialize(
+                    rigidbody: Rigidbody2D,
+                    anim: Animator,
+                    target: Target
+                );
+                _skills.Add(skill.SkillType, skill);
+            }
+
+            Debug.Assert(uiHealthBar != null);
+            Debug.Assert(shotArrow != null);
+            Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
+        }
+
+        private void OnEnable()
+        {
+            _model.OnEnemyDeath += HandleEnemyDeath;
+        }
+
+        public void HandleInputSystem(bool onOff)
+        {
+            // AI는 InputManager를 사용하지 않으므로 빈 구현
+        }
+
+        private void Start()
+        {
+            StateMachine.Initialize(_castingState);
+        }
+
+        private void Update()
+        {
+            StateMachine.CurrentState.Execute();
+        }
+
+
+        private void OnDisable()
+        {
+            // InputManager 관련 코드 제거
+            _model.OnEnemyDeath -= HandleEnemyDeath;
+        }
+
+        // AI 입력 시스템 기반 이동
+        public void ExecuteMove()
+        {
+            float xInput = aiInputSystem != null ? aiInputSystem.HorizontalInput : 0f;
+            FlipController(xInput);
+            var movement = new Vector2(xInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
+            Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
+        }
+
+        public void TakeDamage(float damage)
+        {
+            _model.TakeDamage((int)damage);
+            uiHealthBar.UpdateHealthBar(
+                currentHealth: _model.GetCurrentHealth(),
+                maxHealth: _model.GetMaxHealth()
+            );
+        }
+
+        public void AttackReady()
+        {
+            Animator.SetFloat("AttackSpeed", attackSpeed);
+            FaceTarget();
+        }
+
+        public void ExecuteAttack()
+        {
+            // 화살 공격 실행
+            shotArrow.Attack(new ShotArrowCommand(
+                damage: attack,
+                duration: arrowSpeed,
+                startPoint: (Vector2)transform.position + firePointOffset,
+                endPoint: Target
+            ));
+        }
+
+        private void HandleEnemyDeath()
+        {
+            Animator.SetTrigger("Dead");
+            Rigidbody2D.simulated = false;
+            OnEnemyDeath?.Invoke();
+        }
+
+        private void HandlePlayerDeath()
+        {
+            Animator.SetTrigger("Idle");
+            Rigidbody2D.simulated = false;
+        }
+
+        public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
+        public void ChangeAttackState() => StateMachine.ChangeState(_attackState);
+        public void ChangeCastingState() => StateMachine.ChangeState(_castingState);
+    }
+}
