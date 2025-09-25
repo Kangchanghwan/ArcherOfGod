@@ -1,4 +1,6 @@
+using Component.StateSystem;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Controller.Entity
 {
@@ -8,7 +10,9 @@ namespace Controller.Entity
         public Transform Target;
         public Rigidbody2D Rigidbody2D;
         public Animator Animator;
-    
+
+        public StateMachine StateMachine { get; protected set; }
+
         private bool _facingTarget;
     
         protected virtual void Awake()
@@ -49,5 +53,7 @@ namespace Controller.Entity
             scale.x *= -1;
             transform.localScale = scale;
         }
+
+        public void AnimationTrigger() => StateMachine.TriggerCalled();
     }
 }

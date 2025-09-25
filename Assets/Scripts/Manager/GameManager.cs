@@ -10,7 +10,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        PlayerOfTarget = FindAnyObjectByType<Enemy>();
+        // PlayerOfTarget = FindAnyObjectByType<EnemyController>();
         // EnemyOfTarget = FindAnyObjectByType<PlayerController>();
     }
     

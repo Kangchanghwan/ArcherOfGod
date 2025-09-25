@@ -1,8 +1,11 @@
+using System;
 using System.AttackSystem;
 using System.Collections;
 using System.Collections.Generic;
+using System.InputSystem;
 using System.SkillSystem;
 using System.Threading;
+using Component.Entity;
 using Cysharp.Threading.Tasks;
 using Model;
 using UnityEngine;
@@ -10,58 +13,66 @@ using StateMachine = Component.StateSystem.StateMachine;
 
 namespace Controller.Entity
 {
-    public class PlayerController : EntityBase, IDamageable
+    public class EnemyController : EntityBase, IDamageable
     {
-        [Header("Player Model Info")] [SerializeField]
+        public static event Action OnEnemyDeath;
+        
+        [Header("Enemy Model Info")] [SerializeField]
         private int attack;
 
         [SerializeField] private int maxHealth;
 
-        [Header("Player Attack Info")] [SerializeField]
+        [Header("Enemy Attack Info")] [SerializeField]
         private float attackSpeed = 1f;
 
         [SerializeField] private Vector2 firePointOffset;
         [SerializeField] private float arrowSpeed;
         [SerializeField] private float attackDelay = 0.62f;
 
-        [Space] [Header("Player Move Info")] [SerializeField]
+        [Space] [Header("Enemy Move Info")] [SerializeField]
         private float moveSpeed = 10f;
 
-        [Header("Component")] [SerializeField] private HealthSystem healthSystem;
+        [Header("Component")] 
+        [SerializeField] private HealthSystem healthSystem;
         [SerializeField] private ShotArrow shotArrow;
 
+        // AI 시스템 추가
+        [Header("AI System")]
+        [SerializeField] private AIInputSystem aiInputSystem;
+
         #region state
-
-        private Component.Entity.AttackState _attackState;
-        private Component.Entity.CastingState _castingState;
-        private Component.Entity.MoveState _moveState;
-
+        // Enemy 전용 State 클래스들로 변경
+        private AttackState _attackState;
+        private CastingState _castingState;
+        private MoveState _moveState;
         #endregion
 
-        private PlayerModel _model;
-        private InputManager _inputManager;
+        private EnemyModel _model;
         private Dictionary<SkillType, SkillBaseV2> _skills = new();
-        private float _xInput;
-        
-        public bool IsOnMove => Mathf.Abs(_xInput) > 0.1f;
+
+        // AI 입력 시스템 기반으로 변경
+        public bool IsOnMove => Mathf.Abs(aiInputSystem.HorizontalInput) > 0.1f;
         public float AttackDelay => attackDelay;
 
         protected override void Awake()
         {
             base.Awake();
-            _model = new PlayerModel(
+            _model = new EnemyModel(
                 attack: attack,
                 maxHealth: maxHealth
             );
-            _inputManager = new InputManager();
 
             StateMachine = new StateMachine();
-            _attackState = new(this);
-            _castingState = new(this);
-            _moveState = new(this);
+            // Enemy 전용 State로 교체
+            _attackState = new AttackState(this);
+            _castingState = new CastingState(this);
+            _moveState = new MoveState(this);
 
             healthSystem = GetComponent<HealthSystem>();
             shotArrow = GetComponent<ShotArrow>();
+            
+
+            aiInputSystem = GetComponent<AIInputSystem>();
 
             var skillBases = GetComponentsInChildren<SkillBaseV2>(true);
             foreach (var skill in skillBases)
@@ -74,27 +85,19 @@ namespace Controller.Entity
                 _skills.Add(skill.SkillType, skill);
             }
 
-
             Debug.Assert(healthSystem != null);
             Debug.Assert(shotArrow != null);
+            Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
         }
-
 
         private void OnEnable()
         {
-            HandleInputSystem(true);
-            _inputManager.Controller.Move.performed += ctx => _xInput = ctx.ReadValue<float>();
-            _inputManager.Controller.Move.canceled += _ => _xInput = 0f;
-
-            _model.OnPlayerDeath += HandlePlayerDeath;
+            _model.OnEnemyDeath += HandleEnemyDeath;
         }
 
         public void HandleInputSystem(bool onOff)
         {
-            if (onOff)
-                _inputManager.Enable();
-            else
-                _inputManager.Disable();
+            // AI는 InputManager를 사용하지 않으므로 빈 구현
         }
 
         private void Start()
@@ -105,40 +108,21 @@ namespace Controller.Entity
         private void Update()
         {
             StateMachine.CurrentState.Execute();
-            HandleOnSkillInput();
         }
 
-        private void HandleOnSkillInput()
-        {
-            SkillBaseV2 skill = null;
-
-            if (_inputManager.Controller.Skill_1.WasPerformedThisFrame())
-                skill = _skills[SkillType.JumpShoot];
-            if (_inputManager.Controller.Skill_2.WasPerformedThisFrame())
-                skill = _skills[SkillType.BombShoot];
-            if (_inputManager.Controller.Skill_3.WasPerformedThisFrame())
-                skill = _skills[SkillType.RepidFire];
-            if (_inputManager.Controller.Skill_4.WasPerformedThisFrame())
-                skill = _skills[SkillType.WhirlWind];
-            if (_inputManager.Controller.Skill_5.WasPerformedThisFrame())
-                skill = _skills[SkillType.CopyCat];
-            
-            if (skill == null) return;
-            if (skill.CanUseSkill() == false) return;
-            
-            StateMachine.ChangeState(new Component.Entity.SkillState(this, skill));
-        }
 
         private void OnDisable()
         {
-            HandleInputSystem(false);
-            _model.OnPlayerDeath -= HandlePlayerDeath;
+            // InputManager 관련 코드 제거
+            _model.OnEnemyDeath -= HandleEnemyDeath;
         }
 
+        // AI 입력 시스템 기반 이동
         public void ExecuteMove()
         {
-            FlipController(_xInput);
-            var movement = new Vector2(_xInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
+            float xInput = aiInputSystem != null ? aiInputSystem.HorizontalInput : 0f;
+            FlipController(xInput);
+            var movement = new Vector2(xInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
             Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         }
 
@@ -168,20 +152,18 @@ namespace Controller.Entity
             ));
         }
 
-        private void HandlePlayerDeath()
+        private void HandleEnemyDeath()
         {
             Animator.SetTrigger("Dead");
             Rigidbody2D.simulated = false;
+            OnEnemyDeath?.Invoke();
         }
 
-        private void HandleEnemyDeath()
+        private void HandlePlayerDeath()
         {
             Animator.SetTrigger("Idle");
             Rigidbody2D.simulated = false;
         }
-
-        // protected override Transform SetTarget() => GameManager.Instance.PlayerOfTarget.GetTransform();
-        public Transform GetTransform() => transform;
 
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
         public void ChangeAttackState() => StateMachine.ChangeState(_attackState);
