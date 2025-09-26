@@ -52,13 +52,13 @@ namespace Component.Skill
             skillSlot?.StartCooldown(cooldown);
         }
 
-        public virtual void Initialize(Rigidbody2D rigidbody, Animator anim, Transform target)
+        public virtual void Initialize(Rigidbody2D rigidbody, Animator anim)
         {
             this.Rigidbody2D = rigidbody;
             this.Anim = anim;
-            this.Target = target;
         }
 
+        public void SetTarget(Transform target) => Target = target;
         public bool CanUseSkill() => !OnCooldown();
 
         public void CancelSkill()

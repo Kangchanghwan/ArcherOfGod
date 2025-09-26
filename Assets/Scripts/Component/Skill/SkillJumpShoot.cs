@@ -20,9 +20,9 @@ namespace Component.Skill
         private bool _left;
 
 
-        public override void Initialize(Rigidbody2D rigidbody, Animator anim, Transform target)
+        public override void Initialize(Rigidbody2D rigidbody, Animator anim)
         {
-            base.Initialize(rigidbody, anim, target);
+            base.Initialize(rigidbody, anim);
             SkillType = SkillType.JumpShoot;
             AnimationName = "JumpShoot";
         }

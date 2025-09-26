@@ -1,4 +1,5 @@
 using System;
+using Controller.Entity;
 using UnityEngine;
 
 namespace Model
@@ -28,7 +29,6 @@ namespace Model
             TakeDamage(_healthDrainPerSecond);
             Debug.Log($"CopyCat health drained by {_healthDrainPerSecond}");
         }
-        
         private void Die() => OnDeath?.Invoke();
 
         public void TakeDamage(int amount)

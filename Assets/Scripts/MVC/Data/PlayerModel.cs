@@ -1,4 +1,5 @@
 using System;
+using Controller.Entity;
 using UnityEngine;
 
 namespace MVC.Data
@@ -19,7 +20,6 @@ namespace MVC.Data
             _maxHealth = maxHealth;
             _currentHealth = maxHealth;
         }
-
         private void Die() => OnDeath?.Invoke();
 
         public void UpdateCurrentHealth(int amount)

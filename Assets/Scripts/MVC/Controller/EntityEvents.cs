@@ -1,4 +1,6 @@
 using Controller.Entity;
+using Interface;
+using UnityEngine;
 using Util;
 
 namespace MVC.Controller
@@ -26,6 +28,17 @@ namespace MVC.Controller
             Type = type;
         }
     }
+
+    public class OnEntitySpawnEvent : IEvent
+    {
+        public EntityType EntityType { get; }
+        public ICombatable Combatable { get; }
     
+        public OnEntitySpawnEvent(EntityType entityType, ICombatable combatable)
+        {
+            EntityType = entityType;
+            Combatable = combatable;
+        }
+    }
     
 }

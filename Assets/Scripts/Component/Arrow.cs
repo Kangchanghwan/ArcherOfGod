@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using Interface;
 using Manager;
 
 namespace Component
@@ -63,8 +64,8 @@ namespace Component
             if (other.gameObject.layer == LayerMask.NameToLayer("Player") ||
                 other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
             {
-                var damageable = other.GetComponent<IDamageable>();
-                OnDamage(damageable);
+                var combatable = other.GetComponent<ICombatable>();
+                OnDamage(combatable);
                 ArrowParticle();
             }
         }
@@ -85,7 +86,7 @@ namespace Component
             _particle.Play();
         }
 
-        private void OnDamage(IDamageable damageable)
+        private void OnDamage(ICombatable damageable)
         {
             if (damageable == null) return;
             damageable.TakeDamage(damage);

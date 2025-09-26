@@ -13,18 +13,16 @@ namespace Component.SkillSystem
         [SerializeField] private int hp;
         [SerializeField] private float duration;
 
-        public override void Initialize(Rigidbody2D rigidbody, Animator anim, Transform target)
+        public override void Initialize(Rigidbody2D rigidbody, Animator anim)
         {
-            base.Initialize(rigidbody, anim, target);
+            base.Initialize(rigidbody, anim);
             SkillType = SkillType.CopyCat;
             AnimationName = "SkillCasting";
         }
         public override async UniTask SkillTask(CancellationToken cancellationToken)
         {
             await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);
-            var copyCat = Instantiate(cloningObject, transform.position, Quaternion.identity);
-            var copyCatController = copyCat?.GetComponent<CopyCatController>();
-            if (copyCatController != null) copyCatController.Target = Target;
+            Instantiate(cloningObject, transform.position, Quaternion.identity);
         }
     }
 }

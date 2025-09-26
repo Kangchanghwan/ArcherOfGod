@@ -1,3 +1,4 @@
+using Interface;
 using UnityEngine;
 
 namespace Component.Impact
@@ -9,9 +10,9 @@ namespace Component.Impact
             int layer = other.gameObject.layer;
             if (layer == LayerMask.NameToLayer("Player") || layer == LayerMask.NameToLayer("Bot"))
             {
-                var damageAble = other.GetComponent<IDamageable>();
-                if (damageAble == null) return;
-                damageAble.TakeDamage(damage);
+                var combatable = other.GetComponent<ICombatable>();
+                if (combatable == null) return;
+                combatable.TakeDamage(damage);
             }
         }
 

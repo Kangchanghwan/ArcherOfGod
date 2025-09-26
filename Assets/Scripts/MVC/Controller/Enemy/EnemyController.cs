@@ -5,6 +5,7 @@ using Component.Input;
 using Component.Skill;
 using Component.SkillSystem;
 using Controller.Entity;
+using Interface;
 using Model;
 using UI;
 using UnityEngine;
@@ -14,7 +15,7 @@ using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.Enemy
 {
-    public class EnemyController : EntityControllerBase, IDamageable
+    public class EnemyController : EntityControllerBase
     {
         [Header("Enemy Model Info")] [SerializeField]
         private int attack;
@@ -32,6 +33,7 @@ namespace MVC.Controller.Enemy
         private float moveSpeed = 10f;
 
         [Header("Component")] 
+        [SerializeField] private UI_HealthBar uiHealthBar;
         [SerializeField] private ShotArrow shotArrow;
 
         // AI 시스템 추가
@@ -43,6 +45,8 @@ namespace MVC.Controller.Enemy
         private AttackState _attackState;
         private CastingState _castingState;
         private MoveState _moveState;
+        private IdleState _idleState;
+        private DeadState _deadState;
         #endregion
 
         private EnemyModel _model;
@@ -64,24 +68,22 @@ namespace MVC.Controller.Enemy
             _attackState = new AttackState(this);
             _castingState = new CastingState(this);
             _moveState = new MoveState(this);
+            _idleState = new IdleState(this);
+            _deadState = new DeadState(this);
 
             shotArrow = GetComponent<ShotArrow>();
-            
-
+            uiHealthBar = GetComponent<UI_HealthBar>();
             aiInputSystem = GetComponent<AIInputSystem>();
 
             var skillBases = GetComponentsInChildren<SkillBase>(true);
             foreach (var skill in skillBases)
             {
-                skill.Initialize(
-                    rigidbody: Rigidbody2D,
-                    anim: Animator,
-                    target: Target
-                );
-                _skills.Add(skill.SkillType, skill);
+                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
+                _skills.Add(skill.SkillType, skill); 
             }
 
             Debug.Assert(shotArrow != null);
+            Debug.Assert(uiHealthBar != null);
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
         }
 
@@ -96,7 +98,8 @@ namespace MVC.Controller.Enemy
         private void OnEnable()
         {
             _model.OnDeath += HandleOnDeath;
-            _model.OnHealthUpdate += HandleHealthUpdate;
+            EventManager.Publish(
+                new OnEntitySpawnEvent(EntityType.Enemy, this));
         }
 
         public void HandleInputSystem(bool onOff)
@@ -118,7 +121,6 @@ namespace MVC.Controller.Enemy
         private void OnDisable()
         {
             _model.OnDeath -= HandleOnDeath;
-            _model.OnHealthUpdate -= HandleHealthUpdate;
         }
 
         // AI 입력 시스템 기반 이동
@@ -130,9 +132,18 @@ namespace MVC.Controller.Enemy
             Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         }
 
-        public void TakeDamage(float damage)
+        public void SetTarget(Transform transform) => Target = transform;
+
+        public override void TakeDamage(float damage)
         {
             _model.TakeDamage((int)damage);
+            uiHealthBar.UpdateHealthBar(_model.GetCurrentHealth(), _model.GetMaxHealth());
+        }
+
+        public override void TargetOnDead()
+        {
+            StateMachine.ChangeState(_idleState);
+            Rigidbody2D.simulated = false;
         }
 
         public void AttackReady()
@@ -154,18 +165,10 @@ namespace MVC.Controller.Enemy
 
         private void HandleOnDeath()
         {
-            Animator.SetTrigger("Dead");
+            StateMachine.ChangeState(_deadState);
             Rigidbody2D.simulated = false;
             EventManager.Publish(new OnEntityDeathEvent(EntityType.Enemy));
-
         }
-
-        private void HandleHealthUpdate() => EventManager.Publish(
-            new OnHealthUpdateEvent(
-                type: EntityType.Enemy,
-                maxHealth: _model.GetMaxHealth(),
-                currentHealth: _model.GetCurrentHealth())
-        );
 
 
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);

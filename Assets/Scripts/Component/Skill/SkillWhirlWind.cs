@@ -18,9 +18,9 @@ namespace Component.Skill
         [SerializeField] private float whirlDuration = 10f;
         [SerializeField] private float arrowsDuration = 1f;
 
-        public override void Initialize(Rigidbody2D rigidbody, Animator anim, Transform target)
+        public override void Initialize(Rigidbody2D rigidbody, Animator anim)
         {
-            base.Initialize(rigidbody, anim, target);
+            base.Initialize(rigidbody, anim);
             SkillType = SkillType.WhirlWind;
             AnimationName = "WhirlWind";
         }

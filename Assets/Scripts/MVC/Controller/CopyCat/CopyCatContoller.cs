@@ -5,6 +5,7 @@ using Component.Input;
 using Component.Skill;
 using Component.SkillSystem;
 using Controller.Entity;
+using Interface;
 using Model;
 using UI;
 using UnityEngine;
@@ -13,7 +14,7 @@ using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.CopyCat
 {
-    public class CopyCatController : EntityControllerBase, IDamageable
+    public class CopyCatController : EntityControllerBase
     {
 
         [Header("CopyCat Model Info")] [SerializeField]
@@ -30,10 +31,11 @@ namespace MVC.Controller.CopyCat
 
         [Space] [Header("CopyCat Move Info")] [SerializeField]
         private float moveSpeed = 10f;
-
-        [Header("CopyCat Unique Settings")] [SerializeField]
+        [SerializeField]
         private int healthDrainPerSecond = 10;
 
+        [Header("Component")]
+        [SerializeField] private UI_HealthBar uiHealthBar;
         [SerializeField] private ShotArrow shotArrow;
 
         // AI 시스템 추가
@@ -77,20 +79,20 @@ namespace MVC.Controller.CopyCat
             _fadeOutState = new FadeOutState(this);
 
             shotArrow = GetComponent<ShotArrow>();
+            uiHealthBar = GetComponent<UI_HealthBar>();
             aiInputSystem = GetComponent<AIInputSystem>();
+            
 
             var skillBases = GetComponentsInChildren<SkillBase>(true);
             foreach (var skill in skillBases)
             {
-                skill.Initialize(
-                    rigidbody: Rigidbody2D,
-                    anim: Animator,
-                    target: Target
-                );
+                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
                 _skills.Add(skill.SkillType, skill);
             }
+            
 
             Debug.Assert(shotArrow != null);
+            Debug.Assert(uiHealthBar != null);
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
         }
 
@@ -106,6 +108,8 @@ namespace MVC.Controller.CopyCat
         {
             _model.OnDeath += HandleOnDeath;
             _model.OnHealthUpdate += HandleHealthUpdate;
+            EventManager.Publish(
+                new OnEntitySpawnEvent(EntityType.CopyCat, this));
         }
         
 
@@ -148,9 +152,18 @@ namespace MVC.Controller.CopyCat
             Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         }
 
-        public void TakeDamage(float damage)
+        public void SetTarget(Transform transform) => Target = transform;
+
+        public override void TakeDamage(float damage)
         {
             _model.TakeDamage((int)damage);
+            uiHealthBar.UpdateHealthBar(_model.GetCurrentHealth(), _model.GetMaxHealth());
+        }
+
+        public override void TargetOnDead()
+        {
+            StateMachine.ChangeState(_fadeOutState);
+            Rigidbody2D.simulated = false;
         }
 
 

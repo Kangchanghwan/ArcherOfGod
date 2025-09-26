@@ -4,6 +4,7 @@ using Component.Attack;
 using Component.Skill;
 using Component.SkillSystem;
 using Controller.Entity;
+using Interface;
 using Model;
 using MVC.Data;
 using UI;
@@ -13,7 +14,7 @@ using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.Player
 {
-    public class PlayerController : EntityControllerBase, IDamageable
+    public class PlayerController : EntityControllerBase
     {
         [Header("Player Model Info")] [SerializeField]
         private int attack;
@@ -30,7 +31,7 @@ namespace MVC.Controller.Player
         [Space] [Header("Player Move Info")] [SerializeField]
         private float moveSpeed = 10f;
 
-        [Header("Component")] 
+        [Header("Component")] [SerializeField] private UI_HealthBar uiHealthBar;
         [SerializeField] private ShotArrow shotArrow;
 
         #region state
@@ -68,18 +69,16 @@ namespace MVC.Controller.Player
             _deadState = new(this);
 
             shotArrow = GetComponent<ShotArrow>();
+            uiHealthBar = GetComponent<UI_HealthBar>();
 
             var skillBases = GetComponentsInChildren<SkillBase>(true);
             foreach (var skill in skillBases)
             {
-                skill.Initialize(
-                    rigidbody: Rigidbody2D,
-                    anim: Animator,
-                    target: Target
-                );
+                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
                 _skills.Add(skill.SkillType, skill);
             }
 
+            Debug.Assert(uiHealthBar != null);
             Debug.Assert(shotArrow != null);
         }
 
@@ -103,9 +102,11 @@ namespace MVC.Controller.Player
             _inputManager.Controller.Skill_3.performed += _ => TryUseSkill(SkillType.RepidFire);
             _inputManager.Controller.Skill_4.performed += _ => TryUseSkill(SkillType.WhirlWind);
             _inputManager.Controller.Skill_5.performed += _ => TryUseSkill(SkillType.CopyCat);
-            
+
             _model.OnDeath += HandleOnDeath;
             _model.OnHealthUpdate += HandleHealthUpdate;
+            EventManager.Publish(
+                new OnEntitySpawnEvent(EntityType.Player, this));
         }
 
         public void HandleInputSystem(bool onOff)
@@ -133,6 +134,7 @@ namespace MVC.Controller.Player
             if (skill == null) return;
             if (skill.CanUseSkill() == false) return;
 
+            skill.SetTarget(Target);
             StateMachine.ChangeState(new SkillState(this, skill));
         }
 
@@ -150,7 +152,20 @@ namespace MVC.Controller.Player
             Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         }
 
-        public void TakeDamage(float damage) => _model.UpdateCurrentHealth((int)damage);
+
+        public void SetTarget(Transform transform) => Target = transform;
+
+        public override void TakeDamage(float damage)
+        {
+            _model.UpdateCurrentHealth((int)damage);
+            uiHealthBar.UpdateHealthBar(_model.GetCurrentHealth(), _model.GetMaxHealth());
+        }
+
+        public override void TargetOnDead()
+        {
+            StateMachine.ChangeState(_idleState);
+            Rigidbody2D.simulated = false;
+        }
 
         public void AttackReady()
         {

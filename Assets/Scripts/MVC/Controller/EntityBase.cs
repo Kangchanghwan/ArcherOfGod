@@ -1,3 +1,4 @@
+using Interface;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,9 +47,9 @@ namespace Controller.Entity
         protected abstract string GetAnimationName();
     }
 
-    public abstract class EntityControllerBase : MonoBehaviour
+    public abstract class EntityControllerBase : MonoBehaviour, ICombatable
     {
-        [SerializeField] public Transform Target;
+        protected Transform Target;
         public Rigidbody2D Rigidbody2D;
         public Animator Animator;
 
@@ -98,5 +99,11 @@ namespace Controller.Entity
         }
 
         public abstract void AnimationTrigger();
+        
+        public void SetTarget(Transform transform) => Target = transform;
+
+        public abstract void TakeDamage(float damage);
+        public abstract void TargetOnDead();
+
     }
 }
