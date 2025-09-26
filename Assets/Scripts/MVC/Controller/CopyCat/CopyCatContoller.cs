@@ -8,13 +8,13 @@ using Controller.Entity;
 using Model;
 using UI;
 using UnityEngine;
+using Util;
 using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.CopyCat
 {
     public class CopyCatController : EntityControllerBase, IDamageable
     {
-        public static event Action OnCopyCatDeath;
 
         [Header("CopyCat Model Info")] [SerializeField]
         private int attack;
@@ -34,7 +34,6 @@ namespace MVC.Controller.CopyCat
         [Header("CopyCat Unique Settings")] [SerializeField]
         private int healthDrainPerSecond = 10;
 
-        [Header("Component")] [SerializeField] private UI_HealthBar uiHealthBar;
         [SerializeField] private ShotArrow shotArrow;
 
         // AI 시스템 추가
@@ -65,7 +64,6 @@ namespace MVC.Controller.CopyCat
         {
             base.Awake();
             _model = new CopyCatModel(
-                attack: attack,
                 maxHealth: maxHealth,
                 healthDrainPerSecond: healthDrainPerSecond
             );
@@ -78,9 +76,7 @@ namespace MVC.Controller.CopyCat
             _fadeInState = new FadeInState(this);
             _fadeOutState = new FadeOutState(this);
 
-            uiHealthBar = GetComponent<UI_HealthBar>();
             shotArrow = GetComponent<ShotArrow>();
-
             aiInputSystem = GetComponent<AIInputSystem>();
 
             var skillBases = GetComponentsInChildren<SkillBase>(true);
@@ -94,7 +90,6 @@ namespace MVC.Controller.CopyCat
                 _skills.Add(skill.SkillType, skill);
             }
 
-            Debug.Assert(uiHealthBar != null);
             Debug.Assert(shotArrow != null);
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
         }
@@ -109,9 +104,10 @@ namespace MVC.Controller.CopyCat
 
         private void OnEnable()
         {
-            _model.OnCopyCatDeath += HandleCopyCatDeath;
+            _model.OnDeath += HandleOnDeath;
+            _model.OnHealthUpdate += HandleHealthUpdate;
         }
-
+        
 
         private void Start()
         {
@@ -133,17 +129,14 @@ namespace MVC.Controller.CopyCat
             if (_healthDrainTimer >= 1f)
             {
                 _model.DrainHealth();
-                uiHealthBar.UpdateHealthBar(
-                    currentHealth: _model.GetCurrentHealth(),
-                    maxHealth: _model.GetMaxHealth()
-                );
                 _healthDrainTimer = 0f;
             }
         }
 
         private void OnDisable()
         {
-            _model.OnCopyCatDeath -= HandleCopyCatDeath;
+            _model.OnDeath -= HandleOnDeath;
+            _model.OnHealthUpdate -= HandleHealthUpdate;
         }
 
         // AI 입력 시스템 기반 이동
@@ -158,10 +151,6 @@ namespace MVC.Controller.CopyCat
         public void TakeDamage(float damage)
         {
             _model.TakeDamage((int)damage);
-            uiHealthBar.UpdateHealthBar(
-                currentHealth: _model.GetCurrentHealth(),
-                maxHealth: _model.GetMaxHealth()
-            );
         }
 
 
@@ -182,14 +171,20 @@ namespace MVC.Controller.CopyCat
             ));
         }
 
-        private void HandleCopyCatDeath()
+        private void HandleOnDeath()
         {
             StateMachine.ChangeState(_fadeOutState);
             Rigidbody2D.simulated = false;
-            OnCopyCatDeath?.Invoke();
+            EventManager.Publish(new OnEntityDeathEvent(EntityType.CopyCat));
         }
 
-        public Transform GetTransform() => transform;
+        private void HandleHealthUpdate() => EventManager.Publish(
+            new OnHealthUpdateEvent(
+                type: EntityType.CopyCat,
+                maxHealth: _model.GetMaxHealth(),
+                currentHealth: _model.GetCurrentHealth())
+        );
+
 
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
         public void ChangeAttackState() => StateMachine.ChangeState(_attackState);

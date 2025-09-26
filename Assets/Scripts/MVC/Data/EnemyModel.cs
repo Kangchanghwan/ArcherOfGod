@@ -5,23 +5,23 @@ namespace Model
 {
     public class EnemyModel
     {
-        private int _attack;
         private readonly int _maxHealth;
         private int _currentHealth;
 
         public int GetMaxHealth() => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
         
-        public static event Action OnEnemyDeath;
+        public event Action OnDeath;
+        public event Action OnHealthUpdate;
 
-        public EnemyModel(int attack, int maxHealth)
+
+        public EnemyModel(int maxHealth)
         {
-            _attack = attack;
             _maxHealth = maxHealth;
             _currentHealth = maxHealth;
         }
 
-        private void Die() => OnEnemyDeath?.Invoke();
+        private void Die() => OnDeath?.Invoke();
 
         public void TakeDamage(int amount)
         {
@@ -30,8 +30,11 @@ namespace Model
             if(currentHealth == _currentHealth) return;
             
             _currentHealth = currentHealth;
+            OnHealthUpdate?.Invoke();
+            
             if (_currentHealth <= 0)
                 Die();
+
         }
 
     }

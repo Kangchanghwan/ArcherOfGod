@@ -6,6 +6,13 @@ using StateMachine = Component.StateSystem.StateMachine;
 
 namespace Controller.Entity
 {
+    public enum EntityType
+    {
+        Player,
+        Enemy,
+        CopyCat
+    }
+    
     public abstract class EntityStateBase<T> : IState where T : EntityControllerBase
     {
         protected readonly T Controller;

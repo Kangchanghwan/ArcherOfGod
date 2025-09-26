@@ -1,35 +1,36 @@
 using System;
 using UnityEngine;
 
-namespace Model
+namespace MVC.Data
 {
-    public class PlayerModel
+    public class PlayerModel 
     {
-        private int _attack;
         private readonly int _maxHealth;
         private int _currentHealth;
         
         public int GetMaxHealth() => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
         
-        public static event Action OnPlayerDeath;
+        public event Action OnDeath;
+        public event Action OnHealthUpdate;
 
-        public PlayerModel(int attack, int maxHealth)
+        public PlayerModel(int maxHealth)
         {
-            _attack = attack;
             _maxHealth = maxHealth;
             _currentHealth = maxHealth;
         }
 
-        private void Die() => OnPlayerDeath?.Invoke();
+        private void Die() => OnDeath?.Invoke();
 
-        public void TakeDamage(int amount)
+        public void UpdateCurrentHealth(int amount)
         {
             var currentHealth = Mathf.Max(_currentHealth - amount, 0);
          
             if(currentHealth == _currentHealth) return;
             
             _currentHealth = currentHealth;
+            OnHealthUpdate?.Invoke();
+            
             if (_currentHealth <= 0)
                 Die();
         }

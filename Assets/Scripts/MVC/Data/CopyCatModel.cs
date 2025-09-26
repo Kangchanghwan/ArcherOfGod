@@ -5,7 +5,6 @@ namespace Model
 {
     public class CopyCatModel
     {
-        private int _attack;
         private readonly int _maxHealth;
         private int _currentHealth;
         private readonly int _healthDrainPerSecond;
@@ -14,12 +13,12 @@ namespace Model
         public int GetMaxHealth() => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
         
-        public event Action OnCopyCatDeath;
+        public event Action OnDeath;
+        public event Action OnHealthUpdate;
         
 
-        public CopyCatModel(int attack, int maxHealth, int healthDrainPerSecond)
+        public CopyCatModel( int maxHealth, int healthDrainPerSecond)
         {
-            _attack = attack;
             _maxHealth = maxHealth;
             _currentHealth = maxHealth;
             _healthDrainPerSecond = healthDrainPerSecond;
@@ -30,7 +29,7 @@ namespace Model
             Debug.Log($"CopyCat health drained by {_healthDrainPerSecond}");
         }
         
-        private void Die() => OnCopyCatDeath?.Invoke();
+        private void Die() => OnDeath?.Invoke();
 
         public void TakeDamage(int amount)
         {
@@ -39,6 +38,8 @@ namespace Model
             if(currentHealth == _currentHealth) return;
             
             _currentHealth = currentHealth;
+            OnHealthUpdate?.Invoke();
+            
             if (_currentHealth <= 0)
                 Die();
         }

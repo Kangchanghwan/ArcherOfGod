@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
 using Component.Attack;
 using Component.Skill;
 using Component.SkillSystem;
 using Controller.Entity;
 using Model;
+using MVC.Data;
 using UI;
 using UnityEngine;
+using Util;
 using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.Player
@@ -27,7 +30,7 @@ namespace MVC.Controller.Player
         [Space] [Header("Player Move Info")] [SerializeField]
         private float moveSpeed = 10f;
 
-        [Header("Component")] [SerializeField] private UI_HealthBar uiHealthBar;
+        [Header("Component")] 
         [SerializeField] private ShotArrow shotArrow;
 
         #region state
@@ -35,14 +38,16 @@ namespace MVC.Controller.Player
         private AttackState _attackState;
         private CastingState _castingState;
         private MoveState _moveState;
+        private IdleState _idleState;
+        private DeadState _deadState;
 
         #endregion
 
         private PlayerModel _model;
         private InputManager _inputManager;
-        private Dictionary<SkillType, SkillBase> _skills = new();
+        private readonly Dictionary<SkillType, SkillBase> _skills = new();
         private float _xInput;
-        
+
         public bool IsOnMove => Mathf.Abs(_xInput) > 0.1f;
         public float AttackDelay => attackDelay;
 
@@ -50,17 +55,18 @@ namespace MVC.Controller.Player
         {
             base.Awake();
             _model = new PlayerModel(
-                attack: attack,
                 maxHealth: maxHealth
             );
-            _inputManager = new InputManager();
 
+            _inputManager = new InputManager();
             StateMachine = new StateMachine();
+
             _attackState = new(this);
             _castingState = new(this);
             _moveState = new(this);
+            _idleState = new(this);
+            _deadState = new(this);
 
-            uiHealthBar = GetComponent<UI_HealthBar>();
             shotArrow = GetComponent<ShotArrow>();
 
             var skillBases = GetComponentsInChildren<SkillBase>(true);
@@ -74,8 +80,6 @@ namespace MVC.Controller.Player
                 _skills.Add(skill.SkillType, skill);
             }
 
-
-            Debug.Assert(uiHealthBar != null);
             Debug.Assert(shotArrow != null);
         }
 
@@ -83,7 +87,7 @@ namespace MVC.Controller.Player
         {
             if (StateMachine.CurrentState is EntityStateBase<PlayerController> currentState)
             {
-                currentState.AnimationTrigger(); 
+                currentState.AnimationTrigger();
             }
         }
 
@@ -94,7 +98,14 @@ namespace MVC.Controller.Player
             _inputManager.Controller.Move.performed += ctx => _xInput = ctx.ReadValue<float>();
             _inputManager.Controller.Move.canceled += _ => _xInput = 0f;
 
-            PlayerModel.OnPlayerDeath += HandlePlayerDeath;
+            _inputManager.Controller.Skill_1.performed += _ => TryUseSkill(SkillType.JumpShoot);
+            _inputManager.Controller.Skill_2.performed += _ => TryUseSkill(SkillType.BombShoot);
+            _inputManager.Controller.Skill_3.performed += _ => TryUseSkill(SkillType.RepidFire);
+            _inputManager.Controller.Skill_4.performed += _ => TryUseSkill(SkillType.WhirlWind);
+            _inputManager.Controller.Skill_5.performed += _ => TryUseSkill(SkillType.CopyCat);
+            
+            _model.OnDeath += HandleOnDeath;
+            _model.OnHealthUpdate += HandleHealthUpdate;
         }
 
         public void HandleInputSystem(bool onOff)
@@ -113,34 +124,23 @@ namespace MVC.Controller.Player
         private void Update()
         {
             StateMachine.CurrentState.Execute();
-            HandleOnSkillInput();
         }
 
-        private void HandleOnSkillInput()
+        private void TryUseSkill(SkillType skillType)
         {
-            SkillBase skill = null;
+            SkillBase skill = _skills[skillType];
 
-            if (_inputManager.Controller.Skill_1.WasPerformedThisFrame())
-                skill = _skills[SkillType.JumpShoot];
-            if (_inputManager.Controller.Skill_2.WasPerformedThisFrame())
-                skill = _skills[SkillType.BombShoot];
-            if (_inputManager.Controller.Skill_3.WasPerformedThisFrame())
-                skill = _skills[SkillType.RepidFire];
-            if (_inputManager.Controller.Skill_4.WasPerformedThisFrame())
-                skill = _skills[SkillType.WhirlWind];
-            if (_inputManager.Controller.Skill_5.WasPerformedThisFrame())
-                skill = _skills[SkillType.CopyCat];
-            
             if (skill == null) return;
             if (skill.CanUseSkill() == false) return;
-            
+
             StateMachine.ChangeState(new SkillState(this, skill));
         }
 
         private void OnDisable()
         {
             HandleInputSystem(false);
-            PlayerModel.OnPlayerDeath -= HandlePlayerDeath;
+            _model.OnDeath -= HandleOnDeath;
+            _model.OnHealthUpdate -= HandleHealthUpdate;
         }
 
         public void ExecuteMove()
@@ -150,14 +150,7 @@ namespace MVC.Controller.Player
             Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         }
 
-        public void TakeDamage(float damage)
-        {
-            _model.TakeDamage((int)damage);
-            uiHealthBar.UpdateHealthBar(
-                currentHealth: _model.GetCurrentHealth(),
-                maxHealth: _model.GetMaxHealth()
-            );
-        }
+        public void TakeDamage(float damage) => _model.UpdateCurrentHealth((int)damage);
 
         public void AttackReady()
         {
@@ -176,23 +169,23 @@ namespace MVC.Controller.Player
             ));
         }
 
-        private void HandlePlayerDeath()
+        private void HandleOnDeath()
         {
-            Animator.SetTrigger("Dead");
+            StateMachine.ChangeState(_deadState);
             Rigidbody2D.simulated = false;
+            EventManager.Publish(new OnEntityDeathEvent(EntityType.Player));
         }
 
-        private void HandleEnemyDeath()
-        {
-            Animator.SetTrigger("Idle");
-            Rigidbody2D.simulated = false;
-        }
-
-        // protected override Transform SetTarget() => GameManager.Instance.PlayerOfTarget.GetTransform();
-        public Transform GetTransform() => transform;
+        private void HandleHealthUpdate() => EventManager.Publish(
+            new OnHealthUpdateEvent(
+                type: EntityType.Player,
+                maxHealth: _model.GetMaxHealth(),
+                currentHealth: _model.GetCurrentHealth())
+        );
 
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
         public void ChangeAttackState() => StateMachine.ChangeState(_attackState);
         public void ChangeCastingState() => StateMachine.ChangeState(_castingState);
+        public void ChangeIdleState() => StateMachine.ChangeState(_idleState);
     }
 }

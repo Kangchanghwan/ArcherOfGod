@@ -8,6 +8,7 @@ using Controller.Entity;
 using Model;
 using UI;
 using UnityEngine;
+using Util;
 using static Model.EnemyModel;
 using StateMachine = Component.StateSystem.StateMachine;
 
@@ -15,8 +16,6 @@ namespace MVC.Controller.Enemy
 {
     public class EnemyController : EntityControllerBase, IDamageable
     {
-        public static event Action OnEnemyDeath;
-        
         [Header("Enemy Model Info")] [SerializeField]
         private int attack;
 
@@ -33,7 +32,6 @@ namespace MVC.Controller.Enemy
         private float moveSpeed = 10f;
 
         [Header("Component")] 
-        [SerializeField] private UI_HealthBar uiHealthBar;
         [SerializeField] private ShotArrow shotArrow;
 
         // AI 시스템 추가
@@ -58,7 +56,6 @@ namespace MVC.Controller.Enemy
         {
             base.Awake();
             _model = new EnemyModel(
-                attack: attack,
                 maxHealth: maxHealth
             );
 
@@ -68,7 +65,6 @@ namespace MVC.Controller.Enemy
             _castingState = new CastingState(this);
             _moveState = new MoveState(this);
 
-            uiHealthBar = GetComponent<UI_HealthBar>();
             shotArrow = GetComponent<ShotArrow>();
             
 
@@ -85,7 +81,6 @@ namespace MVC.Controller.Enemy
                 _skills.Add(skill.SkillType, skill);
             }
 
-            Debug.Assert(uiHealthBar != null);
             Debug.Assert(shotArrow != null);
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
         }
@@ -100,7 +95,8 @@ namespace MVC.Controller.Enemy
 
         private void OnEnable()
         {
-            EnemyModel.OnEnemyDeath += HandleEnemyDeath;
+            _model.OnDeath += HandleOnDeath;
+            _model.OnHealthUpdate += HandleHealthUpdate;
         }
 
         public void HandleInputSystem(bool onOff)
@@ -121,7 +117,8 @@ namespace MVC.Controller.Enemy
 
         private void OnDisable()
         {
-            EnemyModel.OnEnemyDeath -= HandleEnemyDeath;
+            _model.OnDeath -= HandleOnDeath;
+            _model.OnHealthUpdate -= HandleHealthUpdate;
         }
 
         // AI 입력 시스템 기반 이동
@@ -136,10 +133,6 @@ namespace MVC.Controller.Enemy
         public void TakeDamage(float damage)
         {
             _model.TakeDamage((int)damage);
-            uiHealthBar.UpdateHealthBar(
-                currentHealth: _model.GetCurrentHealth(),
-                maxHealth: _model.GetMaxHealth()
-            );
         }
 
         public void AttackReady()
@@ -159,18 +152,21 @@ namespace MVC.Controller.Enemy
             ));
         }
 
-        private void HandleEnemyDeath()
+        private void HandleOnDeath()
         {
             Animator.SetTrigger("Dead");
             Rigidbody2D.simulated = false;
-            OnEnemyDeath?.Invoke();
+            EventManager.Publish(new OnEntityDeathEvent(EntityType.Enemy));
+
         }
 
-        private void HandlePlayerDeath()
-        {
-            Animator.SetTrigger("Idle");
-            Rigidbody2D.simulated = false;
-        }
+        private void HandleHealthUpdate() => EventManager.Publish(
+            new OnHealthUpdateEvent(
+                type: EntityType.Enemy,
+                maxHealth: _model.GetMaxHealth(),
+                currentHealth: _model.GetCurrentHealth())
+        );
+
 
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
         public void ChangeAttackState() => StateMachine.ChangeState(_attackState);
