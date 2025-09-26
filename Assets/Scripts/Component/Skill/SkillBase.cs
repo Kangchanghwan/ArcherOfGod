@@ -47,15 +47,12 @@ namespace Component.Skill
         protected CancellationTokenSource CurrentSkillCancellationToken;
         private readonly Queue<GameObject> _pools = new Queue<GameObject>();
 
-        private void Start()
-        {
-            skillSlot?.StartCooldown(cooldown);
-        }
 
         public virtual void Initialize(Rigidbody2D rigidbody, Animator anim)
         {
             this.Rigidbody2D = rigidbody;
             this.Anim = anim;
+            skillSlot?.StartCooldown(cooldown);
         }
 
         public void SetTarget(Transform target) => Target = target;

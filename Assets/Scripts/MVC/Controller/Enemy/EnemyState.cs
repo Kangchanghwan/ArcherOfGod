@@ -154,8 +154,14 @@ namespace MVC.Controller.Enemy
             base.Enter();
             if (Controller.Rigidbody2D != null)
                 Controller.Rigidbody2D.simulated = false;
+            
         }
         protected override string GetAnimationName() => "Idle";
+        public override void Exit()
+        {
+            base.Exit();
+            Controller.Rigidbody2D.simulated = true;
+        }
 
     }
 }

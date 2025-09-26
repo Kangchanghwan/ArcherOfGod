@@ -314,43 +314,4 @@ namespace MVC.Controller.CopyCat
             }
         }
     }
-
-    // Dead State
-    public class DeadState : EntityStateBase<CopyCatController>
-    {
-        public DeadState(CopyCatController controller) : base(controller)
-        {
-        }
-
-        protected override string GetAnimationName() => "Dead";
-
-        public override void Enter()
-        {
-            base.Enter();
-            if (Controller.Rigidbody2D != null)
-                Controller.Rigidbody2D.simulated = false;
-        }
-
-        public override void Execute()
-        {
-            base.Execute();
-            // 죽음 상태에서는 아무것도 하지 않음
-        }
-    }
-
-    // Idle State
-    public class IdleState : EntityStateBase<CopyCatController>
-    {
-        public IdleState(CopyCatController controller) : base(controller)
-        {
-        }
-        public override void Enter()
-        {
-            base.Enter();
-            if (Controller.Rigidbody2D != null)
-                Controller.Rigidbody2D.simulated = false;
-        }
-        protected override string GetAnimationName() => "Idle";
-
-    }
 }

@@ -29,7 +29,7 @@ namespace MVC.Controller
         }
     }
 
-    public class OnEntitySpawnEvent : IEvent
+    public struct OnEntitySpawnEvent : IEvent
     {
         public EntityType EntityType { get; }
         public ICombatable Combatable { get; }
@@ -41,4 +41,24 @@ namespace MVC.Controller
         }
     }
     
+    public struct OnGameStartEvent : IEvent
+    {
+       
+    }
+    
+    public class OnCombatEndEvent : IEvent
+    {
+        public CombatResult Result { get; }
+
+        public OnCombatEndEvent(CombatResult result)
+        {
+            Result = result;
+        }
+    }
+
+    public enum CombatResult
+    {
+        Victory,
+        Defeat
+    }
 }

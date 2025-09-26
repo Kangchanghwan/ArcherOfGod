@@ -71,12 +71,6 @@ namespace MVC.Controller.Player
             shotArrow = GetComponent<ShotArrow>();
             uiHealthBar = GetComponent<UI_HealthBar>();
 
-            var skillBases = GetComponentsInChildren<SkillBase>(true);
-            foreach (var skill in skillBases)
-            {
-                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
-                _skills.Add(skill.SkillType, skill);
-            }
 
             Debug.Assert(uiHealthBar != null);
             Debug.Assert(shotArrow != null);
@@ -94,6 +88,8 @@ namespace MVC.Controller.Player
         private void OnEnable()
         {
             HandleInputSystem(true);
+            
+            
             _inputManager.Controller.Move.performed += ctx => _xInput = ctx.ReadValue<float>();
             _inputManager.Controller.Move.canceled += _ => _xInput = 0f;
 
@@ -105,8 +101,9 @@ namespace MVC.Controller.Player
 
             _model.OnDeath += HandleOnDeath;
             _model.OnHealthUpdate += HandleHealthUpdate;
-            EventManager.Publish(
-                new OnEntitySpawnEvent(EntityType.Player, this));
+            
+            EventManager.Publish(new OnEntitySpawnEvent(EntityType.Player, this));
+            EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
         }
 
         public void HandleInputSystem(bool onOff)
@@ -119,7 +116,7 @@ namespace MVC.Controller.Player
 
         private void Start()
         {
-            StateMachine.Initialize(_castingState);
+            StateMachine.Initialize(_idleState);
         }
 
         private void Update()
@@ -127,6 +124,17 @@ namespace MVC.Controller.Player
             StateMachine.CurrentState.Execute();
         }
 
+        private void HandleOnGameStart(OnGameStartEvent @event)
+        {
+            ChangeCastingState();
+            
+            var skillBases = GetComponentsInChildren<SkillBase>(true);
+            foreach (var skill in skillBases)
+            {
+                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
+                _skills.Add(skill.SkillType, skill);
+            }
+        } 
         private void TryUseSkill(SkillType skillType)
         {
             SkillBase skill = _skills[skillType];
@@ -143,6 +151,7 @@ namespace MVC.Controller.Player
             HandleInputSystem(false);
             _model.OnDeath -= HandleOnDeath;
             _model.OnHealthUpdate -= HandleHealthUpdate;
+            EventManager.Unsubscribe<OnGameStartEvent>(HandleOnGameStart);
         }
 
         public void ExecuteMove()

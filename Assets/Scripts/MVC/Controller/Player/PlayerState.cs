@@ -128,11 +128,6 @@ namespace MVC.Controller.Player
                 Controller.Rigidbody2D.simulated = false;
         }
 
-        public override void Execute()
-        {
-            base.Execute();
-            // 죽음 상태에서는 아무것도 하지 않음
-        }
     }
 
     // Idle State
@@ -145,10 +140,13 @@ namespace MVC.Controller.Player
         public override void Enter()
         {
             base.Enter();
-            if (Controller.Rigidbody2D != null)
-                Controller.Rigidbody2D.simulated = false;
+            Controller.HandleInputSystem(false);
         }
         protected override string GetAnimationName() => "Idle";
-
+        public override void Exit()
+        {
+            base.Exit();
+            Controller.HandleInputSystem(true);
+        }
     }
 }

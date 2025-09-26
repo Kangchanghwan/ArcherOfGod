@@ -74,14 +74,7 @@ namespace MVC.Controller.Enemy
             shotArrow = GetComponent<ShotArrow>();
             uiHealthBar = GetComponent<UI_HealthBar>();
             aiInputSystem = GetComponent<AIInputSystem>();
-
-            var skillBases = GetComponentsInChildren<SkillBase>(true);
-            foreach (var skill in skillBases)
-            {
-                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
-                _skills.Add(skill.SkillType, skill); 
-            }
-
+            
             Debug.Assert(shotArrow != null);
             Debug.Assert(uiHealthBar != null);
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
@@ -97,9 +90,18 @@ namespace MVC.Controller.Enemy
 
         private void OnEnable()
         {
+            var skillBases = GetComponentsInChildren<SkillBase>(true);
+            foreach (var skill in skillBases)
+            {
+                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
+                _skills.Add(skill.SkillType, skill); 
+            }
+            
             _model.OnDeath += HandleOnDeath;
-            EventManager.Publish(
-                new OnEntitySpawnEvent(EntityType.Enemy, this));
+            
+            EventManager.Publish(new OnEntitySpawnEvent(EntityType.Enemy, this));
+            EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
+
         }
 
         public void HandleInputSystem(bool onOff)
@@ -109,7 +111,7 @@ namespace MVC.Controller.Enemy
 
         private void Start()
         {
-            StateMachine.Initialize(_castingState);
+            StateMachine.Initialize(_idleState);
         }
 
         private void Update()
@@ -121,7 +123,10 @@ namespace MVC.Controller.Enemy
         private void OnDisable()
         {
             _model.OnDeath -= HandleOnDeath;
+            EventManager.Unsubscribe<OnGameStartEvent>(HandleOnGameStart);
         }
+        
+        private void HandleOnGameStart(OnGameStartEvent @event) => ChangeCastingState();
 
         // AI 입력 시스템 기반 이동
         public void ExecuteMove()

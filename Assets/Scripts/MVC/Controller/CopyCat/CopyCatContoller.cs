@@ -43,7 +43,6 @@ namespace MVC.Controller.CopyCat
 
         #region state
 
-        // CopyCat도 동일한 State 사용 (또는 CopyCat 전용 State 생성 가능)
         private AttackState _attackState;
         private CastingState _castingState;
         private MoveState _moveState;
@@ -108,8 +107,7 @@ namespace MVC.Controller.CopyCat
         {
             _model.OnDeath += HandleOnDeath;
             _model.OnHealthUpdate += HandleHealthUpdate;
-            EventManager.Publish(
-                new OnEntitySpawnEvent(EntityType.CopyCat, this));
+            EventManager.Publish(new OnEntitySpawnEvent(EntityType.CopyCat, this));
         }
         
 
