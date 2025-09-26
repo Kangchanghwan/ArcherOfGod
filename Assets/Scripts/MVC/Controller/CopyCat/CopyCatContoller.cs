@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
 using Component.Attack;
 using Component.Input;
 using Component.Skill;
-using Component.SkillSystem;
 using Controller.Entity;
-using Interface;
 using Model;
 using UI;
 using UnityEngine;
@@ -52,7 +49,7 @@ namespace MVC.Controller.CopyCat
         #endregion
 
         private CopyCatModel _model;
-        private Dictionary<SkillType, SkillBase> _skills = new();
+        private readonly Dictionary<SkillType, SkillBase> _skills = new();
 
         // 체력 감소 타이머
         private float _healthDrainTimer;
@@ -149,8 +146,6 @@ namespace MVC.Controller.CopyCat
             var movement = new Vector2(xInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
             Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         }
-
-        public void SetTarget(Transform transform) => Target = transform;
 
         public override void TakeDamage(float damage)
         {

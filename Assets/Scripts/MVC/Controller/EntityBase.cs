@@ -53,7 +53,7 @@ namespace Controller.Entity
         public Rigidbody2D Rigidbody2D;
         public Animator Animator;
 
-        public StateMachine StateMachine { get; protected set; }
+        protected StateMachine StateMachine;
 
         private bool _facingTarget;
 

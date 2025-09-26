@@ -140,5 +140,5 @@ namespace Manager
         public int GetActiveCombatantCount() => _activeCombatants.Count;
         public bool IsEntityActive(EntityType entityType) => _activeCombatants.ContainsKey(entityType);
     }
-
+   
 }

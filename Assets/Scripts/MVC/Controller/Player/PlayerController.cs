@@ -1,11 +1,7 @@
-using System;
 using System.Collections.Generic;
 using Component.Attack;
 using Component.Skill;
-using Component.SkillSystem;
 using Controller.Entity;
-using Interface;
-using Model;
 using MVC.Data;
 using UI;
 using UnityEngine;
@@ -89,7 +85,6 @@ namespace MVC.Controller.Player
         {
             HandleInputSystem(true);
             
-            
             _inputManager.Controller.Move.performed += ctx => _xInput = ctx.ReadValue<float>();
             _inputManager.Controller.Move.canceled += _ => _xInput = 0f;
 
@@ -160,9 +155,6 @@ namespace MVC.Controller.Player
             var movement = new Vector2(_xInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
             Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         }
-
-
-        public void SetTarget(Transform transform) => Target = transform;
 
         public override void TakeDamage(float damage)
         {

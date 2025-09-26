@@ -31,8 +31,8 @@ namespace MVC.Controller
 
     public struct OnEntitySpawnEvent : IEvent
     {
-        public EntityType EntityType { get; }
-        public ICombatable Combatable { get; }
+        public readonly EntityType EntityType;
+        public readonly ICombatable Combatable;
     
         public OnEntitySpawnEvent(EntityType entityType, ICombatable combatable)
         {
@@ -48,7 +48,7 @@ namespace MVC.Controller
     
     public class OnCombatEndEvent : IEvent
     {
-        public CombatResult Result { get; }
+        public readonly CombatResult Result;
 
         public OnCombatEndEvent(CombatResult result)
         {
