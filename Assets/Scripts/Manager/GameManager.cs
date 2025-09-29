@@ -50,7 +50,7 @@ namespace Manager
 
         private void HandleOnGameStart(OnGameStartEvent obj)
         {
-            playerController.ChangeCastingState();
+            playerController.OnCombatStart();
             enemyController.ChangeCastingState();
         }
 

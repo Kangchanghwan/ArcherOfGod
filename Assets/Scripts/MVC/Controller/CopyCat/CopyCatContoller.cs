@@ -62,40 +62,77 @@ namespace MVC.Controller.CopyCat
         public override void Init()
         {
             base.Init();
+            InitializeModel();
+            InitializeStateMachine();
+            InitializeStates();
+            InitializeComponents();
+            InitializeSkills();
+            RegisterEventHandlers();
+            PublishSpawnEvent();
+            StartStateMachine();
+            InitializeHealthDrain();
+        }
+
+        private void InitializeModel()
+        {
             _model = new CopyCatModel(
                 maxHealth: maxHealth,
                 healthDrainPerSecond: healthDrainPerSecond
             );
+        }
 
+        private void InitializeStateMachine()
+        {
             StateMachine = new StateMachine();
-            // State 클래스들 초기화
+        }
+
+        private void InitializeStates()
+        {
             _attackState = new AttackState(this);
             _castingState = new CastingState(this);
             _moveState = new MoveState(this);
             _fadeInState = new FadeInState(this);
             _fadeOutState = new FadeOutState(this);
+        }
 
+        private void InitializeComponents()
+        {
             shotArrow = GetComponent<ShotArrow>();
             uiHealthBar = GetComponent<UI_HealthBar>();
             aiInputSystem = GetComponent<AIInputSystem>();
-            
 
+            Debug.Assert(shotArrow != null);
+            Debug.Assert(uiHealthBar != null);
+            Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
+        }
+
+        private void InitializeSkills()
+        {
             var skillBases = GetComponentsInChildren<SkillBase>(true);
             foreach (var skill in skillBases)
             {
                 skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
                 _skills.Add(skill.SkillType, skill);
             }
-            
+        }
 
-            Debug.Assert(shotArrow != null);
-            Debug.Assert(uiHealthBar != null);
-            Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
-            
+        private void RegisterEventHandlers()
+        {
             _model.OnDeath += HandleOnDeath;
+        }
+
+        private void PublishSpawnEvent()
+        {
             EventManager.Publish(new OnEntitySpawnEvent(GetEntityType(), this));
-            
+        }
+
+        private void StartStateMachine()
+        {
             StateMachine.Initialize(_fadeInState);
+        }
+
+        private void InitializeHealthDrain()
+        {
             _healthDrainTimer = 0f;
         }
 
@@ -111,7 +148,17 @@ namespace MVC.Controller.CopyCat
 
         private void Update()
         {
+            ExecuteCurrentState();
+            ProcessHealthDrain();
+        }
+
+        private void ExecuteCurrentState()
+        {
             StateMachine.CurrentState.Execute();
+        }
+
+        private void ProcessHealthDrain()
+        {
             HandleHealthDrain();
         }
 
@@ -134,7 +181,7 @@ namespace MVC.Controller.CopyCat
         }
 
         // AI 입력 시스템 기반 이동
-        public void ExecuteMove()
+        public void ProcessMovement()
         {
             float xInput = aiInputSystem != null ? aiInputSystem.HorizontalInput : 0f;
             FlipController(xInput);
@@ -155,13 +202,13 @@ namespace MVC.Controller.CopyCat
         }
 
 
-        public void AttackReady()
+        public void PrepareAttack()
         {
             Animator.SetFloat("AttackSpeed", attackSpeed);
             FaceTarget();
         }
 
-        public void ExecuteAttack()
+        public void PerformAttack()
         {
             // 화살 공격 실행
             shotArrow.Attack(new ShotArrowCommand(

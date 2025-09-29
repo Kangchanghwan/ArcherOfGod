@@ -24,13 +24,26 @@ namespace MVC.Controller.Game
 
         public void Init()
         {
+            InitializeStateMachine();
+            InitializeStates();
+            StartStateMachine();
+        }
+
+        private void InitializeStateMachine()
+        {
             _stateMachine = new StateMachine();
-            
+        }
+
+        private void InitializeStates()
+        {
             _gameStartState = new GameStartState(this);
             _gamePlayingState = new GamePlayingState(this);
             _gameEndState = new GameEndState(this);
+        }
+
+        private void StartStateMachine()
+        {
             _stateMachine.Initialize(_gameStartState);
-            
         }
 
 
@@ -57,7 +70,12 @@ namespace MVC.Controller.Game
 
         private void HandleCombatEnd(OnCombatEndEvent @event)
         {
-            switch (@event.Result)
+            ProcessCombatResult(@event.Result);
+        }
+
+        private void ProcessCombatResult(CombatResult result)
+        {
+            switch (result)
             {
                 case CombatResult.Victory:
                     Win();
@@ -82,15 +100,24 @@ namespace MVC.Controller.Game
             _stateMachine.ChangeState(_gameEndState);
         }
 
-        public void StartGamePlaying() => _stateMachine.ChangeState(_gamePlayingState);
-        public void EndGame() => _stateMachine.ChangeState(_gameEndState);
+        public void TransitionToGamePlaying() => _stateMachine.ChangeState(_gamePlayingState);
+        public void TransitionToGameEnd() => _stateMachine.ChangeState(_gameEndState);
         
         private void RestartGame()
         {
-            // 게임 재시작 시 상태 초기화
+            ResetGameStates();
+            StartNewGame();
+        }
+
+        private void ResetGameStates()
+        {
             _gameStartState = new GameStartState(this);
             _gamePlayingState = new GamePlayingState(this);
             _gameEndState = new GameEndState(this);
+        }
+
+        private void StartNewGame()
+        {
             _stateMachine.ChangeState(_gameStartState);
         }
 
