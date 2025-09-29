@@ -99,7 +99,8 @@ namespace Controller.Entity
         }
 
         public abstract void AnimationTrigger();
-        
+
+        public abstract EntityType GetEntityType();
         public void SetTarget(Transform transform) => Target = transform;
 
         public abstract void TakeDamage(float damage);

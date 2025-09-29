@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Controller.Entity;
 using Interface;
 using MVC.Controller;
@@ -7,50 +8,19 @@ using Util;
 
 namespace Manager
 {
-   public class CombatManager : MonoBehaviour
-    {
-        private readonly Dictionary<EntityType, ICombatable> _activeCombatants = new();
-        private readonly HashSet<EntityType> _expectedEntities = new() { EntityType.Player, EntityType.Enemy };
-        
-        private void OnEnable()
-        {
-            EventManager.Subscribe<OnEntitySpawnEvent>(RegisterCombatant);
-            EventManager.Subscribe<OnEntityDeathEvent>(HandleEntityDeath);
-        }
+   public class CombatSystem
+   {
+       private readonly Dictionary<EntityType, ICombatable> _activeCombatants;
 
-        private void OnDisable()
-        {
-            EventManager.Unsubscribe<OnEntitySpawnEvent>(RegisterCombatant);
-            EventManager.Unsubscribe<OnEntityDeathEvent>(HandleEntityDeath);
-        }
-
-        private void RegisterCombatant(OnEntitySpawnEvent @event)
-        {
-            _activeCombatants[@event.EntityType] = @event.Combatable;
-            Debug.Log($"Combat participant registered: {@event.EntityType}");
-            
-            // 모든 필수 엔티티가 등록되면 초기 타겟팅 설정
-            if (AreAllExpectedEntitiesRegistered())
-            {
-                SetInitialTargeting();
-            }
-            
-            // CopyCat 등록 시 동적 타겟팅
-            if (@event.EntityType == EntityType.CopyCat)
-            {
-                HandleCopyCatSpawn();
-            }
-        }
-
-        private bool AreAllExpectedEntitiesRegistered()
-        {
-            foreach (var entityType in _expectedEntities)
-            {
-                if (!_activeCombatants.ContainsKey(entityType))
-                    return false;
-            }
-            return true;
-        }
+       public CombatSystem(ICombatable[] activeCombatants)
+       {
+           _activeCombatants = activeCombatants.ToDictionary(
+               c => c.GetEntityType(),
+               c => c
+           );
+           
+            SetInitialTargeting();
+       }
 
         private void SetInitialTargeting()
         {
@@ -63,8 +33,10 @@ namespace Manager
             }
         }
 
-        private void HandleCopyCatSpawn()
+        public void HandleCopyCatSpawn(ICombatable combatable)
         {
+            _activeCombatants.Add(combatable.GetEntityType(), combatable);
+
             if (TryGetCombatant(EntityType.CopyCat, out var copyCat) && 
                 TryGetCombatant(EntityType.Enemy, out var enemy))
             {
@@ -75,18 +47,18 @@ namespace Manager
             }
         }
 
-        private void HandleEntityDeath(OnEntityDeathEvent @event)
+        public void HandleCombatDeadRefresh(EntityType entityType)
         {
-            if (!_activeCombatants.ContainsKey(@event.Type)) return;
+            if (!_activeCombatants.ContainsKey(entityType)) return;
 
-            _activeCombatants.Remove(@event.Type);
-            Debug.Log($"Combat participant removed: {@event.Type}");
+            _activeCombatants.Remove(entityType);
+            Debug.Log($"Combat participant removed: {entityType}");
 
             // 타겟 재설정
-            RetargetAfterDeath(@event.Type);
+            RetargetAfterDeath(entityType);
             
             // 전투 종료 체크
-            CheckCombatEnd(@event.Type);
+            CheckCombatEnd(entityType);
         }
 
         private void RetargetAfterDeath(EntityType deadType)

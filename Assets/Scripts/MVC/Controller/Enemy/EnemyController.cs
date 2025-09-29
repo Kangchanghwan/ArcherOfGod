@@ -64,7 +64,7 @@ namespace MVC.Controller.Enemy
             );
 
             StateMachine = new StateMachine();
-            // Enemy 전용 State로 교체
+
             _attackState = new AttackState(this);
             _castingState = new CastingState(this);
             _moveState = new MoveState(this);
@@ -88,9 +88,6 @@ namespace MVC.Controller.Enemy
             
             _model.OnDeath += HandleOnDeath;
             
-            EventManager.Publish(new OnEntitySpawnEvent(EntityType.Enemy, this));
-            EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
-            
             StateMachine.Initialize(_idleState);
         }
 
@@ -101,7 +98,9 @@ namespace MVC.Controller.Enemy
                 currentState.AnimationTrigger(); 
             }
         }
-        
+
+        public override EntityType GetEntityType() => EntityType.Enemy;
+
         public void HandleInputSystem(bool onOff)
         {
             // AI는 InputManager를 사용하지 않으므로 빈 구현
@@ -115,10 +114,7 @@ namespace MVC.Controller.Enemy
         private void OnDisable()
         {
             _model.OnDeath -= HandleOnDeath;
-            EventManager.Unsubscribe<OnGameStartEvent>(HandleOnGameStart);
         }
-        
-        private void HandleOnGameStart(OnGameStartEvent @event) => ChangeCastingState();
 
         // AI 입력 시스템 기반 이동
         public void ExecuteMove()

@@ -1,5 +1,11 @@
+using System.Collections.Generic;
 using Controller.Entity;
+using Interface;
+using MVC.Controller;
+using MVC.Controller.CopyCat;
+using MVC.Controller.Enemy;
 using MVC.Controller.Game;
+using MVC.Controller.Player;
 using UnityEngine;
 using Util;
 
@@ -7,17 +13,70 @@ namespace Manager
 {
     public class GameManager : Singleton<GameManager>
     {
+        
+        // Controller
+        [SerializeField] private GameUIController gameUIController;
+
+        [SerializeField] private EnemyController enemyController;
+        [SerializeField] private PlayerController playerController;
+
+        //System
+        private CombatSystem _combatSystem;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            if (gameUIController == null)
+                gameUIController = FindFirstObjectByType<GameUIController>();
+            
+            if (enemyController == null)
+                enemyController = FindFirstObjectByType<EnemyController>();
+            if (playerController == null)
+                playerController = FindFirstObjectByType<PlayerController>();
+        }
+
+        private void OnEnable()
+        {
+            EventManager.Subscribe<OnEntityDeathEvent>(HandleEntityDeath);
+            EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
+            EventManager.Subscribe<OnEntitySpawnEvent>(HandleOnEntitySpawn);
+        }
+
+        private void HandleOnEntitySpawn(OnEntitySpawnEvent obj)
+        {
+            if(obj.EntityType == EntityType.CopyCat)
+                _combatSystem.HandleCopyCatSpawn(obj.Combatable);
+        }
+
+        private void HandleOnGameStart(OnGameStartEvent obj)
+        {
+            playerController.ChangeCastingState();
+            enemyController.ChangeCastingState();
+        }
+
+        private void HandleEntityDeath(OnEntityDeathEvent obj)
+        {
+            _combatSystem.HandleCombatDeadRefresh(obj.Type);
+        }
+
+        private void OnDisable()
+        {
+            EventManager.Unsubscribe<OnEntityDeathEvent>(HandleEntityDeath);
+            EventManager.Unsubscribe<OnGameStartEvent>(HandleOnGameStart);
+            EventManager.Unsubscribe<OnEntitySpawnEvent>(HandleOnEntitySpawn);
+        }
+
         private void Start()
         {
+            gameUIController.Init();
+            enemyController.Init();
+            playerController.Init();
 
-            GameUIController uiController = FindFirstObjectByType<GameUIController>();
-            uiController.Init();
-            
-            EntityControllerBase[] bases = FindObjectsByType<EntityControllerBase>(FindObjectsSortMode.None);
-            foreach (var controllerBase in bases)
+            _combatSystem = new CombatSystem(new ICombatable[]
             {
-                controllerBase.Init();
-            }
+                enemyController,
+                playerController 
+            });
         }
     }
 }

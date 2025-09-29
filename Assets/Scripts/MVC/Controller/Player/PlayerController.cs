@@ -82,11 +82,14 @@ namespace MVC.Controller.Player
             _inputManager.Controller.Skill_4.performed += _ => TryUseSkill(SkillType.WhirlWind);
             _inputManager.Controller.Skill_5.performed += _ => TryUseSkill(SkillType.CopyCat);
 
-            _model.OnDeath += HandleOnDeath;
-            _model.OnHealthUpdate += HandleHealthUpdate;
+            var skillBases = GetComponentsInChildren<SkillBase>(true);
+            foreach (var skill in skillBases)
+            {
+                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
+                _skills.Add(skill.SkillType, skill);
+            }
             
-            EventManager.Publish(new OnEntitySpawnEvent(EntityType.Player, this));
-            EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
+            _model.OnDeath += HandleOnDeath;
             
             StateMachine.Initialize(_idleState);
         }
@@ -98,7 +101,8 @@ namespace MVC.Controller.Player
                 currentState.AnimationTrigger();
             }
         }
-        
+
+        public override EntityType GetEntityType() => EntityType.Player;
 
         public void HandleInputSystem(bool onOff)
         {
@@ -114,17 +118,7 @@ namespace MVC.Controller.Player
             StateMachine.CurrentState.Execute();
         }
 
-        private void HandleOnGameStart(OnGameStartEvent @event)
-        {
-            ChangeCastingState();
-            
-            var skillBases = GetComponentsInChildren<SkillBase>(true);
-            foreach (var skill in skillBases)
-            {
-                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
-                _skills.Add(skill.SkillType, skill);
-            }
-        } 
+    
         private void TryUseSkill(SkillType skillType)
         {
             SkillBase skill = _skills[skillType];
@@ -140,8 +134,6 @@ namespace MVC.Controller.Player
         {
             HandleInputSystem(false);
             _model.OnDeath -= HandleOnDeath;
-            _model.OnHealthUpdate -= HandleHealthUpdate;
-            EventManager.Unsubscribe<OnGameStartEvent>(HandleOnGameStart);
         }
 
         public void ExecuteMove()
@@ -186,13 +178,6 @@ namespace MVC.Controller.Player
             Rigidbody2D.simulated = false;
             EventManager.Publish(new OnEntityDeathEvent(EntityType.Player));
         }
-
-        private void HandleHealthUpdate() => EventManager.Publish(
-            new OnHealthUpdateEvent(
-                type: EntityType.Player,
-                maxHealth: _model.GetMaxHealth(),
-                currentHealth: _model.GetCurrentHealth())
-        );
 
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
         public void ChangeAttackState() => StateMachine.ChangeState(_attackState);

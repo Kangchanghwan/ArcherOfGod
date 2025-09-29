@@ -6,6 +6,7 @@ using Controller.Entity;
 using Model;
 using UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Util;
 using StateMachine = Component.StateSystem.StateMachine;
 
@@ -92,8 +93,7 @@ namespace MVC.Controller.CopyCat
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
             
             _model.OnDeath += HandleOnDeath;
-            _model.OnHealthUpdate += HandleHealthUpdate;
-            EventManager.Publish(new OnEntitySpawnEvent(EntityType.CopyCat, this));
+            EventManager.Publish(new OnEntitySpawnEvent(GetEntityType(), this));
             
             StateMachine.Initialize(_fadeInState);
             _healthDrainTimer = 0f;
@@ -106,6 +106,8 @@ namespace MVC.Controller.CopyCat
                 currentState.AnimationTrigger(); 
             }
         }
+
+        public override EntityType GetEntityType() => EntityType.CopyCat;
 
         private void Update()
         {
@@ -122,13 +124,13 @@ namespace MVC.Controller.CopyCat
             {
                 _model.DrainHealth();
                 _healthDrainTimer = 0f;
+                uiHealthBar.UpdateHealthBar(_model.GetCurrentHealth(), _model.GetMaxHealth());
             }
         }
 
         private void OnDisable()
         {
             _model.OnDeath -= HandleOnDeath;
-            _model.OnHealthUpdate -= HandleHealthUpdate;
         }
 
         // AI 입력 시스템 기반 이동
@@ -176,15 +178,7 @@ namespace MVC.Controller.CopyCat
             Rigidbody2D.simulated = false;
             EventManager.Publish(new OnEntityDeathEvent(EntityType.CopyCat));
         }
-
-        private void HandleHealthUpdate() => EventManager.Publish(
-            new OnHealthUpdateEvent(
-                type: EntityType.CopyCat,
-                maxHealth: _model.GetMaxHealth(),
-                currentHealth: _model.GetCurrentHealth())
-        );
-
-
+        
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
         public void ChangeAttackState() => StateMachine.ChangeState(_attackState);
         public void ChangeCastingState() => StateMachine.ChangeState(_castingState);
