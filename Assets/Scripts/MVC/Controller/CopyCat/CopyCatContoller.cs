@@ -58,9 +58,9 @@ namespace MVC.Controller.CopyCat
         public bool IsOnMove => Mathf.Abs(aiInputSystem.HorizontalInput) > 0.1f;
         public float AttackDelay => attackDelay;
 
-        protected override void Awake()
+        public override void Init()
         {
-            base.Awake();
+            base.Init();
             _model = new CopyCatModel(
                 maxHealth: maxHealth,
                 healthDrainPerSecond: healthDrainPerSecond
@@ -90,6 +90,13 @@ namespace MVC.Controller.CopyCat
             Debug.Assert(shotArrow != null);
             Debug.Assert(uiHealthBar != null);
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
+            
+            _model.OnDeath += HandleOnDeath;
+            _model.OnHealthUpdate += HandleHealthUpdate;
+            EventManager.Publish(new OnEntitySpawnEvent(EntityType.CopyCat, this));
+            
+            StateMachine.Initialize(_fadeInState);
+            _healthDrainTimer = 0f;
         }
 
         public override void AnimationTrigger()
@@ -98,20 +105,6 @@ namespace MVC.Controller.CopyCat
             {
                 currentState.AnimationTrigger(); 
             }
-        }
-
-        private void OnEnable()
-        {
-            _model.OnDeath += HandleOnDeath;
-            _model.OnHealthUpdate += HandleHealthUpdate;
-            EventManager.Publish(new OnEntitySpawnEvent(EntityType.CopyCat, this));
-        }
-        
-
-        private void Start()
-        {
-            StateMachine.Initialize(_fadeInState);
-            _healthDrainTimer = 0f;
         }
 
         private void Update()

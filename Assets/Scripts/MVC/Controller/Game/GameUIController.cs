@@ -7,7 +7,7 @@ using TMPro;
 
 namespace MVC.Controller.Game
 {
-    public class GameController : MonoBehaviour
+    public class GameUIController : MonoBehaviour
     {
         [Header("UI References")]
         [SerializeField] private TextMeshProUGUI countDownTimer;
@@ -22,19 +22,17 @@ namespace MVC.Controller.Game
         private GamePlayingState _gamePlayingState;
         private GameEndState _gameEndState;
 
-        private void Awake()
+        public void Init()
         {
             _stateMachine = new StateMachine();
             
             _gameStartState = new GameStartState(this);
             _gamePlayingState = new GamePlayingState(this);
             _gameEndState = new GameEndState(this);
+            _stateMachine.Initialize(_gameStartState);
+            
         }
 
-        private void Start()
-        {
-            _stateMachine.Initialize(_gameStartState);
-        }
 
         private void Update()
         {

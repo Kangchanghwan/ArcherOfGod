@@ -57,7 +57,7 @@ namespace Controller.Entity
 
         private bool _facingTarget;
 
-        protected virtual void Awake()
+        public virtual void Init()
         {
             Animator = GetComponent<Animator>();
             Rigidbody2D = GetComponent<Rigidbody2D>();

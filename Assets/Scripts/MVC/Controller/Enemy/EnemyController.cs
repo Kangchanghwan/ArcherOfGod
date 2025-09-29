@@ -56,9 +56,9 @@ namespace MVC.Controller.Enemy
         public bool IsOnMove => Mathf.Abs(aiInputSystem.HorizontalInput) > 0.1f;
         public float AttackDelay => attackDelay;
 
-        protected override void Awake()
+        public override void Init()
         {
-            base.Awake();
+            base.Init();
             _model = new EnemyModel(
                 maxHealth: maxHealth
             );
@@ -78,18 +78,7 @@ namespace MVC.Controller.Enemy
             Debug.Assert(shotArrow != null);
             Debug.Assert(uiHealthBar != null);
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
-        }
-
-        public override void AnimationTrigger()
-        {
-            if (StateMachine.CurrentState is EntityStateBase<EnemyController> currentState)
-            {
-                currentState.AnimationTrigger(); 
-            }
-        }
-
-        private void OnEnable()
-        {
+            
             var skillBases = GetComponentsInChildren<SkillBase>(true);
             foreach (var skill in skillBases)
             {
@@ -101,19 +90,22 @@ namespace MVC.Controller.Enemy
             
             EventManager.Publish(new OnEntitySpawnEvent(EntityType.Enemy, this));
             EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
-
+            
+            StateMachine.Initialize(_idleState);
         }
 
+        public override void AnimationTrigger()
+        {
+            if (StateMachine.CurrentState is EntityStateBase<EnemyController> currentState)
+            {
+                currentState.AnimationTrigger(); 
+            }
+        }
+        
         public void HandleInputSystem(bool onOff)
         {
             // AI는 InputManager를 사용하지 않으므로 빈 구현
         }
-
-        private void Start()
-        {
-            StateMachine.Initialize(_idleState);
-        }
-
         private void Update()
         {
             StateMachine.CurrentState.Execute();

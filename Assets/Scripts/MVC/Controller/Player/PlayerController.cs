@@ -48,9 +48,9 @@ namespace MVC.Controller.Player
         public bool IsOnMove => Mathf.Abs(_xInput) > 0.1f;
         public float AttackDelay => attackDelay;
 
-        protected override void Awake()
+        public override void Init()
         {
-            base.Awake();
+            base.Init();
             _model = new PlayerModel(
                 maxHealth: maxHealth
             );
@@ -70,19 +70,7 @@ namespace MVC.Controller.Player
 
             Debug.Assert(uiHealthBar != null);
             Debug.Assert(shotArrow != null);
-        }
-
-        public override void AnimationTrigger()
-        {
-            if (StateMachine.CurrentState is EntityStateBase<PlayerController> currentState)
-            {
-                currentState.AnimationTrigger();
-            }
-        }
-
-
-        private void OnEnable()
-        {
+            
             HandleInputSystem(true);
             
             _inputManager.Controller.Move.performed += ctx => _xInput = ctx.ReadValue<float>();
@@ -99,7 +87,18 @@ namespace MVC.Controller.Player
             
             EventManager.Publish(new OnEntitySpawnEvent(EntityType.Player, this));
             EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
+            
+            StateMachine.Initialize(_idleState);
         }
+
+        public override void AnimationTrigger()
+        {
+            if (StateMachine.CurrentState is EntityStateBase<PlayerController> currentState)
+            {
+                currentState.AnimationTrigger();
+            }
+        }
+        
 
         public void HandleInputSystem(bool onOff)
         {
@@ -108,11 +107,7 @@ namespace MVC.Controller.Player
             else
                 _inputManager.Disable();
         }
-
-        private void Start()
-        {
-            StateMachine.Initialize(_idleState);
-        }
+        
 
         private void Update()
         {

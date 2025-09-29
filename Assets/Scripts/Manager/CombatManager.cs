@@ -12,7 +12,7 @@ namespace Manager
         private readonly Dictionary<EntityType, ICombatable> _activeCombatants = new();
         private readonly HashSet<EntityType> _expectedEntities = new() { EntityType.Player, EntityType.Enemy };
         
-        private void Awake()
+        private void OnEnable()
         {
             EventManager.Subscribe<OnEntitySpawnEvent>(RegisterCombatant);
             EventManager.Subscribe<OnEntityDeathEvent>(HandleEntityDeath);
