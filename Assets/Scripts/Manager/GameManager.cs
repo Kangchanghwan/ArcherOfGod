@@ -13,7 +13,6 @@ namespace Manager
 {
     public class GameManager : Singleton<GameManager>
     {
-        
         // Controller
         [SerializeField] private GameUIController gameUIController;
 
@@ -28,7 +27,7 @@ namespace Manager
             base.Awake();
             if (gameUIController == null)
                 gameUIController = FindFirstObjectByType<GameUIController>();
-            
+
             if (enemyController == null)
                 enemyController = FindFirstObjectByType<EnemyController>();
             if (playerController == null)
@@ -38,17 +37,17 @@ namespace Manager
         private void OnEnable()
         {
             EventManager.Subscribe<OnEntityDeathEvent>(HandleEntityDeath);
-            EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
+            EventManager.Subscribe<OnPlayingStartEvent>(HandleOnGameStart);
             EventManager.Subscribe<OnEntitySpawnEvent>(HandleOnEntitySpawn);
         }
 
         private void HandleOnEntitySpawn(OnEntitySpawnEvent obj)
         {
-            if(obj.EntityType == EntityType.CopyCat)
+            if (obj.EntityType == EntityType.CopyCat)
                 _combatSystem.HandleCopyCatSpawn(obj.Combatable);
         }
 
-        private void HandleOnGameStart(OnGameStartEvent obj)
+        private void HandleOnGameStart(OnPlayingStartEvent obj)
         {
             playerController.OnCombatStart();
             enemyController.ChangeCastingState();
@@ -62,7 +61,7 @@ namespace Manager
         private void OnDisable()
         {
             EventManager.Unsubscribe<OnEntityDeathEvent>(HandleEntityDeath);
-            EventManager.Unsubscribe<OnGameStartEvent>(HandleOnGameStart);
+            EventManager.Unsubscribe<OnPlayingStartEvent>(HandleOnGameStart);
             EventManager.Unsubscribe<OnEntitySpawnEvent>(HandleOnEntitySpawn);
         }
 
@@ -72,11 +71,9 @@ namespace Manager
             enemyController.Init();
             playerController.Init();
 
-            _combatSystem = new CombatSystem(new ICombatable[]
-            {
-                enemyController,
-                playerController 
-            });
+            _combatSystem = new CombatSystem(
+                activeCombatants: new ICombatable[] { enemyController, playerController },
+                gameUIController: gameUIController);
         }
     }
 }

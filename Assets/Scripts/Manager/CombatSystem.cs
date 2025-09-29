@@ -3,6 +3,7 @@ using System.Linq;
 using Controller.Entity;
 using Interface;
 using MVC.Controller;
+using MVC.Controller.Game;
 using UnityEngine;
 using Util;
 
@@ -11,18 +12,20 @@ namespace Manager
    public class CombatSystem
    {
        private readonly Dictionary<EntityType, ICombatable> _activeCombatants;
+       private readonly GameUIController _gameUIController;
 
-       public CombatSystem(ICombatable[] activeCombatants)
+       public CombatSystem(ICombatable[] activeCombatants, GameUIController gameUIController)
        {
            _activeCombatants = activeCombatants.ToDictionary(
                c => c.GetEntityType(),
                c => c
            );
-           
-            SetInitialTargeting();
+           _gameUIController = gameUIController;
+
+           SetInitialTargeting();
        }
 
-        private void SetInitialTargeting()
+       private void SetInitialTargeting()
         {
             if (TryGetCombatant(EntityType.Player, out var player) && 
                 TryGetCombatant(EntityType.Enemy, out var enemy))
@@ -33,12 +36,10 @@ namespace Manager
             }
         }
 
-        public void HandleCopyCatSpawn(ICombatable combatable)
+        public void HandleCopyCatSpawn(ICombatable copyCat)
         {
-            _activeCombatants.Add(combatable.GetEntityType(), combatable);
 
-            if (TryGetCombatant(EntityType.CopyCat, out var copyCat) && 
-                TryGetCombatant(EntityType.Enemy, out var enemy))
+            if (TryGetCombatant(EntityType.Enemy, out var enemy))
             {
                 // CopyCat은 Enemy를 타겟, Enemy는 CopyCat을 타겟
                 copyCat.SetTarget(GetTransform(enemy));
@@ -91,10 +92,10 @@ namespace Manager
             switch (deadType)
             {
                 case EntityType.Player:
-                    EventManager.Publish(new OnCombatEndEvent(CombatResult.Defeat));
+                    _gameUIController.Lose();
                     break;
                 case EntityType.Enemy:
-                    EventManager.Publish(new OnCombatEndEvent(CombatResult.Victory));
+                    _gameUIController.Win();
                     break;
             }
         }

@@ -27,26 +27,9 @@ namespace MVC.Controller
         }
     }
     
-    public struct OnGameStartEvent : IEvent
+    public struct OnPlayingStartEvent : IEvent
     {
        
     }
-    
-    public struct OnCombatEndEvent : IEvent
-    {
-        public readonly CombatResult Result;
-
-        public OnCombatEndEvent(CombatResult result)
-        {
-            Result = result;
-        }
-    }
-
-    public enum CombatResult
-    {
-        Victory,
-        Defeat
-    }
-    
     
 }

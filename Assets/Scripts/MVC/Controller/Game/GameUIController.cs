@@ -54,46 +54,25 @@ namespace MVC.Controller.Game
 
         private void OnEnable()
         {
-            EventManager.Subscribe<OnCombatEndEvent>(HandleCombatEnd);
-            
             if (loftButton != null)
                 loftButton.onClick.AddListener(RestartGame);
         }
 
         private void OnDisable()
         {
-            EventManager.Unsubscribe<OnCombatEndEvent>(HandleCombatEnd);
-            
             if (loftButton != null)
                 loftButton.onClick.RemoveListener(RestartGame);
         }
 
-        private void HandleCombatEnd(OnCombatEndEvent @event)
-        {
-            ProcessCombatResult(@event.Result);
-        }
 
-        private void ProcessCombatResult(CombatResult result)
-        {
-            switch (result)
-            {
-                case CombatResult.Victory:
-                    Win();
-                    break;
-                case CombatResult.Defeat:
-                    Lose();
-                    break;
-            }
-        }
-
-        private void Win()
+        public void Win()
         {
             Debug.Log("Victory!");
             _gameEndState.SetResult("Victory!", true);
             _stateMachine.ChangeState(_gameEndState);
         }
         
-        private void Lose()
+        public void Lose()
         {
             Debug.Log("Game Over - You Lose!");
             _gameEndState.SetResult("Defeat!", false);
@@ -124,6 +103,7 @@ namespace MVC.Controller.Game
         // State 전환 메서드들
         public void ChangeToGamePlaying()
         {
+            EventManager.Publish<OnPlayingStartEvent>();
             _stateMachine.ChangeState(_gamePlayingState);
         }
 

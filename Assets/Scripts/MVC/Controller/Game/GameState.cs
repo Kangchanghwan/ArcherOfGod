@@ -71,7 +71,6 @@ namespace MVC.Controller.Game
             _gameTimer = GAME_TIME_LIMIT;
             _gameUIController.ShowStartPanel(false);
             _gameUIController.ShowEndPanel(false);
-            EventManager.Publish(new OnGameStartEvent());
         }
 
         public void Execute()
