@@ -29,7 +29,6 @@ namespace MVC.Controller
     
     public struct OnPlayingStartEvent : IEvent
     {
-       
     }
     
 }

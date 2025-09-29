@@ -78,9 +78,6 @@ namespace MVC.Controller.Game
             _gameEndState.SetResult("Defeat!", false);
             _stateMachine.ChangeState(_gameEndState);
         }
-
-        public void TransitionToGamePlaying() => _stateMachine.ChangeState(_gamePlayingState);
-        public void TransitionToGameEnd() => _stateMachine.ChangeState(_gameEndState);
         
         private void RestartGame()
         {

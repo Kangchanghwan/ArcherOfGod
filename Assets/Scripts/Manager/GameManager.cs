@@ -26,12 +26,13 @@ namespace Manager
         {
             base.Awake();
             if (gameUIController == null)
-                gameUIController = FindFirstObjectByType<GameUIController>();
+                gameUIController = FindAnyObjectByType<GameUIController>();
 
             if (enemyController == null)
-                enemyController = FindFirstObjectByType<EnemyController>();
+                enemyController = FindAnyObjectByType<EnemyController>();
+            
             if (playerController == null)
-                playerController = FindFirstObjectByType<PlayerController>();
+                playerController = FindAnyObjectByType<PlayerController>();
         }
 
         private void OnEnable()
