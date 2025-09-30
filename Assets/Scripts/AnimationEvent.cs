@@ -1,21 +1,22 @@
 using Component.Skill;
 using Component.SkillSystem;
-using Controller.Entity;
+using MVC.Controller;
+using MVC.Controller.CopyCat;
 using UnityEngine;
 
 public class AnimationEvent : MonoBehaviour
 {
     [SerializeField]
     private SkillJumpShoot skillJumpShoot;
-    private EntityControllerBase _entityController;
+    private EntityControllerBase _entityControllerBase;
 
-    private void Start()
+    public void Init()
     {
-        _entityController = GetComponent<EntityControllerBase>();
-        Debug.Assert(_entityController != null);
+        _entityControllerBase = GetComponent<EntityControllerBase>();
+        Debug.Assert(_entityControllerBase != null);
     }
 
-    public void AnimationTrigger() => _entityController.AnimationTrigger();
+    public void AnimationTrigger() => _entityControllerBase.AnimationTrigger();
     public void OnJumpReadStartTrigger_JumpShoot() => skillJumpShoot.OnJumpReadyTrigger();
     public void OnJumpStart_JumpShoot() => skillJumpShoot.OnJumpStart();
     public void OnJumpEnd_JumpShoot() => skillJumpShoot.OnJumpEnd();

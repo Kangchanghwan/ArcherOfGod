@@ -1,20 +1,20 @@
 using System.Threading;
 using Component.Skill;
-using Controller.Entity;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace MVC.Controller.CopyCat
 {
-
-    public class AttackState : EntityStateBase<CopyCatController>
+    public class AttackState : EntityStateBase
     {
         private float _attackTimer;
         private bool _hasAttacked;
+        private readonly CopyCatController _controller;
         
         public AttackState(CopyCatController controller) : base(controller)
         {
-            
+            _controller = controller;
         }
         
         protected override string GetAnimationName() => "Attack";
@@ -24,7 +24,7 @@ namespace MVC.Controller.CopyCat
             base.Enter();
             _attackTimer = 0f;
             _hasAttacked = false;
-            Controller.PrepareAttack();
+            _controller.PrepareAttack();
         }
 
         public override void Execute()
@@ -34,9 +34,9 @@ namespace MVC.Controller.CopyCat
             _attackTimer += Time.deltaTime;
         
             // 공격 타이밍에 도달하면 공격 실행
-            if (!_hasAttacked && _attackTimer >= Controller.AttackDelay)
+            if (!_hasAttacked && _attackTimer >= _controller.AttackDelay)
             {
-                Controller.PerformAttack();
+                _controller.PerformAttack();
                 _hasAttacked = true;
             }
 
@@ -44,19 +44,18 @@ namespace MVC.Controller.CopyCat
             if (TriggerCalled)
             {
                 if (Random.Range(0f, 1f) < 0.5f)
-                    Controller.ChangeMoveState();
+                    _controller.ChangeMoveState();
                 else
-                    Controller.ChangeCastingState();
+                    _controller.ChangeCastingState();
             }
         }
     }
-    
-    // Casting State
-    public class CastingState : EntityStateBase<CopyCatController>
+    public class CastingState : EntityStateBase
     {
-        
+        private readonly CopyCatController _controller;
         public CastingState(CopyCatController controller) : base(controller)
         {
+            _controller = controller;
         }
         
         protected override string GetAnimationName() => "Casting";
@@ -65,21 +64,22 @@ namespace MVC.Controller.CopyCat
         {
             base.Execute();
             
-            if (Controller.IsOnMove) 
-                Controller.ChangeMoveState();
+            if (_controller.IsOnMove) 
+                _controller.ChangeMoveState();
                 
             if (TriggerCalled)
             {
-                Controller.ChangeAttackState();
+                _controller.ChangeAttackState();
             }
         }
     }
-
-    // Move State
-    public class MoveState : EntityStateBase<CopyCatController>
+    public class MoveState : EntityStateBase
     {
+        private readonly CopyCatController _controller;
+
         public MoveState(CopyCatController controller) : base(controller)
         {
+            _controller = controller;
         }
 
         protected override string GetAnimationName() => "Move";
@@ -87,21 +87,21 @@ namespace MVC.Controller.CopyCat
         public override void Execute()
         {
             base.Execute();
-            Controller.ProcessMovement();
+            _controller.ProcessMovement();
             // 움직임이 멈추면 Casting 상태로 전환
-            if (Controller.IsOnMove is false)
-                Controller.ChangeCastingState();
+            if (_controller.IsOnMove is false)
+                _controller.ChangeCastingState();
         }
     }
-
-    // Skill State
-    public class SkillState : EntityStateBase<CopyCatController>
+    public class SkillState : EntityStateBase
     {
         private readonly SkillBase _skill;
+        private readonly CopyCatController _controller;
         
         public SkillState(CopyCatController controller, SkillBase skill) : base(controller)
         {
             _skill = skill;
+            _controller = controller;
         }
 
         protected override string GetAnimationName() => _skill.AnimationName;
@@ -109,7 +109,7 @@ namespace MVC.Controller.CopyCat
         public override void Enter()
         {
             base.Enter();
-            Controller.FaceTarget();
+            _controller.FaceTarget();
             _skill.ExecuteSkill().Forget();
         }
 
@@ -119,7 +119,7 @@ namespace MVC.Controller.CopyCat
             base.Execute();
             
             if(TriggerCalled)
-                Controller.ChangeMoveState();
+                _controller.ChangeMoveState();
         }
 
         public override void Exit()
@@ -127,13 +127,13 @@ namespace MVC.Controller.CopyCat
             base.Exit();
         }
     }
-
     // FadeIn State - SpriteRenderer 기반 페이드인 효과 (UniTask 사용)
-    public class FadeInState : EntityStateBase<CopyCatController>
+    public class FadeInState : EntityStateBase
     {
         private float fadeTime = 0.5f;
         private SpriteRenderer _spriteRenderer;
         private CancellationTokenSource _fadeCancellationToken;
+        private readonly CopyCatController _controller;
 
         
         public bool isDone { get; private set; }
@@ -145,6 +145,7 @@ namespace MVC.Controller.CopyCat
             {
                 Debug.LogWarning("SpriteRenderer not found on CopyCat GameObject!");
             }
+            _controller = controller;
         }
 
         protected override string GetAnimationName() => "Idle";
@@ -206,7 +207,7 @@ namespace MVC.Controller.CopyCat
             // 페이드인 완료 시 Casting 상태로 전환
             if (isDone)
             {
-                Controller.ChangeCastingState();
+                _controller.ChangeCastingState();
             }
         }
         
@@ -223,9 +224,8 @@ namespace MVC.Controller.CopyCat
             }
         }
     }
-
     // FadeOut State - SpriteRenderer 기반 페이드아웃 효과 (UniTask 사용)
-    public class FadeOutState : EntityStateBase<CopyCatController>
+    public class FadeOutState : EntityStateBase
     {
         private float fadeTime = 0.5f;
         private SpriteRenderer _spriteRenderer;

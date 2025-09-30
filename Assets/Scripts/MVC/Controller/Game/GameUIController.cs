@@ -2,7 +2,6 @@ using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 using Util;
-using Component.StateSystem;
 using TMPro;
 
 namespace MVC.Controller.Game
@@ -27,6 +26,7 @@ namespace MVC.Controller.Game
             InitializeStateMachine();
             InitializeStates();
             StartStateMachine();
+            
         }
 
         private void InitializeStateMachine()
@@ -49,7 +49,14 @@ namespace MVC.Controller.Game
 
         private void Update()
         {
-            _stateMachine.CurrentState.Execute();
+            if (_stateMachine?.CurrentState == null)
+                return;
+    
+            // 구체 타입으로 캐스팅 시도
+            if (_stateMachine.CurrentState is EntityStateBase state)
+                state.Execute();
+            else
+                _stateMachine.CurrentState.Execute();
         }
 
         private void OnEnable()

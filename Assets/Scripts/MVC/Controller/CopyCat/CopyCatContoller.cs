@@ -2,13 +2,10 @@ using System.Collections.Generic;
 using Component.Attack;
 using Component.Input;
 using Component.Skill;
-using Controller.Entity;
-using Model;
+using MVC.Data;
 using UI;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using Util;
-using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.CopyCat
 {
@@ -71,6 +68,8 @@ namespace MVC.Controller.CopyCat
             PublishSpawnEvent();
             StartStateMachine();
             InitializeHealthDrain();
+            
+            GetComponent<AnimationEvent>().Init();
         }
 
         private void InitializeModel()
@@ -136,14 +135,6 @@ namespace MVC.Controller.CopyCat
             _healthDrainTimer = 0f;
         }
 
-        public override void AnimationTrigger()
-        {
-            if (StateMachine.CurrentState is EntityStateBase<CopyCatController> currentState)
-            {
-                currentState.AnimationTrigger(); 
-            }
-        }
-
         public override EntityType GetEntityType() => EntityType.CopyCat;
 
         private void Update()
@@ -154,7 +145,14 @@ namespace MVC.Controller.CopyCat
 
         private void ExecuteCurrentState()
         {
-            StateMachine.CurrentState.Execute();
+            if (StateMachine?.CurrentState == null)
+                return;
+    
+            // 구체 타입으로 캐스팅 시도
+            if (StateMachine.CurrentState is EntityStateBase state)
+                state.Execute();
+            else
+                StateMachine.CurrentState.Execute();
         }
 
         private void ProcessHealthDrain()

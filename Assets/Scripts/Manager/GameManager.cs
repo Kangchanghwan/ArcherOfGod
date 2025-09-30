@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using Controller.Entity;
 using Interface;
 using MVC.Controller;
-using MVC.Controller.CopyCat;
 using MVC.Controller.Enemy;
 using MVC.Controller.Game;
 using MVC.Controller.Player;
@@ -68,13 +65,30 @@ namespace Manager
 
         private void Start()
         {
-            gameUIController.Init();
-            enemyController.Init();
-            playerController.Init();
-
-            _combatSystem = new CombatSystem(
-                activeCombatants: new ICombatable[] { enemyController, playerController },
-                gameUIController: gameUIController);
+            Debug.Log("=== GameManager Start BEGIN ===");
+    
+            try
+            {
+                Debug.Log("Initializing UI...");
+                gameUIController.Init();
+        
+                Debug.Log("Initializing Enemy...");
+                enemyController.Init();
+        
+                Debug.Log("Initializing Player...");
+                playerController.Init();
+        
+                Debug.Log("Creating CombatSystem...");
+                _combatSystem = new CombatSystem(
+                    activeCombatants: new ICombatable[] { enemyController, playerController },
+                    gameUIController: gameUIController);
+                
+                Debug.Log("=== GameManager Start COMPLETE ===");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Init failed: {e.Message}\n{e.StackTrace}");
+            }
         }
     }
 }

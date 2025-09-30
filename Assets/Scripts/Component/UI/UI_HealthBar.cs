@@ -1,5 +1,4 @@
 using System;
-using Controller.Entity;
 using MVC.Controller;
 using UnityEngine;
 using UnityEngine.UI;

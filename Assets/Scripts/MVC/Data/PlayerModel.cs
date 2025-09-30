@@ -1,6 +1,6 @@
 using System;
-using Controller.Entity;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace MVC.Data
 {

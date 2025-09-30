@@ -1,8 +1,8 @@
 using System;
-using Controller.Entity;
 using UnityEngine;
+using UnityEngine.Scripting;
 
-namespace Model
+namespace MVC.Data
 {
     public class EnemyModel
     {

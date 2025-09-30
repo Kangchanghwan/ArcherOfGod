@@ -1,19 +1,18 @@
 using Component.Skill;
-using Component.SkillSystem;
-using Controller.Entity;
 using Cysharp.Threading.Tasks;
-using Interface;
-using MVC.Controller.Enemy;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace MVC.Controller.Player
 {
-    public class AttackState : EntityStateBase<PlayerController>
+    public class AttackState : EntityStateBase
     {
         private float _attackTimer;
         private bool _hasAttacked;
+        private readonly PlayerController _controller;
         public AttackState(PlayerController controller) : base(controller)
         {
+            _controller = controller;
         }
         protected override string GetAnimationName() => "Attack";
 
@@ -22,7 +21,7 @@ namespace MVC.Controller.Player
             base.Enter();
             _attackTimer = 0f;
             _hasAttacked = false;
-            Controller.PrepareAttack();
+            _controller.PrepareAttack();
         }
 
         public override void Execute()
@@ -32,41 +31,45 @@ namespace MVC.Controller.Player
             _attackTimer += Time.deltaTime;
         
             // 공격 타이밍에 도달하면 공격 실행
-            if (!_hasAttacked && _attackTimer >= Controller.AttackDelay)
+            if (!_hasAttacked && _attackTimer >= _controller.AttackDelay)
             {
-                Controller.PerformAttack();
+                _controller.PerformAttack();
                 _hasAttacked = true;
             }
         
-            if (Controller.IsOnMove) 
-                Controller.ChangeMoveState();
+            if (_controller.IsOnMove) 
+                _controller.ChangeMoveState();
             
             if (TriggerCalled)
-                Controller.ChangeCastingState();
+                _controller.ChangeCastingState();
         }
 
     }
     
-    public class CastingState : EntityStateBase<PlayerController>
+    public class CastingState : EntityStateBase
     {
+        private readonly PlayerController _controller;
+
         public CastingState(PlayerController controller) : base(controller)
         {
+            _controller = controller;
         }
         protected override string GetAnimationName() => "Casting";
         public override void Execute()
         {
             base.Execute();
-            if (Controller.IsOnMove) 
-                Controller.ChangeMoveState();
+            if (_controller.IsOnMove) 
+                _controller.ChangeMoveState();
             if (TriggerCalled)
-                Controller.ChangeAttackState();
+                _controller.ChangeAttackState();
         }
     }
-
-    public class MoveState : EntityStateBase<PlayerController>
+    public class MoveState : EntityStateBase
     {
+        private readonly PlayerController _controller;
         public MoveState(PlayerController controller) : base(controller)
         {
+            _controller = controller;
         }
 
         protected override string GetAnimationName() => "Move";
@@ -74,19 +77,20 @@ namespace MVC.Controller.Player
         public override void Execute()
         {
             base.Execute();
-            Controller.ProcessMovement();
-            if (Controller.IsOnMove is false)
-                Controller.ChangeCastingState();
+            _controller.ProcessMovement();
+            if (_controller.IsOnMove is false)
+                _controller.ChangeCastingState();
         }
     }
-
-    public class SkillState : EntityStateBase<PlayerController>
+    public class SkillState : EntityStateBase
     {
         private readonly SkillBase _skill;
+        private readonly PlayerController _controller;
         
         public SkillState(PlayerController controller, SkillBase skill) : base(controller)
         {
             _skill = skill;
+            _controller = controller;
         }
 
         protected override string GetAnimationName() => _skill.AnimationName;
@@ -94,7 +98,7 @@ namespace MVC.Controller.Player
         public override void Enter()
         {
             base.Enter();
-            Controller.HandleInputSystem(false);
+            _controller.HandleInputSystem(false);
             Controller.FaceTarget();
             _skill.ExecuteSkill().Forget();
         }
@@ -103,17 +107,16 @@ namespace MVC.Controller.Player
         {
             base.Execute();
             if(TriggerCalled)
-                Controller.ChangeCastingState();
+                _controller.ChangeCastingState();
         }
 
         public override void Exit()
         {
             base.Exit();
-            Controller.HandleInputSystem(true);
+            _controller.HandleInputSystem(true);
         }
     }
-    // Dead State
-    public class DeadState : EntityStateBase<PlayerController>
+    public class DeadState : EntityStateBase
     {
         public DeadState(PlayerController controller) : base(controller)
         {
@@ -130,23 +133,24 @@ namespace MVC.Controller.Player
 
     }
 
-    // Idle State
-    public class IdleState : EntityStateBase<PlayerController>
+    public class IdleState : EntityStateBase
     {
+        private readonly PlayerController _controller;
 
         public IdleState(PlayerController controller) : base(controller)
         {
+            _controller = controller;
         }
         public override void Enter()
         {
             base.Enter();
-            Controller.HandleInputSystem(false);
+            _controller.HandleInputSystem(false);
         }
         protected override string GetAnimationName() => "Idle";
         public override void Exit()
         {
             base.Exit();
-            Controller.HandleInputSystem(true);
+            _controller.HandleInputSystem(true);
         }
     }
 }

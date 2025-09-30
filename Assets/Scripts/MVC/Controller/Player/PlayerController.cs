@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using Component.Attack;
 using Component.Skill;
-using Controller.Entity;
 using MVC.Data;
 using UI;
 using UnityEngine;
 using Util;
-using StateMachine = Component.StateSystem.StateMachine;
+using StateMachine = MVC.Controller.StateMachine;
 
 namespace MVC.Controller.Player
 {
@@ -58,6 +57,8 @@ namespace MVC.Controller.Player
             SetupInputSystem();
             RegisterEventHandlers();
             StartStateMachine();
+            
+            GetComponent<AnimationEvent>().Init();
         }
 
         private void InitializeModel()
@@ -130,14 +131,6 @@ namespace MVC.Controller.Player
             }
         }
 
-        public override void AnimationTrigger()
-        {
-            if (StateMachine.CurrentState is EntityStateBase<PlayerController> currentState)
-            {
-                currentState.AnimationTrigger();
-            }
-        }
-
         public override EntityType GetEntityType() => EntityType.Player;
 
         public void HandleInputSystem(bool onOff)
@@ -151,7 +144,14 @@ namespace MVC.Controller.Player
 
         private void Update()
         {
-            StateMachine.CurrentState.Execute();
+            if (StateMachine?.CurrentState == null)
+                return;
+    
+            // 구체 타입으로 캐스팅 시도
+            if (StateMachine.CurrentState is EntityStateBase state)
+                state.Execute();
+            else
+                StateMachine.CurrentState.Execute();
         }
 
     

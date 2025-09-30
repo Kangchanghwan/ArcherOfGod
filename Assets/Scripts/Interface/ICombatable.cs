@@ -1,4 +1,4 @@
-using Controller.Entity;
+using MVC.Controller;
 using UnityEngine;
 
 namespace Interface

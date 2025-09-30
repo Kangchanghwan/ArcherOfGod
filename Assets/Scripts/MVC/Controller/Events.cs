@@ -1,7 +1,7 @@
 using Component.Skill;
-using Controller.Entity;
 using Interface;
 using UnityEngine;
+using UnityEngine.Scripting;
 using Util;
 
 namespace MVC.Controller
@@ -26,7 +26,6 @@ namespace MVC.Controller
             Combatable = combatable;
         }
     }
-    
     public struct OnPlayingStartEvent : IEvent
     {
     }

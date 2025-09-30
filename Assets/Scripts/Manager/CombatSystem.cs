@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
-using Controller.Entity;
 using Interface;
 using MVC.Controller;
 using MVC.Controller.Game;
 using UnityEngine;
+using UnityEngine.Scripting;
 using Util;
 
 namespace Manager
 {
+    [Preserve]
    public class CombatSystem
    {
        private readonly Dictionary<EntityType, ICombatable> _activeCombatants;

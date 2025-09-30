@@ -1,17 +1,11 @@
-using System;
 using System.Collections.Generic;
 using Component.Attack;
 using Component.Input;
 using Component.Skill;
-using Component.SkillSystem;
-using Controller.Entity;
-using Interface;
-using Model;
+using MVC.Data;
 using UI;
 using UnityEngine;
 using Util;
-using static Model.EnemyModel;
-using StateMachine = Component.StateSystem.StateMachine;
 
 namespace MVC.Controller.Enemy
 {
@@ -66,6 +60,8 @@ namespace MVC.Controller.Enemy
             InitializeSkills();
             RegisterEventHandlers();
             StartStateMachine();
+            
+            GetComponent<AnimationEvent>().Init();
         }
 
         private void InitializeModel()
@@ -120,14 +116,6 @@ namespace MVC.Controller.Enemy
             StateMachine.Initialize(_idleState);
         }
 
-        public override void AnimationTrigger()
-        {
-            if (StateMachine.CurrentState is EntityStateBase<EnemyController> currentState)
-            {
-                currentState.AnimationTrigger(); 
-            }
-        }
-
         public override EntityType GetEntityType() => EntityType.Enemy;
 
         public void HandleInputSystem(bool onOff)
@@ -136,7 +124,14 @@ namespace MVC.Controller.Enemy
         }
         private void Update()
         {
-            StateMachine.CurrentState.Execute();
+            if (StateMachine?.CurrentState == null)
+                return;
+    
+            // 구체 타입으로 캐스팅 시도
+            if (StateMachine.CurrentState is EntityStateBase state)
+                state.Execute();
+            else
+                StateMachine.CurrentState.Execute();
         }
 
 
@@ -153,8 +148,6 @@ namespace MVC.Controller.Enemy
             var movement = new Vector2(xInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
             Rigidbody2D.MovePosition(Rigidbody2D.position + movement);
         }
-
-        public void SetTarget(Transform transform) => Target = transform;
 
         public override void TakeDamage(float damage)
         {

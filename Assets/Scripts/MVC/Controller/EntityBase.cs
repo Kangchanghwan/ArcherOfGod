@@ -1,11 +1,9 @@
 using Interface;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Scripting;
 using IState = Interface.IState;
-using StateMachine = Component.StateSystem.StateMachine;
 
-namespace Controller.Entity
+namespace MVC.Controller
 {
     public enum EntityType
     {
@@ -13,13 +11,12 @@ namespace Controller.Entity
         Enemy,
         CopyCat
     }
-    
-    public abstract class EntityStateBase<T> : IState where T : EntityControllerBase
+    public abstract class EntityStateBase : IState 
     {
-        protected readonly T Controller;
+        protected readonly EntityControllerBase Controller;
         private readonly Animator _animator;
 
-        protected EntityStateBase(T entityControllerBase)
+        protected EntityStateBase(EntityControllerBase entityControllerBase)
         {
             Controller = entityControllerBase;
             _animator = entityControllerBase.Animator;
@@ -46,7 +43,6 @@ namespace Controller.Entity
 
         protected abstract string GetAnimationName();
     }
-
     public abstract class EntityControllerBase : MonoBehaviour, ICombatable
     {
         protected Transform Target;
@@ -98,7 +94,11 @@ namespace Controller.Entity
             transform.localScale = scale;
         }
 
-        public abstract void AnimationTrigger();
+        public void AnimationTrigger()
+        {
+            if (StateMachine?.CurrentState is EntityStateBase state)
+                state.AnimationTrigger();
+        }
 
         public abstract EntityType GetEntityType();
         public void SetTarget(Transform transform) => Target = transform;
