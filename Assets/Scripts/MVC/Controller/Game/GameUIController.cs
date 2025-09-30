@@ -7,7 +7,7 @@ using TMPro;
 
 namespace MVC.Controller.Game
 {
-    public class GameController : MonoBehaviour
+    public class GameUIController : MonoBehaviour
     {
         [Header("UI References")]
         [SerializeField] private TextMeshProUGUI countDownTimer;
@@ -22,19 +22,30 @@ namespace MVC.Controller.Game
         private GamePlayingState _gamePlayingState;
         private GameEndState _gameEndState;
 
-        private void Awake()
+        public void Init()
+        {
+            InitializeStateMachine();
+            InitializeStates();
+            StartStateMachine();
+        }
+
+        private void InitializeStateMachine()
         {
             _stateMachine = new StateMachine();
-            
+        }
+
+        private void InitializeStates()
+        {
             _gameStartState = new GameStartState(this);
             _gamePlayingState = new GamePlayingState(this);
             _gameEndState = new GameEndState(this);
         }
 
-        private void Start()
+        private void StartStateMachine()
         {
             _stateMachine.Initialize(_gameStartState);
         }
+
 
         private void Update()
         {
@@ -43,62 +54,53 @@ namespace MVC.Controller.Game
 
         private void OnEnable()
         {
-            EventManager.Subscribe<OnCombatEndEvent>(HandleCombatEnd);
-            
             if (loftButton != null)
                 loftButton.onClick.AddListener(RestartGame);
         }
 
         private void OnDisable()
         {
-            EventManager.Unsubscribe<OnCombatEndEvent>(HandleCombatEnd);
-            
             if (loftButton != null)
                 loftButton.onClick.RemoveListener(RestartGame);
         }
 
-        private void HandleCombatEnd(OnCombatEndEvent @event)
-        {
-            switch (@event.Result)
-            {
-                case CombatResult.Victory:
-                    Win();
-                    break;
-                case CombatResult.Defeat:
-                    Lose();
-                    break;
-            }
-        }
 
-        private void Win()
+        public void Win()
         {
             Debug.Log("Victory!");
             _gameEndState.SetResult("Victory!", true);
             _stateMachine.ChangeState(_gameEndState);
         }
         
-        private void Lose()
+        public void Lose()
         {
             Debug.Log("Game Over - You Lose!");
             _gameEndState.SetResult("Defeat!", false);
             _stateMachine.ChangeState(_gameEndState);
         }
-
-        public void StartGamePlaying() => _stateMachine.ChangeState(_gamePlayingState);
-        public void EndGame() => _stateMachine.ChangeState(_gameEndState);
         
         private void RestartGame()
         {
-            // 게임 재시작 시 상태 초기화
+            ResetGameStates();
+            StartNewGame();
+        }
+
+        private void ResetGameStates()
+        {
             _gameStartState = new GameStartState(this);
             _gamePlayingState = new GamePlayingState(this);
             _gameEndState = new GameEndState(this);
+        }
+
+        private void StartNewGame()
+        {
             _stateMachine.ChangeState(_gameStartState);
         }
 
         // State 전환 메서드들
         public void ChangeToGamePlaying()
         {
+            EventManager.Publish<OnPlayingStartEvent>();
             _stateMachine.ChangeState(_gamePlayingState);
         }
 

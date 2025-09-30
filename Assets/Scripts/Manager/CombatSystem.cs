@@ -1,58 +1,31 @@
 using System.Collections.Generic;
+using System.Linq;
 using Controller.Entity;
 using Interface;
 using MVC.Controller;
+using MVC.Controller.Game;
 using UnityEngine;
 using Util;
 
 namespace Manager
 {
-   public class CombatManager : MonoBehaviour
-    {
-        private readonly Dictionary<EntityType, ICombatable> _activeCombatants = new();
-        private readonly HashSet<EntityType> _expectedEntities = new() { EntityType.Player, EntityType.Enemy };
-        
-        private void Awake()
-        {
-            EventManager.Subscribe<OnEntitySpawnEvent>(RegisterCombatant);
-            EventManager.Subscribe<OnEntityDeathEvent>(HandleEntityDeath);
-        }
+   public class CombatSystem
+   {
+       private readonly Dictionary<EntityType, ICombatable> _activeCombatants;
+       private readonly GameUIController _gameUIController;
 
-        private void OnDisable()
-        {
-            EventManager.Unsubscribe<OnEntitySpawnEvent>(RegisterCombatant);
-            EventManager.Unsubscribe<OnEntityDeathEvent>(HandleEntityDeath);
-        }
+       public CombatSystem(ICombatable[] activeCombatants, GameUIController gameUIController)
+       {
+           _activeCombatants = activeCombatants.ToDictionary(
+               c => c.GetEntityType(),
+               c => c
+           );
+           _gameUIController = gameUIController;
 
-        private void RegisterCombatant(OnEntitySpawnEvent @event)
-        {
-            _activeCombatants[@event.EntityType] = @event.Combatable;
-            Debug.Log($"Combat participant registered: {@event.EntityType}");
-            
-            // 모든 필수 엔티티가 등록되면 초기 타겟팅 설정
-            if (AreAllExpectedEntitiesRegistered())
-            {
-                SetInitialTargeting();
-            }
-            
-            // CopyCat 등록 시 동적 타겟팅
-            if (@event.EntityType == EntityType.CopyCat)
-            {
-                HandleCopyCatSpawn();
-            }
-        }
+           SetInitialTargeting();
+       }
 
-        private bool AreAllExpectedEntitiesRegistered()
-        {
-            foreach (var entityType in _expectedEntities)
-            {
-                if (!_activeCombatants.ContainsKey(entityType))
-                    return false;
-            }
-            return true;
-        }
-
-        private void SetInitialTargeting()
+       private void SetInitialTargeting()
         {
             if (TryGetCombatant(EntityType.Player, out var player) && 
                 TryGetCombatant(EntityType.Enemy, out var enemy))
@@ -63,10 +36,10 @@ namespace Manager
             }
         }
 
-        private void HandleCopyCatSpawn()
+        public void HandleCopyCatSpawn(ICombatable copyCat)
         {
-            if (TryGetCombatant(EntityType.CopyCat, out var copyCat) && 
-                TryGetCombatant(EntityType.Enemy, out var enemy))
+
+            if (TryGetCombatant(EntityType.Enemy, out var enemy))
             {
                 // CopyCat은 Enemy를 타겟, Enemy는 CopyCat을 타겟
                 copyCat.SetTarget(GetTransform(enemy));
@@ -75,18 +48,18 @@ namespace Manager
             }
         }
 
-        private void HandleEntityDeath(OnEntityDeathEvent @event)
+        public void HandleCombatDeadRefresh(EntityType entityType)
         {
-            if (!_activeCombatants.ContainsKey(@event.Type)) return;
+            if (!_activeCombatants.ContainsKey(entityType)) return;
 
-            _activeCombatants.Remove(@event.Type);
-            Debug.Log($"Combat participant removed: {@event.Type}");
+            _activeCombatants.Remove(entityType);
+            Debug.Log($"Combat participant removed: {entityType}");
 
             // 타겟 재설정
-            RetargetAfterDeath(@event.Type);
+            RetargetAfterDeath(entityType);
             
             // 전투 종료 체크
-            CheckCombatEnd(@event.Type);
+            CheckCombatEnd(entityType);
         }
 
         private void RetargetAfterDeath(EntityType deadType)
@@ -119,10 +92,10 @@ namespace Manager
             switch (deadType)
             {
                 case EntityType.Player:
-                    EventManager.Publish(new OnCombatEndEvent(CombatResult.Defeat));
+                    _gameUIController.Lose();
                     break;
                 case EntityType.Enemy:
-                    EventManager.Publish(new OnCombatEndEvent(CombatResult.Victory));
+                    _gameUIController.Win();
                     break;
             }
         }

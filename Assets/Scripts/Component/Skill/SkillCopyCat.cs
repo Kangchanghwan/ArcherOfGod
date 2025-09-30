@@ -22,7 +22,8 @@ namespace Component.SkillSystem
         public override async UniTask SkillTask(CancellationToken cancellationToken)
         {
             await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);
-            Instantiate(cloningObject, transform.position, Quaternion.identity);
+            var copyCat = Instantiate(cloningObject, transform.position, Quaternion.identity);
+            copyCat.GetComponent<CopyCatController>().Init();
         }
     }
 }

@@ -57,7 +57,7 @@ namespace Controller.Entity
 
         private bool _facingTarget;
 
-        protected virtual void Awake()
+        public virtual void Init()
         {
             Animator = GetComponent<Animator>();
             Rigidbody2D = GetComponent<Rigidbody2D>();
@@ -99,7 +99,8 @@ namespace Controller.Entity
         }
 
         public abstract void AnimationTrigger();
-        
+
+        public abstract EntityType GetEntityType();
         public void SetTarget(Transform transform) => Target = transform;
 
         public abstract void TakeDamage(float damage);

@@ -56,28 +56,68 @@ namespace MVC.Controller.Enemy
         public bool IsOnMove => Mathf.Abs(aiInputSystem.HorizontalInput) > 0.1f;
         public float AttackDelay => attackDelay;
 
-        protected override void Awake()
+        public override void Init()
         {
-            base.Awake();
+            base.Init();
+            InitializeModel();
+            InitializeStateMachine();
+            InitializeStates();
+            InitializeComponents();
+            InitializeSkills();
+            RegisterEventHandlers();
+            StartStateMachine();
+        }
+
+        private void InitializeModel()
+        {
             _model = new EnemyModel(
                 maxHealth: maxHealth
             );
+        }
 
+        private void InitializeStateMachine()
+        {
             StateMachine = new StateMachine();
-            // Enemy 전용 State로 교체
+        }
+
+        private void InitializeStates()
+        {
             _attackState = new AttackState(this);
             _castingState = new CastingState(this);
             _moveState = new MoveState(this);
             _idleState = new IdleState(this);
             _deadState = new DeadState(this);
+        }
 
+        private void InitializeComponents()
+        {
             shotArrow = GetComponent<ShotArrow>();
             uiHealthBar = GetComponent<UI_HealthBar>();
             aiInputSystem = GetComponent<AIInputSystem>();
-            
+
             Debug.Assert(shotArrow != null);
             Debug.Assert(uiHealthBar != null);
             Debug.Assert(aiInputSystem != null, "AIInputSystem component is required!");
+        }
+
+        private void InitializeSkills()
+        {
+            var skillBases = GetComponentsInChildren<SkillBase>(true);
+            foreach (var skill in skillBases)
+            {
+                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
+                _skills.Add(skill.SkillType, skill);
+            }
+        }
+
+        private void RegisterEventHandlers()
+        {
+            _model.OnDeath += HandleOnDeath;
+        }
+
+        private void StartStateMachine()
+        {
+            StateMachine.Initialize(_idleState);
         }
 
         public override void AnimationTrigger()
@@ -88,32 +128,12 @@ namespace MVC.Controller.Enemy
             }
         }
 
-        private void OnEnable()
-        {
-            var skillBases = GetComponentsInChildren<SkillBase>(true);
-            foreach (var skill in skillBases)
-            {
-                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
-                _skills.Add(skill.SkillType, skill); 
-            }
-            
-            _model.OnDeath += HandleOnDeath;
-            
-            EventManager.Publish(new OnEntitySpawnEvent(EntityType.Enemy, this));
-            EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
-
-        }
+        public override EntityType GetEntityType() => EntityType.Enemy;
 
         public void HandleInputSystem(bool onOff)
         {
             // AI는 InputManager를 사용하지 않으므로 빈 구현
         }
-
-        private void Start()
-        {
-            StateMachine.Initialize(_idleState);
-        }
-
         private void Update()
         {
             StateMachine.CurrentState.Execute();
@@ -123,13 +143,10 @@ namespace MVC.Controller.Enemy
         private void OnDisable()
         {
             _model.OnDeath -= HandleOnDeath;
-            EventManager.Unsubscribe<OnGameStartEvent>(HandleOnGameStart);
         }
-        
-        private void HandleOnGameStart(OnGameStartEvent @event) => ChangeCastingState();
 
         // AI 입력 시스템 기반 이동
-        public void ExecuteMove()
+        public void ProcessMovement()
         {
             float xInput = aiInputSystem != null ? aiInputSystem.HorizontalInput : 0f;
             FlipController(xInput);
@@ -151,13 +168,13 @@ namespace MVC.Controller.Enemy
             Rigidbody2D.simulated = false;
         }
 
-        public void AttackReady()
+        public void PrepareAttack()
         {
             Animator.SetFloat("AttackSpeed", attackSpeed);
             FaceTarget();
         }
 
-        public void ExecuteAttack()
+        public void PerformAttack()
         {
             // 화살 공격 실행
             shotArrow.Attack(new ShotArrowCommand(
@@ -174,8 +191,7 @@ namespace MVC.Controller.Enemy
             Rigidbody2D.simulated = false;
             EventManager.Publish(new OnEntityDeathEvent(EntityType.Enemy));
         }
-
-
+        
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
         public void ChangeAttackState() => StateMachine.ChangeState(_attackState);
         public void ChangeCastingState() => StateMachine.ChangeState(_castingState);

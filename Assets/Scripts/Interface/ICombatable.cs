@@ -1,10 +1,11 @@
+using Controller.Entity;
 using UnityEngine;
 
 namespace Interface
 {
     public interface ICombatable
     {
-        GameObject gameObject { get; }
+        EntityType GetEntityType();
         void SetTarget(Transform transform);
         public void TakeDamage(float damage);
         void TargetOnDead();

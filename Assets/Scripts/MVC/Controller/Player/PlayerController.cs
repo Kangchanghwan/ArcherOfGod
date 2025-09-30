@@ -48,28 +48,86 @@ namespace MVC.Controller.Player
         public bool IsOnMove => Mathf.Abs(_xInput) > 0.1f;
         public float AttackDelay => attackDelay;
 
-        protected override void Awake()
+        public override void Init()
         {
-            base.Awake();
+            base.Init();
+            InitializeModel();
+            InitializeStateMachine();
+            InitializeStates();
+            InitializeComponents();
+            SetupInputSystem();
+            RegisterEventHandlers();
+            StartStateMachine();
+        }
+
+        private void InitializeModel()
+        {
             _model = new PlayerModel(
                 maxHealth: maxHealth
             );
+        }
 
+        private void InitializeStateMachine()
+        {
             _inputManager = new InputManager();
             StateMachine = new StateMachine();
+        }
 
+        private void InitializeStates()
+        {
             _attackState = new(this);
             _castingState = new(this);
             _moveState = new(this);
             _idleState = new(this);
             _deadState = new(this);
+        }
 
+        private void InitializeComponents()
+        {
             shotArrow = GetComponent<ShotArrow>();
             uiHealthBar = GetComponent<UI_HealthBar>();
 
-
             Debug.Assert(uiHealthBar != null);
             Debug.Assert(shotArrow != null);
+        }
+
+        private void SetupInputSystem()
+        {
+            HandleInputSystem(true);
+
+            _inputManager.Controller.Move.performed += ctx => _xInput = ctx.ReadValue<float>();
+            _inputManager.Controller.Move.canceled += _ => _xInput = 0f;
+
+            _inputManager.Controller.Skill_1.performed += _ => TryUseSkill(SkillType.JumpShoot);
+            _inputManager.Controller.Skill_2.performed += _ => TryUseSkill(SkillType.BombShoot);
+            _inputManager.Controller.Skill_3.performed += _ => TryUseSkill(SkillType.RepidFire);
+            _inputManager.Controller.Skill_4.performed += _ => TryUseSkill(SkillType.WhirlWind);
+            _inputManager.Controller.Skill_5.performed += _ => TryUseSkill(SkillType.CopyCat);
+        }
+
+        private void RegisterEventHandlers()
+        {
+            _model.OnDeath += HandleOnDeath;
+        }
+
+        private void StartStateMachine()
+        {
+            StateMachine.Initialize(_idleState);
+        }
+
+        public void OnCombatStart()
+        {
+            InitializeSkills();
+            ChangeCastingState();
+        }
+        private void InitializeSkills()
+        {
+            var skillBases = GetComponentsInChildren<SkillBase>(true);
+            foreach (var skill in skillBases)
+            {
+                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
+                _skills.Add(skill.SkillType, skill);
+            }
         }
 
         public override void AnimationTrigger()
@@ -80,26 +138,7 @@ namespace MVC.Controller.Player
             }
         }
 
-
-        private void OnEnable()
-        {
-            HandleInputSystem(true);
-            
-            _inputManager.Controller.Move.performed += ctx => _xInput = ctx.ReadValue<float>();
-            _inputManager.Controller.Move.canceled += _ => _xInput = 0f;
-
-            _inputManager.Controller.Skill_1.performed += _ => TryUseSkill(SkillType.JumpShoot);
-            _inputManager.Controller.Skill_2.performed += _ => TryUseSkill(SkillType.BombShoot);
-            _inputManager.Controller.Skill_3.performed += _ => TryUseSkill(SkillType.RepidFire);
-            _inputManager.Controller.Skill_4.performed += _ => TryUseSkill(SkillType.WhirlWind);
-            _inputManager.Controller.Skill_5.performed += _ => TryUseSkill(SkillType.CopyCat);
-
-            _model.OnDeath += HandleOnDeath;
-            _model.OnHealthUpdate += HandleHealthUpdate;
-            
-            EventManager.Publish(new OnEntitySpawnEvent(EntityType.Player, this));
-            EventManager.Subscribe<OnGameStartEvent>(HandleOnGameStart);
-        }
+        public override EntityType GetEntityType() => EntityType.Player;
 
         public void HandleInputSystem(bool onOff)
         {
@@ -108,28 +147,14 @@ namespace MVC.Controller.Player
             else
                 _inputManager.Disable();
         }
-
-        private void Start()
-        {
-            StateMachine.Initialize(_idleState);
-        }
+        
 
         private void Update()
         {
             StateMachine.CurrentState.Execute();
         }
 
-        private void HandleOnGameStart(OnGameStartEvent @event)
-        {
-            ChangeCastingState();
-            
-            var skillBases = GetComponentsInChildren<SkillBase>(true);
-            foreach (var skill in skillBases)
-            {
-                skill.Initialize(rigidbody: Rigidbody2D, anim: Animator);
-                _skills.Add(skill.SkillType, skill);
-            }
-        } 
+    
         private void TryUseSkill(SkillType skillType)
         {
             SkillBase skill = _skills[skillType];
@@ -145,11 +170,9 @@ namespace MVC.Controller.Player
         {
             HandleInputSystem(false);
             _model.OnDeath -= HandleOnDeath;
-            _model.OnHealthUpdate -= HandleHealthUpdate;
-            EventManager.Unsubscribe<OnGameStartEvent>(HandleOnGameStart);
         }
 
-        public void ExecuteMove()
+        public void ProcessMovement()
         {
             FlipController(_xInput);
             var movement = new Vector2(_xInput * moveSpeed * Time.deltaTime, Rigidbody2D.linearVelocity.y);
@@ -168,13 +191,13 @@ namespace MVC.Controller.Player
             Rigidbody2D.simulated = false;
         }
 
-        public void AttackReady()
+        public void PrepareAttack()
         {
             Animator.SetFloat("AttackSpeed", attackSpeed);
             FaceTarget();
         }
 
-        public void ExecuteAttack()
+        public void PerformAttack()
         {
             // 화살 공격 실행
             shotArrow.Attack(new ShotArrowCommand(
@@ -191,14 +214,7 @@ namespace MVC.Controller.Player
             Rigidbody2D.simulated = false;
             EventManager.Publish(new OnEntityDeathEvent(EntityType.Player));
         }
-
-        private void HandleHealthUpdate() => EventManager.Publish(
-            new OnHealthUpdateEvent(
-                type: EntityType.Player,
-                maxHealth: _model.GetMaxHealth(),
-                currentHealth: _model.GetCurrentHealth())
-        );
-
+        
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
         public void ChangeAttackState() => StateMachine.ChangeState(_attackState);
         public void ChangeCastingState() => StateMachine.ChangeState(_castingState);

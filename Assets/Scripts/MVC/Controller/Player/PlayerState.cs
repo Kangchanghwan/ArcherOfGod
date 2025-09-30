@@ -22,7 +22,7 @@ namespace MVC.Controller.Player
             base.Enter();
             _attackTimer = 0f;
             _hasAttacked = false;
-            Controller.AttackReady();
+            Controller.PrepareAttack();
         }
 
         public override void Execute()
@@ -34,7 +34,7 @@ namespace MVC.Controller.Player
             // 공격 타이밍에 도달하면 공격 실행
             if (!_hasAttacked && _attackTimer >= Controller.AttackDelay)
             {
-                Controller.ExecuteAttack();
+                Controller.PerformAttack();
                 _hasAttacked = true;
             }
         
@@ -74,7 +74,7 @@ namespace MVC.Controller.Player
         public override void Execute()
         {
             base.Execute();
-            Controller.ExecuteMove();
+            Controller.ProcessMovement();
             if (Controller.IsOnMove is false)
                 Controller.ChangeCastingState();
         }
