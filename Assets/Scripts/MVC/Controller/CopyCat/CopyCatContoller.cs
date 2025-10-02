@@ -145,14 +145,7 @@ namespace MVC.Controller.CopyCat
 
         private void ExecuteCurrentState()
         {
-            if (StateMachine?.CurrentState == null)
-                return;
-    
-            // 구체 타입으로 캐스팅 시도
-            if (StateMachine.CurrentState is EntityStateBase state)
-                state.Execute();
-            else
-                StateMachine.CurrentState.Execute();
+            StateMachine?.CurrentState.Execute();
         }
 
         private void ProcessHealthDrain()

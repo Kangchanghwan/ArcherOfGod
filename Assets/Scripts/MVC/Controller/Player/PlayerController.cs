@@ -5,7 +5,6 @@ using MVC.Data;
 using UI;
 using UnityEngine;
 using Util;
-using StateMachine = MVC.Controller.StateMachine;
 
 namespace MVC.Controller.Player
 {
@@ -144,14 +143,7 @@ namespace MVC.Controller.Player
 
         private void Update()
         {
-            if (StateMachine?.CurrentState == null)
-                return;
-    
-            // 구체 타입으로 캐스팅 시도
-            if (StateMachine.CurrentState is EntityStateBase state)
-                state.Execute();
-            else
-                StateMachine.CurrentState.Execute();
+            StateMachine?.CurrentState.Execute();
         }
 
     

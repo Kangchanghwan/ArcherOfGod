@@ -51,10 +51,7 @@ namespace Manager
 
         public void HandleCombatDeadRefresh(EntityType entityType)
         {
-            if (!_activeCombatants.ContainsKey(entityType)) return;
-
             _activeCombatants.Remove(entityType);
-            Debug.Log($"Combat participant removed: {entityType}");
 
             // 타겟 재설정
             RetargetAfterDeath(entityType);

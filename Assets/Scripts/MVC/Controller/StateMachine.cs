@@ -1,9 +1,7 @@
 using Interface;
-using UnityEngine.Scripting;
 
 namespace MVC.Controller
 {
-    [Preserve]
     public class StateMachine
     {
         public IState CurrentState { get; private set; }

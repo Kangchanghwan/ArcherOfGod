@@ -1,4 +1,3 @@
-using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 using Util;

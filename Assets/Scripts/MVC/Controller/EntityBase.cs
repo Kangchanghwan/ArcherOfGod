@@ -1,6 +1,5 @@
 using Interface;
 using UnityEngine;
-using UnityEngine.Scripting;
 using IState = Interface.IState;
 
 namespace MVC.Controller

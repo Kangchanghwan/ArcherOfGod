@@ -1,7 +1,5 @@
 using UnityEngine;
 using Interface;
-using UnityEngine.Scripting;
-using Util;
 
 namespace MVC.Controller.Game
 {
