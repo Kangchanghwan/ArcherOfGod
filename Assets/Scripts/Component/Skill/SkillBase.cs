@@ -52,6 +52,7 @@ namespace Component.Skill
         {
             this.Rigidbody2D = rigidbody;
             this.Anim = anim;
+            SetSkillOnCooldown();
             skillSlot?.StartCooldown(cooldown);
         }
 
