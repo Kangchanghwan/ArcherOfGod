@@ -25,7 +25,7 @@ namespace Component
 
         private void OnEnable()
         {
-            ResetArrow();
+            _collider2D.enabled = true;
         }
 
         private void OnDisable()
@@ -41,15 +41,15 @@ namespace Component
         private void OnTriggerEnter2D(Collider2D other)
         {
             CheckPlayerOrEnemy(other);
-            CheckGround(other);
+            CheckGround(other).Forget();
         }
 
-        private void CheckGround(Collider2D other)
+        private async UniTask CheckGround(Collider2D other)
         {
             if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
             {
+                await ObjectPool.Instance.ReturnObject(gameObject, 1f);
                 StopArrowTask();
-                ObjectPool.Instance.ReturnObject(gameObject, 1f);
             }
         }
 
@@ -61,7 +61,7 @@ namespace Component
                 var combatable = other.GetComponent<ICombatable>();
                 OnDamage(combatable);
                 StopArrowTask();
-                ObjectPool.Instance.ReturnObject(gameObject);
+                ObjectPool.Instance.ReturnObject(gameObject).Forget();
                 ArrowParticle();
             }
         }
@@ -82,14 +82,7 @@ namespace Component
 
         public void StopArrowTask()
         {
-            _collider2D.enabled = false;
             _cancellationTokenSource?.Cancel();
-        }
-
-        private void ResetArrow()
-        {
-            _elapsedTime = 0f;
-            _collider2D.enabled = true;
         }
 
         private async UniTask ShotArrowTask(Vector2 p0, Vector2 p1, Vector2 p2, CancellationToken cancellationToken)
@@ -127,7 +120,7 @@ namespace Component
             }
             catch (OperationCanceledException)
             {
-                // Task was cancelled, cleanup if needed
+                _collider2D.enabled = false;
             }
         }
 

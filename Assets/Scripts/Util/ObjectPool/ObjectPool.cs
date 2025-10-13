@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Util;
 
@@ -31,15 +32,15 @@ public class ObjectPool : Singleton<ObjectPool>
         return objectToGet;
     }
 
-    public void ReturnObject(GameObject objectToReturn, float delay = .001f)
+    public async UniTask ReturnObject(GameObject objectToReturn, float delay = .001f)
     {
-        StartCoroutine(DelayReturn(delay, objectToReturn));
+        await DelayReturn(delay, objectToReturn);
     }
 
-    private IEnumerator DelayReturn(float delay,GameObject objectToReturn)
+    private async UniTask DelayReturn(float delay,GameObject objectToReturn)
     {
-        yield return new WaitForSeconds(delay);
-
+        await UniTask.WaitForSeconds(delay);
+        
         ReturnToPool(objectToReturn);
     }
 
