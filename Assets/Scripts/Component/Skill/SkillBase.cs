@@ -75,32 +75,32 @@ namespace Component.Skill
             }
         }
 
-        protected GameObject PoolObject(GameObject prefab)
-        {
-            GameObject pool = null;
-
-            if (_pools.Count > 0)
-            {
-                for (int i = 0; i < _pools.Count; i++)
-                {
-                    pool = _pools.Dequeue();
-                    if (pool.activeSelf == false)
-                    {
-                        _pools.Enqueue(pool);
-                        pool.SetActive(true);
-                        return pool;
-                    }
-
-                    _pools.Enqueue(pool);
-                }
-            }
-
-            pool = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, -180f),
-                GameManager.Instance.transform);
-            _pools.Enqueue(pool);
-            pool.SetActive(true);
-            return pool;
-        }
+        // protected GameObject PoolObject(GameObject prefab)
+        // {
+        //     GameObject pool = null;
+        //
+        //     if (_pools.Count > 0)
+        //     {
+        //         for (int i = 0; i < _pools.Count; i++)
+        //         {
+        //             pool = _pools.Dequeue();
+        //             if (pool.activeSelf == false)
+        //             {
+        //                 _pools.Enqueue(pool);
+        //                 pool.SetActive(true);
+        //                 return pool;
+        //             }
+        //
+        //             _pools.Enqueue(pool);
+        //         }
+        //     }
+        //
+        //     pool = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, -180f),
+        //         GameManager.Instance.transform);
+        //     _pools.Enqueue(pool);
+        //     pool.SetActive(true);
+        //     return pool;
+        // }
 
         private bool OnCooldown() => Time.time < _lastTimeUsed + cooldown;
 

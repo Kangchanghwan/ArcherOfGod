@@ -156,7 +156,7 @@ namespace Component
             }
         }
 
-        public async void ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
+        public async UniTask ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
         {
             ResetArrow();
             StopArrowTask(); // Stop any existing task

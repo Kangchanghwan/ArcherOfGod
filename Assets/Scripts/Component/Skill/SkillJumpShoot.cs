@@ -6,8 +6,9 @@ namespace Component.Skill
 {
     public class SkillJumpShoot : SkillBase
     {
-        [Header("Skill Settings")]
-        [SerializeField] private Arrow arrowPrefab;
+        [Header("Skill Settings")] [SerializeField]
+        private Arrow arrowPrefab;
+
         [SerializeField] private float jumpHeight;
         [SerializeField] private int damage;
         [SerializeField] private float arrowSpeed;
@@ -78,7 +79,7 @@ namespace Component.Skill
         public void OnHoverEnd() => _hover = false;
 
         public void OnShootArrowTrigger() =>
-            FireArrow(PoolObject(arrowPrefab.gameObject).GetComponent<Arrow>());
+            FireArrow(ObjectPool.Instance.GetObject(arrowPrefab.gameObject, transform).GetComponent<Arrow>());
 
         public void OnDownStart() => _down = true;
         public void OnDownEnd() => _down = false;
@@ -87,12 +88,11 @@ namespace Component.Skill
 
         private void FireArrow(Arrow arrow)
         {
-            arrow.gameObject.SetActive(true);
             Vector2 p0 = (Vector2)transform.position + fireOffset;
             Vector2 p1 = p0;
             Vector2 p2 = Target.position;
             arrow.duration = arrowSpeed;
-            arrow.ShotArrow(p0, p1, p2);
+            UniTask.FromResult(arrow.ShotArrow(p0, p1, p2));
         }
     }
 }

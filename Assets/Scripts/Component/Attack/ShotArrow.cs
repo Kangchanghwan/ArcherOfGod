@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Manager;
 using UnityEngine;
 
@@ -25,53 +27,27 @@ namespace Component.Attack
         [Header("ArrowSettings")] [SerializeField]
         private Arrow arrowPrefab;
 
-        private Queue<Arrow> arrows = new Queue<Arrow>();
-
         public void Attack(ShotArrowCommand command)
         {
-            PoolArrow(command);
+            UniTask.FromResult(PoolArrow(command));
         }
 
 
-        private void PoolArrow(ShotArrowCommand command)
+        private async UniTask PoolArrow(ShotArrowCommand command)
         {
-            Arrow arrow = null;
 
-            if (arrows.Count > 0)
-            {
-                for (int i = 0; i < arrows.Count; i++)
-                {
-                    arrow = arrows.Dequeue();
-                    if (arrow.gameObject.activeSelf == false)
-                    {
-                        BezierArrow(arrow, command.StartPoint, command.EndPoint);
-                        arrows.Enqueue(arrow);
-                        return;
-                    }
-
-                    arrows.Enqueue(arrow);
-                }
-            }
-
-            arrow = Instantiate(
-                arrowPrefab,
-                command.StartPoint,
-                Quaternion.Euler(0, 0, -180f),
-                    GameManager.Instance.transform
-            );
+            var arrow = ObjectPool.Instance.GetObject(arrowPrefab.gameObject, ObjectPool.Instance.transform)
+                .GetComponent<Arrow>();
             arrow.damage = command.Damage;
             arrow.duration = command.Duration;
-            BezierArrow(arrow, command.StartPoint, command.EndPoint);
-            arrows.Enqueue(arrow);
-        }
-
-        private void BezierArrow(Arrow arrow, Vector2 startPoint, Transform endPoint)
-        {
-            arrow.gameObject.SetActive(true);
-            Vector2 p0 = startPoint;
+            
+            Vector2 p0 = command.StartPoint;
             Vector2 p1 = Vector2.up * 7f;
-            Vector2 p2 = endPoint.transform.position;
-            arrow.ShotArrow(p0, p1, p2);
+            Vector2 p2 = command.EndPoint.transform.position;
+            await arrow.ShotArrow(p0, p1, p2);
+            
+            ObjectPool.Instance.ReturnObject(arrow.gameObject);
         }
+        
     }
 }

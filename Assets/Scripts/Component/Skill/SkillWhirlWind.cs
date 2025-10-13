@@ -27,7 +27,7 @@ namespace Component.Skill
 
         public override async UniTask SkillTask(CancellationToken cancellationToken)
         {
-            var poolObject = PoolObject(whirlWind);
+            var poolObject = ObjectPool.Instance.GetObject(whirlWind, transform);
             poolObject.transform.position = new Vector2(transform.position.x, transform.position.y + 1f);
             
             var whirlWindComponent = poolObject.GetComponent<WhirlWind>();
@@ -48,7 +48,7 @@ namespace Component.Skill
             }
 
             await UniTask.Delay(System.TimeSpan.FromSeconds(whirlDuration + 1f), cancellationToken: cancellationToken);
-            poolObject.gameObject.SetActive(false);
+            ObjectPool.Instance.ReturnObject(poolObject);
         }
     }
 }

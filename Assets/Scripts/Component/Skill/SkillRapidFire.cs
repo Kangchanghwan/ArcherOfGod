@@ -37,7 +37,7 @@ namespace Component.Skill
                 await UniTask.Delay(System.TimeSpan.FromSeconds((_repeatEndTime - _repeatStartTime) * 0.5f),
                     cancellationToken: cancellationToken);
 
-                var arrowGo = PoolObject(arrow.gameObject).GetComponent<Arrow>();
+                var arrowGo = ObjectPool.Instance.GetObject(arrow.gameObject, transform).GetComponent<Arrow>();
                 FireArrow(arrowGo);
                 currentArrowCount++;
 
@@ -50,13 +50,12 @@ namespace Component.Skill
 
         private void FireArrow(Arrow arrow)
         {
-            arrow.gameObject.SetActive(true);
             Vector2 p0 = (Vector2)transform.position + fireOffset;
             Vector2 p1 = Vector2.up * 7f;
             Vector2 targetPosition = Target.transform.position;
             Vector2 p2 = new Vector2(targetPosition.x + UnityEngine.Random.Range(0f, 3f), targetPosition.y);
             arrow.duration = arrowSpeed;
-            arrow.ShotArrow(p0, p1, p2);
+            UniTask.FromResult(arrow.ShotArrow(p0, p1, p2));
         }
     }
 }

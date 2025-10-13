@@ -24,7 +24,6 @@ public class ObjectPool : Singleton<ObjectPool>
         GameObject objectToGet = _poolDictionary[prefab].Dequeue();
 
         objectToGet.transform.position = target.position;
-        objectToGet.transform.parent = null;
 
         objectToGet.SetActive(true);
 
@@ -48,7 +47,6 @@ public class ObjectPool : Singleton<ObjectPool>
         GameObject originalPrefab = objectToReturn.GetComponent<PooledObject>().originalPrefab;
 
         objectToReturn.SetActive(false);
-        objectToReturn.transform.parent = transform;
         
         _poolDictionary[originalPrefab].Enqueue(objectToReturn);
     }

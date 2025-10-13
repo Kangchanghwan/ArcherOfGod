@@ -72,12 +72,12 @@ namespace Manager
                 Debug.Log("Initializing UI...");
                 gameUIController.Init();
         
-                Debug.Log("Initializing Enemy...");
-                enemyController.Init();
-        
                 Debug.Log("Initializing Player...");
                 playerController.Init();
-        
+
+                Debug.Log("Initializing Enemy...");
+                enemyController.Init();
+       
                 Debug.Log("Creating CombatSystem...");
                 _combatSystem = new CombatSystem(
                     activeCombatants: new ICombatable[] { enemyController, playerController },

@@ -6,8 +6,9 @@ namespace Component.Skill
 {
     public class SkillBombShoot : SkillBase
     {
-        [Header("Skill Settings")]
-        [SerializeField] private Arrow arrow;
+        [Header("Skill Settings")] [SerializeField]
+        private Arrow arrow;
+
         [SerializeField] private int damage;
         [SerializeField] private float arrowSpeed;
         [SerializeField] private Vector2 fireOffset;
@@ -30,7 +31,7 @@ namespace Component.Skill
             for (int i = 0; i < arrowCount; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var arrowGo = PoolObject(arrow.gameObject).GetComponent<Arrow>();
+                var arrowGo = ObjectPool.Instance.GetObject(arrow.gameObject, transform).GetComponent<Arrow>();
                 FireArrow(arrowGo);
             }
 
@@ -39,13 +40,12 @@ namespace Component.Skill
 
         private void FireArrow(Arrow arrow)
         {
-            arrow.gameObject.SetActive(true);
             Vector2 p0 = (Vector2)transform.position + fireOffset;
             Vector2 p1 = Vector2.up * 7f;
             Vector2 targetPosition = Target.transform.position;
-            Vector2 p2 = new Vector2(targetPosition.x + UnityEngine.Random.Range(0f, 3f), targetPosition.y);
+            Vector2 p2 = new Vector2(targetPosition.x + Random.Range(0f, 3f), targetPosition.y);
             arrow.duration = arrowSpeed;
-            arrow.ShotArrow(p0, p1, p2);
+            UniTask.FromResult(arrow.ShotArrow(p0, p1, p2));
         }
     }
 }
