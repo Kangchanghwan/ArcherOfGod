@@ -45,7 +45,7 @@ namespace Component.Skill
             }
 
             await UniTask.Delay(System.TimeSpan.FromSeconds(whirlDuration + 1f), cancellationToken: cancellationToken);
-            ObjectPool.Instance.ReturnObject(poolObject);
+            ObjectPool.Instance.ReturnObject(poolObject).Forget();
         }
     }
 }

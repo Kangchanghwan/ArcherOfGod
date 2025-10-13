@@ -37,8 +37,14 @@ namespace Manager
             EventManager.Subscribe<OnEntityDeathEvent>(HandleEntityDeath);
             EventManager.Subscribe<OnPlayingStartEvent>(HandleOnGameStart);
             EventManager.Subscribe<OnEntitySpawnEvent>(HandleOnEntitySpawn);
+            EventManager.Subscribe<OnPlayingEndEvent>(HandleOnPlayEnd);
         }
 
+        private void HandleOnPlayEnd(OnPlayingEndEvent obj)
+        {
+            playerController.ChangeIdleState();
+            enemyController.ChangeIdleState();
+        }
         private void HandleOnEntitySpawn(OnEntitySpawnEvent obj)
         {
             if (obj.EntityType == EntityType.CopyCat)
@@ -61,6 +67,8 @@ namespace Manager
             EventManager.Unsubscribe<OnEntityDeathEvent>(HandleEntityDeath);
             EventManager.Unsubscribe<OnPlayingStartEvent>(HandleOnGameStart);
             EventManager.Unsubscribe<OnEntitySpawnEvent>(HandleOnEntitySpawn);
+            EventManager.Unsubscribe<OnPlayingEndEvent>(HandleOnPlayEnd);
+
         }
 
         private void Start()

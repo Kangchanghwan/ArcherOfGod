@@ -29,5 +29,8 @@ namespace MVC.Controller
     public struct OnPlayingStartEvent : IEvent
     {
     }
+    public struct OnPlayingEndEvent : IEvent
+    {
+    }
     
 }

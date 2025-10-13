@@ -15,6 +15,10 @@ namespace MVC.Controller.Game
         [SerializeField] private TextMeshProUGUI gameEndText;
         [SerializeField] private Button loftButton;
 
+        [Header("Game Settings")]
+        [SerializeField] private float startCountdownTime = 5f;
+        [SerializeField] private float gameTimeLimit = 90f;
+
         private StateMachine _stateMachine;
         private GameStartState _gameStartState;
         private GamePlayingState _gamePlayingState;
@@ -25,7 +29,6 @@ namespace MVC.Controller.Game
             InitializeStateMachine();
             InitializeStates();
             StartStateMachine();
-            
         }
 
         private void InitializeStateMachine()
@@ -35,8 +38,8 @@ namespace MVC.Controller.Game
 
         private void InitializeStates()
         {
-            _gameStartState = new GameStartState(this);
-            _gamePlayingState = new GamePlayingState(this);
+            _gameStartState = new GameStartState(this, startCountdownTime);
+            _gamePlayingState = new GamePlayingState(this, gameTimeLimit);
             _gameEndState = new GameEndState(this);
         }
 
@@ -45,13 +48,11 @@ namespace MVC.Controller.Game
             _stateMachine.Initialize(_gameStartState);
         }
 
-
         private void Update()
         {
             if (_stateMachine?.CurrentState == null)
                 return;
-    
-            // 구체 타입으로 캐스팅 시도
+
             if (_stateMachine.CurrentState is EntityStateBase state)
                 state.Execute();
             else
@@ -69,7 +70,6 @@ namespace MVC.Controller.Game
             if (loftButton != null)
                 loftButton.onClick.RemoveListener(RestartGame);
         }
-
 
         public void Win()
         {
@@ -93,8 +93,8 @@ namespace MVC.Controller.Game
 
         private void ResetGameStates()
         {
-            _gameStartState = new GameStartState(this);
-            _gamePlayingState = new GamePlayingState(this);
+            _gameStartState = new GameStartState(this, startCountdownTime);
+            _gamePlayingState = new GamePlayingState(this, gameTimeLimit);
             _gameEndState = new GameEndState(this);
         }
 
@@ -103,7 +103,6 @@ namespace MVC.Controller.Game
             _stateMachine.ChangeState(_gameStartState);
         }
 
-        // State 전환 메서드들
         public void ChangeToGamePlaying()
         {
             EventManager.Publish<OnPlayingStartEvent>();
@@ -117,16 +116,17 @@ namespace MVC.Controller.Game
 
         public void ChangeToGameEndWithResult(string resultText, bool isVictory)
         {
+            EventManager.Publish<OnPlayingEndEvent>();
             _gameEndState.SetResult(resultText, isVictory);
-            _stateMachine.ChangeState(_gameEndState);
+            ChangeToGameEnd();
         }
 
-        // UI 업데이트 메서드들
         public void UpdateCountdownText(string text) 
         {
             if (countDownTimer != null)
                 countDownTimer.text = text;
         }
+
         public void UpdatePlayingTimerText(string text) 
         {
             if (playingTimer != null)

@@ -181,5 +181,6 @@ namespace MVC.Controller.Enemy
         public void ChangeMoveState() => StateMachine.ChangeState(_moveState);
         public void ChangeAttackState() => StateMachine.ChangeState(_attackState);
         public void ChangeCastingState() => StateMachine.ChangeState(_castingState);
+        public void ChangeIdleState() => StateMachine.ChangeState(_idleState);
     }
 }

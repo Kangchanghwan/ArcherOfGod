@@ -76,7 +76,7 @@ namespace Component.Impact
         {
             foreach (var arrow in _arrows)
                 ShotArrow(arrow);
-            ObjectPool.Instance.ReturnObject(gameObject);
+            ObjectPool.Instance.ReturnObject(gameObject).Forget();
         }
 
         private void ShotArrow(Arrow arrow)
@@ -88,11 +88,11 @@ namespace Component.Impact
             arrow.duration = _command.arrowsDuration;
             UniTask.FromResult(arrow.ShotArrow(p0, p1, p2));
         }
-
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, _command.pullRadius);    
-        }
+        //
+        // private void OnDrawGizmos()
+        // {
+        //     Gizmos.color = Color.red;
+        //     Gizmos.DrawWireSphere(transform.position, _command.pullRadius);    
+        // }
     }
 }

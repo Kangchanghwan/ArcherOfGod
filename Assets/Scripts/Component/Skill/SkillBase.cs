@@ -16,18 +16,6 @@ namespace Component.Skill
         WhirlWind
     }
 
-    public class SkillEventArgs : EventArgs
-    {
-        public SkillType SkillType { get; }
-        public float? CooldownTime { get; }
-
-        public SkillEventArgs(SkillType skillType, float? cooldownTime = null)
-        {
-            SkillType = skillType;
-            CooldownTime = cooldownTime;
-        }
-    }
-
     public abstract class SkillBase : MonoBehaviour
     {
         [Header("General detail")] [SerializeField]
@@ -45,7 +33,6 @@ namespace Component.Skill
         protected Animator Anim;
 
         protected CancellationTokenSource CurrentSkillCancellationToken;
-        private readonly Queue<GameObject> _pools = new Queue<GameObject>();
 
 
         public void Initialize(Rigidbody2D rigidbody, Animator anim)
@@ -58,49 +45,7 @@ namespace Component.Skill
 
         public void SetTarget(Transform target) => Target = target;
         public bool CanUseSkill() => !OnCooldown();
-
-        public void CancelSkill()
-        {
-            if (CurrentSkillCancellationToken != null)
-            {
-                CurrentSkillCancellationToken.Cancel();
-                CurrentSkillCancellationToken.Dispose();
-                CurrentSkillCancellationToken = null;
-
-                if (Rigidbody2D != null)
-                {
-                    Rigidbody2D.bodyType = RigidbodyType2D.Dynamic;
-                    Rigidbody2D.linearVelocity = Vector2.zero;
-                }
-            }
-        }
-
-        // protected GameObject PoolObject(GameObject prefab)
-        // {
-        //     GameObject pool = null;
-        //
-        //     if (_pools.Count > 0)
-        //     {
-        //         for (int i = 0; i < _pools.Count; i++)
-        //         {
-        //             pool = _pools.Dequeue();
-        //             if (pool.activeSelf == false)
-        //             {
-        //                 _pools.Enqueue(pool);
-        //                 pool.SetActive(true);
-        //                 return pool;
-        //             }
-        //
-        //             _pools.Enqueue(pool);
-        //         }
-        //     }
-        //
-        //     pool = Instantiate(prefab, transform.position, Quaternion.Euler(0, 0, -180f),
-        //         GameManager.Instance.transform);
-        //     _pools.Enqueue(pool);
-        //     pool.SetActive(true);
-        //     return pool;
-        // }
+        
 
         private bool OnCooldown() => Time.time < _lastTimeUsed + cooldown;
 

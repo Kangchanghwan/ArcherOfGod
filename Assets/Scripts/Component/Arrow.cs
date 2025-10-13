@@ -13,11 +13,13 @@ namespace Component
         public float duration;
 
         [SerializeField] private ParticleSystem particlePrefab;
+        [SerializeField] private bool isGroundVfx;
 
         private CancellationTokenSource _cancellationTokenSource;
         private Collider2D _collider2D;
+  
         private float _elapsedTime;
-
+        
         private void Awake()
         {
             _collider2D = GetComponent<Collider2D>();
@@ -48,6 +50,10 @@ namespace Component
         {
             if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
             {
+                if (isGroundVfx)
+                {
+                    ArrowParticle();
+                }
                 await ObjectPool.Instance.ReturnObject(gameObject, 1f);
                 StopArrowTask();
             }
