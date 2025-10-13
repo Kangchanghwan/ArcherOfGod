@@ -8,6 +8,7 @@ public class ObjectPool : Singleton<ObjectPool>
 
     [SerializeField] private int poolSize = 10;
 
+    [SerializeField]
     private readonly Dictionary<GameObject, Queue<GameObject>> _poolDictionary = new ();
     
 

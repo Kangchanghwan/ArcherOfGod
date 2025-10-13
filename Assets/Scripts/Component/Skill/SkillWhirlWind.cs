@@ -18,17 +18,14 @@ namespace Component.Skill
         [SerializeField] private float whirlDuration = 10f;
         [SerializeField] private float arrowsDuration = 1f;
 
-        public override void Initialize(Rigidbody2D rigidbody, Animator anim)
-        {
-            base.Initialize(rigidbody, anim);
-            SkillType = SkillType.WhirlWind;
-            AnimationName = "WhirlWind";
-        }
+        public override string AnimationName => "WhirlWind";
+        public override SkillType SkillType => SkillType.WhirlWind;
+        
 
         public override async UniTask SkillTask(CancellationToken cancellationToken)
         {
             var poolObject = ObjectPool.Instance.GetObject(whirlWind, transform);
-            poolObject.transform.position = new Vector2(transform.position.x, transform.position.y + 1f);
+            poolObject.transform.position = new Vector2(transform.position.x, transform.position.y + 0.5f);
             
             var whirlWindComponent = poolObject.GetComponent<WhirlWind>();
             if (whirlWindComponent != null)

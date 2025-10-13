@@ -15,13 +15,10 @@ namespace Component.Skill
 
         private readonly float _repeatStartTime = 0.3f;
         private readonly float _repeatEndTime = 0.7f;
-
-        public override void Initialize(Rigidbody2D rigidbody, Animator anim)
-        {
-            base.Initialize(rigidbody, anim);
-            SkillType = SkillType.RepidFire;
-            AnimationName = "Attack";
-        }
+        
+        public override string AnimationName => "Attack";
+        public override SkillType SkillType => SkillType.RepidFire;
+        
 
         public override async UniTask SkillTask(CancellationToken cancellationToken)
         {

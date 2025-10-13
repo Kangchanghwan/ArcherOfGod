@@ -12,13 +12,10 @@ namespace Component.SkillSystem
         [SerializeField] private GameObject cloningObject;
         [SerializeField] private int hp;
         [SerializeField] private float duration;
-
-        public override void Initialize(Rigidbody2D rigidbody, Animator anim)
-        {
-            base.Initialize(rigidbody, anim);
-            SkillType = SkillType.CopyCat;
-            AnimationName = "SkillCasting";
-        }
+        
+        public override string AnimationName => "SkillCasting";
+        public override SkillType SkillType => SkillType.CopyCat;
+        
         public override async UniTask SkillTask(CancellationToken cancellationToken)
         {
             await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);

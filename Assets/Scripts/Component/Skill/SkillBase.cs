@@ -35,8 +35,8 @@ namespace Component.Skill
 
         [SerializeField] private UI_SkillSlot skillSlot;
 
-        public SkillType SkillType { get; protected set; }
-        public string AnimationName { get; protected set; }
+        public virtual SkillType SkillType { get; }
+        public virtual string AnimationName { get; }
 
         private float _lastTimeUsed;
 
@@ -48,7 +48,7 @@ namespace Component.Skill
         private readonly Queue<GameObject> _pools = new Queue<GameObject>();
 
 
-        public virtual void Initialize(Rigidbody2D rigidbody, Animator anim)
+        public void Initialize(Rigidbody2D rigidbody, Animator anim)
         {
             this.Rigidbody2D = rigidbody;
             this.Anim = anim;

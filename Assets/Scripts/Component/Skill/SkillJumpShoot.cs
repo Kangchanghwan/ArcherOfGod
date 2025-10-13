@@ -20,13 +20,9 @@ namespace Component.Skill
         private bool _down;
         private bool _left;
 
-
-        public override void Initialize(Rigidbody2D rigidbody, Animator anim)
-        {
-            base.Initialize(rigidbody, anim);
-            SkillType = SkillType.JumpShoot;
-            AnimationName = "JumpShoot";
-        }
+        public override string AnimationName => "JumpShoot";
+        public override SkillType SkillType => SkillType.JumpShoot;
+        
 
         public override async UniTask SkillTask(CancellationToken cancellationToken)
         {

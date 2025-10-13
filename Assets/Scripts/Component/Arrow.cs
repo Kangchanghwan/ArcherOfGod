@@ -13,12 +13,9 @@ namespace Component
         public float duration;
 
         [SerializeField] private ParticleSystem particlePrefab;
-        [SerializeField] private bool groundVfx;
-        [SerializeField] private bool hasHitGround;
 
         private CancellationTokenSource _cancellationTokenSource;
         private Collider2D _collider2D;
-        private ParticleSystem _particle;
         private float _elapsedTime;
 
         private void Awake()
@@ -49,13 +46,10 @@ namespace Component
 
         private void CheckGround(Collider2D other)
         {
-            if (other.gameObject.layer == LayerMask.NameToLayer("Ground") && groundVfx)
+            if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
             {
-                ArrowParticle();
-                if (hasHitGround)
-                {
-                    gameObject.SetActive(false);
-                }
+                StopArrowTask();
+                ObjectPool.Instance.ReturnObject(gameObject, 1f);
             }
         }
 
@@ -66,6 +60,8 @@ namespace Component
             {
                 var combatable = other.GetComponent<ICombatable>();
                 OnDamage(combatable);
+                StopArrowTask();
+                ObjectPool.Instance.ReturnObject(gameObject);
                 ArrowParticle();
             }
         }
@@ -73,37 +69,21 @@ namespace Component
         private void ArrowParticle()
         {
             if (particlePrefab == null) return;
-            if (_particle == null)
-            {
-                _particle = Instantiate(particlePrefab, transform.position, Quaternion.identity,
-                    GameManager.Instance.transform);
-                _particle.Play();
-                return;
-            }
-
-            _particle.transform.position = transform.position;
-            _particle.gameObject.SetActive(true);
-            _particle.Play();
+            ParticleSystem particle = ObjectPool.Instance.GetObject(particlePrefab.gameObject, transform)
+                .GetComponent<ParticleSystem>();
+            particle.Play();
         }
 
         private void OnDamage(ICombatable damageable)
         {
             if (damageable == null) return;
             damageable.TakeDamage(damage);
-            gameObject.SetActive(false);
-            StopArrowTask();
         }
 
         public void StopArrowTask()
         {
-            if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
-            {
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource.Dispose();
-                _cancellationTokenSource = null;
-            }
-
             _collider2D.enabled = false;
+            _cancellationTokenSource?.Cancel();
         }
 
         private void ResetArrow()
@@ -144,11 +124,6 @@ namespace Component
 
                 _collider2D.enabled = false;
                 await UniTask.Delay(4000, cancellationToken: cancellationToken);
-
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    gameObject.SetActive(false);
-                }
             }
             catch (OperationCanceledException)
             {
@@ -158,9 +133,6 @@ namespace Component
 
         public async UniTask ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
         {
-            ResetArrow();
-            StopArrowTask(); // Stop any existing task
-
             _cancellationTokenSource = new CancellationTokenSource();
             await ShotArrowTask(p0, p1, p2, _cancellationTokenSource.Token);
         }

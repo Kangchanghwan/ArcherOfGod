@@ -14,12 +14,9 @@ namespace Component.Skill
         [SerializeField] private Vector2 fireOffset;
         [SerializeField] private int arrowCount;
 
-        public override void Initialize(Rigidbody2D rigidbody, Animator anim)
-        {
-            base.Initialize(rigidbody, anim);
-            SkillType = SkillType.BombShoot;
-            AnimationName = "Attack";
-        }
+        public override string AnimationName => "Attack";
+        public override SkillType SkillType => SkillType.BombShoot;
+
 
         public override async UniTask SkillTask(CancellationToken cancellationToken)
         {

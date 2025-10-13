@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -50,13 +51,14 @@ namespace Component.Impact
 
         private void OnEffect()
         {
-            foreach (var hitArrow in Physics2D.OverlapCircleAll(transform.position, _command.pullRadius))
+            foreach (var hits in Physics2D.OverlapCircleAll(transform.position, _command.pullRadius))
             {
-                Arrow arrow = hitArrow.GetComponent<Arrow>();
+                Arrow arrow = hits.GetComponent<Arrow>();
+                
                 if(arrow == null || _arrows.Contains(arrow)) continue;
-            
-                _arrows.Add(arrow);
+                
                 arrow.StopArrowTask();
+                _arrows.Add(arrow);
             }
         
             foreach (var arrow in _arrows)
@@ -74,7 +76,7 @@ namespace Component.Impact
         {
             foreach (var arrow in _arrows)
                 ShotArrow(arrow);
-            gameObject.SetActive(false);
+            ObjectPool.Instance.ReturnObject(gameObject);
         }
 
         private void ShotArrow(Arrow arrow)
@@ -84,13 +86,13 @@ namespace Component.Impact
             Vector2 target = _command.target.position;
             Vector2 p2 = new Vector2(target.x + Random.Range(0f , _command.randomness), target.y); 
             arrow.duration = _command.arrowsDuration;
-            arrow.ShotArrow(p0, p1, p2);
+            UniTask.FromResult(arrow.ShotArrow(p0, p1, p2));
         }
 
-        // private void OnDrawGizmos()
-        // {
-        //     Gizmos.color = Color.red;
-        //     Gizmos.DrawWireSphere(transform.position, _command.pullRadius);    
-        // }
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, _command.pullRadius);    
+        }
     }
 }

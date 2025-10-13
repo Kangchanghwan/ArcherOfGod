@@ -36,8 +36,7 @@ namespace Component.Attack
         private async UniTask PoolArrow(ShotArrowCommand command)
         {
 
-            var arrow = ObjectPool.Instance.GetObject(arrowPrefab.gameObject, ObjectPool.Instance.transform)
-                .GetComponent<Arrow>();
+            var arrow = ObjectPool.Instance.GetObject(arrowPrefab.gameObject, ObjectPool.Instance.transform).GetComponent<Arrow>();
             arrow.damage = command.Damage;
             arrow.duration = command.Duration;
             
@@ -45,8 +44,6 @@ namespace Component.Attack
             Vector2 p1 = Vector2.up * 7f;
             Vector2 p2 = command.EndPoint.transform.position;
             await arrow.ShotArrow(p0, p1, p2);
-            
-            ObjectPool.Instance.ReturnObject(arrow.gameObject);
         }
         
     }
