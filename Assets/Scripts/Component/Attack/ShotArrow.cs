@@ -43,7 +43,7 @@ namespace Component.Attack
             Vector2 p0 = command.StartPoint;
             Vector2 p1 = Vector2.up * 7f;
             Vector2 p2 = command.EndPoint.transform.position;
-            await arrow.ShotArrow(p0, p1, p2);
+            await arrow.Shoot(p0, p1, p2);
         }
         
     }

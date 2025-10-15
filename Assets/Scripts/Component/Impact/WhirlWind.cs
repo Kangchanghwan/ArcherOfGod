@@ -57,7 +57,7 @@ namespace Component.Impact
                 
                 if(arrow == null || _arrows.Contains(arrow)) continue;
                 
-                arrow.StopArrowTask();
+                arrow.StopMoving();
                 _arrows.Add(arrow);
             }
         
@@ -86,7 +86,7 @@ namespace Component.Impact
             Vector2 target = _command.target.position;
             Vector2 p2 = new Vector2(target.x + Random.Range(0f , _command.randomness), target.y); 
             arrow.duration = _command.arrowsDuration;
-            UniTask.FromResult(arrow.ShotArrow(p0, p1, p2));
+            UniTask.FromResult(arrow.Shoot(p0, p1, p2));
         }
         //
         // private void OnDrawGizmos()

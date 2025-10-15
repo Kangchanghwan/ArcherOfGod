@@ -88,7 +88,7 @@ namespace Component.Skill
             Vector2 p1 = p0;
             Vector2 p2 = Target.position;
             arrow.duration = arrowSpeed;
-            UniTask.FromResult(arrow.ShotArrow(p0, p1, p2));
+            UniTask.FromResult(arrow.Shoot(p0, p1, p2));
         }
     }
 }

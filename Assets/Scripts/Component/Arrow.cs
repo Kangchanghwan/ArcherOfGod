@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using Interface;
 using Manager;
 
@@ -12,13 +13,15 @@ namespace Component
         public float damage;
         public float duration;
 
-        [SerializeField] private ParticleSystem particlePrefab;
-        [SerializeField] private bool isGroundVfx;
+        [SerializeField] private GameObject hitEffect;
+        [SerializeField] private GameObject groundHitEffect;
 
         private CancellationTokenSource _cancellationTokenSource;
         private Collider2D _collider2D;
   
         private float _elapsedTime;
+        private bool _onMove;
+        private bool _isGround;
         
         private void Awake()
         {
@@ -28,6 +31,7 @@ namespace Component
         private void OnEnable()
         {
             _collider2D.enabled = true;
+            _isGround = false;
         }
 
         private void OnDisable()
@@ -43,19 +47,19 @@ namespace Component
         private void OnTriggerEnter2D(Collider2D other)
         {
             CheckPlayerOrEnemy(other);
-            CheckGround(other).Forget();
+            CheckGround(other);
         }
 
-        private async UniTask CheckGround(Collider2D other)
+        private void CheckGround(Collider2D other)
         {
             if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
             {
-                if (isGroundVfx)
+                if (groundHitEffect != null)
                 {
-                    ArrowParticle();
+                    PlayParticle(groundHitEffect);
                 }
-                await ObjectPool.Instance.ReturnObject(gameObject, 1f);
-                StopArrowTask();
+                _collider2D.enabled = false;
+                _isGround = true;
             }
         }
 
@@ -67,16 +71,14 @@ namespace Component
                 var combatable = other.GetComponent<ICombatable>();
                 OnDamage(combatable);
                 StopArrowTask();
-                ObjectPool.Instance.ReturnObject(gameObject).Forget();
-                ArrowParticle();
+                PlayParticle(hitEffect);
             }
         }
 
-        private void ArrowParticle()
+        private void PlayParticle(GameObject prefab)
         {
-            if (particlePrefab == null) return;
-            ParticleSystem particle = ObjectPool.Instance.GetObject(particlePrefab.gameObject, transform)
-                .GetComponent<ParticleSystem>();
+            if (hitEffect == null) return;
+            var particle = ObjectPool.Instance.GetObject(prefab, transform).GetComponent<ParticleSystem>();
             particle.Play();
         }
 
@@ -86,9 +88,15 @@ namespace Component
             damageable.TakeDamage(damage);
         }
 
-        public void StopArrowTask()
+        private void StopArrowTask()
         {
             _cancellationTokenSource?.Cancel();
+        }
+
+        public void StopMoving()
+        {
+            _onMove = false;
+            _collider2D.enabled = false;
         }
 
         private async UniTask ShotArrowTask(Vector2 p0, Vector2 p1, Vector2 p2, CancellationToken cancellationToken)
@@ -96,11 +104,12 @@ namespace Component
             Vector2 previousPos = p0;
             p2.y = -1f;
             _elapsedTime = 0f;
+            _onMove = true;
             _collider2D.enabled = true;
 
             try
             {
-                while (_elapsedTime < duration)
+                while (_elapsedTime < duration && _onMove)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -116,21 +125,26 @@ namespace Component
                         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                         transform.rotation = Quaternion.Euler(0f, 0f, angle);
                     }
-
+                    
                     previousPos = pos;
                     await UniTask.NextFrame(cancellationToken);
                 }
 
-                _collider2D.enabled = false;
-                await UniTask.Delay(4000, cancellationToken: cancellationToken);
+                if (_isGround)
+                {
+                    await Task.Delay(1000, _cancellationTokenSource.Token);
+                    await ObjectPool.Instance.ReturnObject(gameObject);
+                    _cancellationTokenSource?.Cancel();  
+                }
+
             }
             catch (OperationCanceledException)
             {
-                _collider2D.enabled = false;
+                await ObjectPool.Instance.ReturnObject(gameObject);
             }
         }
 
-        public async UniTask ShotArrow(Vector2 p0, Vector2 p1, Vector2 p2)
+        public async UniTask Shoot(Vector2 p0, Vector2 p1, Vector2 p2)
         {
             _cancellationTokenSource = new CancellationTokenSource();
             await ShotArrowTask(p0, p1, p2, _cancellationTokenSource.Token);
