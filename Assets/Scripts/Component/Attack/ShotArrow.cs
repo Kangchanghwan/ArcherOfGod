@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Manager;
 using UnityEngine;
+using Util.ObjectPool;
 
 namespace Component.Attack
 {

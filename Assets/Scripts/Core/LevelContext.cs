@@ -1,14 +1,16 @@
+using System;
 using Interface;
 using MVC.Controller;
 using MVC.Controller.Enemy;
-using MVC.Controller.Game;
+using MVC.Controller.Level;
 using MVC.Controller.Player;
 using UnityEngine;
 using Util;
 
 namespace Manager
 {
-    public class GameManager : Singleton<GameManager>
+    
+    public class LevelContext : MonoBehaviour
     {
         // Controller
         [SerializeField] private GameUIController gameUIController;
@@ -16,12 +18,13 @@ namespace Manager
         [SerializeField] private EnemyController enemyController;
         [SerializeField] private PlayerController playerController;
 
+
         //System
         private CombatSystem _combatSystem;
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
+            
             if (gameUIController == null)
                 gameUIController = FindAnyObjectByType<GameUIController>();
 
@@ -93,7 +96,7 @@ namespace Manager
                 
                 Debug.Log("=== GameManager Start COMPLETE ===");
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Debug.LogError($"Init failed: {e.Message}\n{e.StackTrace}");
             }

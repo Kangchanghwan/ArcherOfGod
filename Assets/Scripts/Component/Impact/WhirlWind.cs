@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Util.ObjectPool;
 using Random = UnityEngine.Random;
 
 namespace Component.Impact

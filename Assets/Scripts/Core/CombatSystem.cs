@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Interface;
 using MVC.Controller;
-using MVC.Controller.Game;
+using MVC.Controller.Level;
 using UnityEngine;
 using UnityEngine.Scripting;
 using Util;

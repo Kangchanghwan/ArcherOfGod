@@ -1,7 +1,7 @@
-using UnityEngine;
 using Interface;
+using UnityEngine;
 
-namespace MVC.Controller.Game
+namespace MVC.Controller.Level
 {
     public abstract class GameStateBase : IState
     {

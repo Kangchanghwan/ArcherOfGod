@@ -1,9 +1,9 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Util;
-using TMPro;
 
-namespace MVC.Controller.Game
+namespace MVC.Controller.Level
 {
     public class GameUIController : MonoBehaviour
     {

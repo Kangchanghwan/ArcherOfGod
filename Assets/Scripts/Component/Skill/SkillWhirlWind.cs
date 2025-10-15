@@ -2,6 +2,7 @@ using System.Threading;
 using Component.Impact;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Util.ObjectPool;
 
 namespace Component.Skill
 {
