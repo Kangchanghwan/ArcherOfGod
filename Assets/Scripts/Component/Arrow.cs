@@ -73,16 +73,18 @@ namespace Component
         private void ArrowParticle()
         {
             if (particlePrefab == null) return;
+            
             if (_particle == null)
             {
                 _particle = Instantiate(particlePrefab, transform.position, Quaternion.identity,
                     GameManager.Instance.transform);
-                _particle.Play();
-                return;
             }
-
+            
             _particle.transform.position = transform.position;
-            _particle.gameObject.SetActive(true);
+            
+            if (!_particle.gameObject.activeSelf)
+                _particle.gameObject.SetActive(true);
+                
             _particle.Play();
         }
 

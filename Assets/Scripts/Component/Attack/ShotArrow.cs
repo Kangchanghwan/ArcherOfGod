@@ -36,28 +36,30 @@ namespace Component.Attack
         private void PoolArrow(ShotArrowCommand command)
         {
             Arrow arrow = null;
+            int poolSize = arrows.Count;
 
-            if (arrows.Count > 0)
+            // Search for inactive arrow in pool
+            for (int i = 0; i < poolSize; i++)
             {
-                for (int i = 0; i < arrows.Count; i++)
+                arrow = arrows.Dequeue();
+                if (!arrow.gameObject.activeSelf)
                 {
-                    arrow = arrows.Dequeue();
-                    if (arrow.gameObject.activeSelf == false)
-                    {
-                        BezierArrow(arrow, command.StartPoint, command.EndPoint);
-                        arrows.Enqueue(arrow);
-                        return;
-                    }
-
+                    // Reuse this arrow
+                    arrow.damage = command.Damage;
+                    arrow.duration = command.Duration;
+                    BezierArrow(arrow, command.StartPoint, command.EndPoint);
                     arrows.Enqueue(arrow);
+                    return;
                 }
+                arrows.Enqueue(arrow);
             }
 
+            // No inactive arrow found, create new one
             arrow = Instantiate(
                 arrowPrefab,
                 command.StartPoint,
                 Quaternion.Euler(0, 0, -180f),
-                    GameManager.Instance.transform
+                GameManager.Instance.transform
             );
             arrow.damage = command.Damage;
             arrow.duration = command.Duration;

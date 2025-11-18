@@ -15,7 +15,7 @@ namespace UI
 
         public void UpdateHealthBar(float currentHealth, float maxHealth)
         {
-            if (healthBar == null && healthBar.transform.parent.gameObject.activeSelf == false)
+            if (healthBar == null || healthBar.transform.parent.gameObject.activeSelf == false)
                 return;
 
             healthBar.value = currentHealth / maxHealth;
