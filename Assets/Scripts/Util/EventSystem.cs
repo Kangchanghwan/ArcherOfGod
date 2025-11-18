@@ -123,14 +123,14 @@ namespace Util
             var eventType = @event.GetType();
             
             // IEventListener 기반 구독자들에게 발행
-            if (EventListeners.ContainsKey(eventType))
+            if (EventListeners.TryGetValue(eventType, out var listeners) && listeners.Count > 0)
             {
-                var listeners = new List<IEventListener>(EventListeners[eventType]);
-                foreach (var listener in listeners)
+                // Iterate directly without creating a copy unless necessary
+                for (int i = listeners.Count - 1; i >= 0; i--)
                 {
                     try
                     {
-                        if (listener.OnEventHandle(@event) == EventChain.Break)
+                        if (listeners[i].OnEventHandle(@event) == EventChain.Break)
                             break;
                     }
                     catch (Exception ex)
@@ -141,14 +141,14 @@ namespace Util
             }
             
             // Action 기반 구독자들에게 발행
-            if (EventActions.ContainsKey(eventType))
+            if (EventActions.TryGetValue(eventType, out var actions) && actions.Count > 0)
             {
-                var actions = new List<Action<IEvent>>(EventActions[eventType]);
-                foreach (var action in actions)
+                // Iterate directly without creating a copy unless necessary
+                for (int i = actions.Count - 1; i >= 0; i--)
                 {
                     try
                     {
-                        action(@event);
+                        actions[i](@event);
                     }
                     catch (Exception ex)
                     {

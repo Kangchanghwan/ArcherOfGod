@@ -25,14 +25,15 @@ namespace Manager
         protected override void Awake()
         {
             base.Awake();
+            // Cache references if not assigned in inspector
             if (gameUIController == null)
-                gameUIController = FindAnyObjectByType<GameUIController>();
+                gameUIController = GetComponentInChildren<GameUIController>(true);
 
             if (enemyController == null)
-                enemyController = FindAnyObjectByType<EnemyController>();
+                enemyController = GetComponentInChildren<EnemyController>(true);
             
             if (playerController == null)
-                playerController = FindAnyObjectByType<PlayerController>();
+                playerController = GetComponentInChildren<PlayerController>(true);
         }
 
         private void OnEnable()

@@ -17,6 +17,9 @@ namespace Component.Input
         private float _currentMoveInput;
         private float _moveDirection = 1f;
         private bool _isMoving = true;
+        
+        // Cache raycast result to avoid allocation every frame
+        private RaycastHit2D _cachedHit;
 
         // 이동 입력만 제공 (InputManager와 동일한 인터페이스)
         public float HorizontalInput => _currentMoveInput;
@@ -77,8 +80,8 @@ namespace Component.Input
             Vector2 rayOrigin = (Vector2)transform.position + wallCheckOffset;
             Vector2 rayDirection = Vector2.right * _moveDirection;
 
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, wallCheckDistance, wallLayerMask);
-            return hit.collider != null;
+            _cachedHit = Physics2D.Raycast(rayOrigin, rayDirection, wallCheckDistance, wallLayerMask);
+            return _cachedHit.collider != null;
         }
     }
 }
